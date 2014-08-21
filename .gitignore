@@ -1,0 +1,9 @@
+CMakeLists.txt.*
+obj-*
+debian/tmp
+debian/files
+debian/libopi*.log
+debian/libopi*.substvars
+debian/libopi1
+debian/libopi-dev
+debian/libopi*.debhelper
