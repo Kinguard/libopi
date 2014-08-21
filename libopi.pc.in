@@ -1,0 +1,12 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=@CMAKE_INSTALL_PREFIX@
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: @APP_NAME@
+Description: OPI utility functions
+Version: @VERSION@
+Requires: libutils>=1.0, libudev, libcryptsetup, libparted>=2.3, libcurl, libcrypto++>=5.6.1, libjsoncpp>=1.0, libssl
+Libs: -L${libdir} -lopi -pthread -lrt
+Cflags: -I${includedir}
+
