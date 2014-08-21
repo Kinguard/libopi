@@ -9,6 +9,8 @@
 #include <string>
 #include <tuple>
 
+#define OP_HOST "https://auth.openproducts.com/"
+
 using namespace std;
 
 namespace OPI

@@ -8,7 +8,6 @@
 #define VERSION_FULL	"@VERSION_FULL@"
 #define APP_NAME	"@APP_NAME@"
 
-#define OP_HOST "https://auth.openproducts.com/"
 #define DNS_PRIV_PATH "/etc/opi/dnspriv.pem"
 
 #endif
