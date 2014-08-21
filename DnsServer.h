@@ -9,8 +9,6 @@
 #include <string>
 #include <tuple>
 
-#define OP_HOST "https://auth.openproducts.com/"
-
 using namespace std;
 
 namespace OPI
@@ -19,7 +17,7 @@ namespace OPI
 class DnsServer : public HttpClient
 {
 public:
-	DnsServer( const string& host=OP_HOST);
+	DnsServer( const string& host = "https://auth.openproducts.com/");
 
 	tuple<int, Json::Value> CheckOPIName( const string& opiname );
 

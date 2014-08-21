@@ -19,7 +19,7 @@ namespace OPI
 class AuthServer: public HttpClient
 {
 public:
-	AuthServer(const string& unit_id, const string& host = OP_HOST);
+	AuthServer(const string& unit_id, const string& host = "https://auth.openproducts.com/");
 
 	tuple<int,string> GetChallenge();
 
