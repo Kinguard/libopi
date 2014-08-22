@@ -1,3 +1,10 @@
+libopi (1.2) vili; urgency=low
+
+  * Add more default definitions
+  * Fix include guard
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 22 Aug 2014 16:10:55 +0200
+
 libopi (1.1) vili; urgency=low
 
   * Add generated Config.h to install headers
