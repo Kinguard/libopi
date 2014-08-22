@@ -1,3 +1,9 @@
+libopi (1.1) vili; urgency=low
+
+  * Add generated Config.h to install headers
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 22 Aug 2014 13:08:24 +0200
+
 libopi (1.0) vili; urgency=low
 
   * Initial relese 

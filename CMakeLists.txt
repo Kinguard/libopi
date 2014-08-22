@@ -45,6 +45,7 @@ set( headers
 	Luks.h
 	Secop.h
 	ServiceHelper.h
+	"${PROJECT_BINARY_DIR}/Config.h"
 	)
 
 set( src
