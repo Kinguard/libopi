@@ -1,3 +1,9 @@
+libopi (1.4) vili; urgency=low
+
+  * Fix stupid compile error
+
+ -- Tor Krill <tor@openproducts.se>  Sat, 23 Aug 2014 13:37:00 +0200
+
 libopi (1.3) vili; urgency=low
 
   * Add reload service function

@@ -31,7 +31,7 @@ bool Stop(const string& service)
 	return do_call( "/usr/sbin/service "+service+" stop &> /dev/null") == 0;
 }
 
-bool ServiceHelper::Reload(const string &service)
+bool Reload(const string &service)
 {
 	return do_call( "/usr/sbin/service "+service+" reload &> /dev/null") == 0;
 }
