@@ -93,6 +93,27 @@ tuple<int, Json::Value> AuthServer::GetCertificate(const string &csr, const stri
 	return tuple<int,Json::Value>(this->result_code, retobj );
 }
 
+tuple<int, Json::Value> AuthServer::UpdateMXPointer(bool useopi, const string &token)
+{
+	map<string,string> postargs = {
+		{"unit_id", this->unit_id },
+		{"update_mx", useopi?"true":"false" }
+	};
+
+	map<string,string> headers = {
+		{"token", token}
+	};
+
+	this->CurlSetHeaders(headers);
+
+	Json::Value retobj = Json::objectValue;
+	string body = this->DoPost("update_mx.php", postargs);
+
+	this->reader.parse(body, retobj);
+
+	return tuple<int,Json::Value>(this->result_code, retobj );
+}
+
 AuthServer::~AuthServer()
 {
 }

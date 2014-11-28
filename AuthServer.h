@@ -29,6 +29,8 @@ public:
 
 	tuple<int, Json::Value> GetCertificate(const string& csr, const string& token);
 
+	tuple<int, Json::Value> UpdateMXPointer(bool useopi, const string& token);
+
 	virtual ~AuthServer();
 private:
 
