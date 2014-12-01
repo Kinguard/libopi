@@ -25,6 +25,8 @@ public:
 
 	tuple<int, Json::Value> SendSignedChallenge( const string& challenge);
 
+	tuple<int, Json::Value> Login(void);
+
 	tuple<int, Json::Value> SendSecret(const string& secret, const string& pubkey);
 
 	tuple<int, Json::Value> GetCertificate(const string& csr, const string& token);
