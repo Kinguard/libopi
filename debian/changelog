@@ -1,3 +1,11 @@
+libopi (1.5) vili; urgency=low
+
+  * Add DnsHelper class
+  * Add UpdateMX method to authserver
+  * Add login method to authserver
+
+ -- Tor Krill <tor@openproducts.se>  Wed, 19 Nov 2014 16:09:18 +0100
+
 libopi (1.4) vili; urgency=low
 
   * Fix stupid compile error
