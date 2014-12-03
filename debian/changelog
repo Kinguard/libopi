@@ -1,3 +1,9 @@
+libopi (1.5.1) vili; urgency=low
+
+  * Fix faulty parameter in update mx request
+
+ -- Tor Krill <tor@openproducts.se>  Wed, 03 Dec 2014 10:40:03 +0100
+
 libopi (1.5) vili; urgency=low
 
   * Add DnsHelper class
