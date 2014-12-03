@@ -170,7 +170,7 @@ tuple<int, Json::Value> AuthServer::UpdateMXPointer(bool useopi, const string &t
 {
 	map<string,string> postargs = {
 		{"unit_id", this->unit_id },
-		{"update_mx", useopi?"true":"false" }
+		{"enable_mx", useopi?"true":"false" }
 	};
 
 	map<string,string> headers = {
