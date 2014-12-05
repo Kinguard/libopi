@@ -1,3 +1,9 @@
+libopi (1.5.3) vili; urgency=low
+
+  * Add CheckMX method
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 05 Dec 2014 11:48:24 +0100
+
 libopi (1.5.2) vili; urgency=low
 
   * More work on parameters for PHP

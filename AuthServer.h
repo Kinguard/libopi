@@ -33,6 +33,8 @@ public:
 
 	tuple<int, Json::Value> UpdateMXPointer(bool useopi, const string& token);
 
+	tuple<int, Json::Value> CheckMXPointer(const string& name);
+
 	virtual ~AuthServer();
 private:
 

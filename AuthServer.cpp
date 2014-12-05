@@ -187,6 +187,22 @@ tuple<int, Json::Value> AuthServer::UpdateMXPointer(bool useopi, const string &t
 	return tuple<int,Json::Value>(this->result_code, retobj );
 }
 
+tuple<int, Json::Value> AuthServer::CheckMXPointer(const string &name)
+{
+	map<string,string> postargs = {
+		{"fqdn", name },
+		{"test_mx", "1" },
+		{"type", "MX" }
+	};
+
+	Json::Value retobj = Json::objectValue;
+	string body = this->DoPost("update_mx.php", postargs);
+
+	this->reader.parse(body, retobj);
+
+	return tuple<int,Json::Value>(this->result_code, retobj );
+}
+
 AuthServer::~AuthServer()
 {
 }
