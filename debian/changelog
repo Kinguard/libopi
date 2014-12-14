@@ -1,3 +1,16 @@
+libopi (1.5.4) vili; urgency=low
+
+  * Add FetchMailconfig class
+  * Add MailConfig class
+  * Add NetworkConfig class
+  * Add SmtpConfig class
+  * Add test cases for above classes
+  * Update authserver to return actual resultcode
+    in the case of login fail
+  * Bump deps on libutils
+
+ -- Tor Krill <tor@openproducts.se>  Sun, 14 Dec 2014 22:42:02 +0100
+
 libopi (1.5.3) vili; urgency=low
 
   * Add CheckMX method

@@ -109,7 +109,7 @@ tuple<int, Json::Value> AuthServer::Login()
 	{
 		ret["desc"] = "Unexpected reply from server";
 		ret["value"] = resultcode;
-		return tuple<int, Json::Value>(500, ret);
+		return tuple<int, Json::Value>(resultcode, ret);
 	}
 
 	if( rep.isMember("token") && rep["token"].isString() )

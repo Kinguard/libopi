@@ -3,7 +3,7 @@ project( opi )
 cmake_minimum_required(VERSION 2.6)
 
 include( FindPkgConfig )
-pkg_check_modules ( LIBUTILS REQUIRED libutils>=1.0 )
+pkg_check_modules ( LIBUTILS REQUIRED libutils>=1.5.1 )
 pkg_check_modules ( LIBUDEV REQUIRED libudev )
 pkg_check_modules ( LIBCRYPTSETUP REQUIRED libcryptsetup )
 pkg_check_modules ( LIBPARTED REQUIRED libparted>=2.3 )
@@ -19,18 +19,18 @@ set (VERSION "${VERSION_MAJOR}.${VERSION_MINOR}")
 set (VERSION_FULL "${VERSION}.${VERSION_PATCH}")
 set (APP_NAME "lib${PROJECT_NAME}")
 
-configure_file (
+configure_file(
 	"${PROJECT_SOURCE_DIR}/Config.h.in"
 	"${PROJECT_BINARY_DIR}/Config.h"
 )
 
-configure_file (
+configure_file(
 	"${PROJECT_SOURCE_DIR}/lib${PROJECT_NAME}.pc.in"
 	"${PROJECT_BINARY_DIR}/lib${PROJECT_NAME}.pc"
 	@ONLY
 )
 
-include_directories (
+include_directories(
 	"${PROJECT_BINARY_DIR}"
 	"${LIBJSONCPP_INCLUDE_DIRS}"
 	)
@@ -41,11 +41,15 @@ set( headers
 	DiskHelper.h
 	DnsHelper.h
 	DnsServer.h
+	FetchmailConfig.h
 	HttpClient.h
 	LedControl.h
 	Luks.h
+	MailConfig.h
+	NetworkConfig.cpp
 	Secop.h
 	ServiceHelper.h
+	SmtpConfig.h
 	"${PROJECT_BINARY_DIR}/Config.h"
 	)
 
@@ -55,11 +59,15 @@ set( src
 	DiskHelper.cpp
 	DnsHelper.cpp
 	DnsServer.cpp
+	FetchmailConfig.cpp
 	HttpClient.cpp
 	LedControl.cpp
 	Luks.cpp
+	MailConfig.cpp
+	NetworkConfig.cpp
 	Secop.cpp
 	ServiceHelper.cpp
+	SmtpConfig.cpp
 	)
 
 add_definitions( -std=c++0x )
@@ -88,10 +96,10 @@ set_target_properties( ${PROJECT_NAME}_static PROPERTIES
 		OUTPUT_NAME ${PROJECT_NAME}
 	)
 
-#add_subdirectory( tests )
+add_subdirectory( test )
 
-#enable_testing()
-#add_test( NAME TestUtils COMMAND testutils )
+enable_testing()
+add_test( NAME TestLibOpi COMMAND testapp )
 
 install( FILES ${headers} DESTINATION include/lib${PROJECT_NAME} )
 install(FILES "${PROJECT_BINARY_DIR}/lib${PROJECT_NAME}.pc" DESTINATION lib/pkgconfig)
