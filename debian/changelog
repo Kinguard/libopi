@@ -1,3 +1,9 @@
+libopi (1.5.5) vili; urgency=low
+
+  * Fix missing headerfile for network config
+
+ -- Tor Krill <tor@openproducts.se>  Sun, 14 Dec 2014 23:21:19 +0100
+
 libopi (1.5.4) vili; urgency=low
 
   * Add FetchMailconfig class

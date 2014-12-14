@@ -46,7 +46,7 @@ set( headers
 	LedControl.h
 	Luks.h
 	MailConfig.h
-	NetworkConfig.cpp
+	NetworkConfig.h
 	Secop.h
 	ServiceHelper.h
 	SmtpConfig.h
