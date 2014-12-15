@@ -1,3 +1,9 @@
+libopi (1.5.6) vili; urgency=low
+
+  * Return server response when fail on login
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 15 Dec 2014 11:54:59 +0100
+
 libopi (1.5.5) vili; urgency=low
 
   * Fix missing headerfile for network config
