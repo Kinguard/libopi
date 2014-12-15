@@ -109,6 +109,7 @@ tuple<int, Json::Value> AuthServer::Login()
 	{
 		ret["desc"] = "Unexpected reply from server";
 		ret["value"] = resultcode;
+		ret["reply"] = rep;
 		return tuple<int, Json::Value>(resultcode, ret);
 	}
 
