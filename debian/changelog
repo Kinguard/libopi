@@ -1,3 +1,9 @@
+libopi (1.5.7) vili; urgency=low
+
+  * Fix pkg-config versioning
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 15 Dec 2014 13:49:41 +0100
+
 libopi (1.5.6) vili; urgency=low
 
   * Return server response when fail on login
