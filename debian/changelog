@@ -1,3 +1,9 @@
+libopi (1.5.9) vili; urgency=low
+
+  * Bump version number in project as well
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 19 Dec 2014 12:47:44 +0100
+
 libopi (1.5.8) vili; urgency=low
 
   * Add method to read keys from secop
