@@ -7,6 +7,7 @@
 #include <curl/curl.h>
 #include <json/json.h>
 
+#include "CryptoHelper.h"
 #include "HttpClient.h"
 
 #include "Config.h"
@@ -15,6 +16,8 @@ using namespace std;
 
 namespace OPI
 {
+
+using namespace CryptoHelper;
 
 class AuthServer: public HttpClient
 {
@@ -34,6 +37,8 @@ public:
 	tuple<int, Json::Value> UpdateMXPointer(bool useopi, const string& token);
 
 	tuple<int, Json::Value> CheckMXPointer(const string& name);
+
+	static RSAWrapperPtr GetKeysFromSecop();
 
 	virtual ~AuthServer();
 private:

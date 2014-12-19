@@ -75,6 +75,8 @@ private:
 	AutoSeededRandomPool rng;
 };
 
+typedef shared_ptr<RSAWrapper> RSAWrapperPtr;
+
 /*
  *
  *	AES Wrapper
@@ -109,6 +111,7 @@ private:
 	CBC_Mode< AES >::Decryption d;
 };
 
+typedef shared_ptr<AESWrapper> AESWrapperPtr;
 
 /*
  *

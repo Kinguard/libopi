@@ -1,6 +1,5 @@
 #include "AuthServer.h"
 #include "Secop.h"
-#include "CryptoHelper.h"
 #include <stdexcept>
 
 using namespace std;
@@ -8,7 +7,6 @@ using namespace std;
 namespace OPI
 {
 
-using namespace CryptoHelper;
 
 AuthServer::AuthServer(const string &unit_id, const string &host): HttpClient( host ), unit_id(unit_id)
 {
@@ -52,40 +50,12 @@ tuple<int, Json::Value> AuthServer::SendSignedChallenge(const string &challenge)
 
 tuple<int, Json::Value> AuthServer::Login()
 {
-	CryptoHelper::RSAWrapper c;
-
-	Secop secop;
-	secop.SockAuth();
-
 	Json::Value ret;
+	CryptoHelper::RSAWrapperPtr c = AuthServer::GetKeysFromSecop();
 
-	list<map<string,string>> ids =  secop.AppGetIdentifiers("op-backend");
-
-	if( ids.size() == 0 )
+	if( ! c )
 	{
 		ret["desc"]="Failed to get keys from secop";
-		return tuple<int, Json::Value>(503, ret);
-	}
-
-	bool found = false;
-	for(auto id : ids )
-	{
-		if( id.find("type") != id.end() )
-		{
-			if( id["type"] == "backendkeys" )
-			{
-				// Key found
-				c.LoadPrivKeyFromDER( CryptoHelper::Base64Decode( id["privkey"]) );
-				c.LoadPubKeyFromDER( CryptoHelper::Base64Decode( id["pubkey"]) );
-				found = true;
-				break;
-			}
-		}
-	}
-
-	if( ! found )
-	{
-		ret["desc"]="Failed to load keys from secop";
 		return tuple<int, Json::Value>(503, ret);
 	}
 
@@ -100,7 +70,7 @@ tuple<int, Json::Value> AuthServer::Login()
 		return tuple<int, Json::Value>(500, ret);
 	}
 
-	string signedchallenge = CryptoHelper::Base64Encode( c.SignMessage( challenge ) );
+	string signedchallenge = CryptoHelper::Base64Encode( c->SignMessage( challenge ) );
 
 	Json::Value rep;
 	tie(resultcode, rep) = this->SendSignedChallenge( signedchallenge );
@@ -202,6 +172,40 @@ tuple<int, Json::Value> AuthServer::CheckMXPointer(const string &name)
 	this->reader.parse(body, retobj);
 
 	return tuple<int,Json::Value>(this->result_code, retobj );
+}
+
+RSAWrapperPtr AuthServer::GetKeysFromSecop()
+{
+	CryptoHelper::RSAWrapperPtr c;
+
+	Secop secop;
+	secop.SockAuth();
+
+	list<map<string,string>> ids =  secop.AppGetIdentifiers("op-backend");
+
+	if( ids.size() == 0 )
+	{
+		return c;
+	}
+
+	bool found = false;
+	for(auto id : ids )
+	{
+		if( id.find("type") != id.end() )
+		{
+			if( id["type"] == "backendkeys" )
+			{
+				c = RSAWrapperPtr(new RSAWrapper);
+				// Key found
+				c->LoadPrivKeyFromDER( CryptoHelper::Base64Decode( id["privkey"]) );
+				c->LoadPubKeyFromDER( CryptoHelper::Base64Decode( id["pubkey"]) );
+				found = true;
+				break;
+			}
+		}
+	}
+
+	return c;
 }
 
 AuthServer::~AuthServer()
