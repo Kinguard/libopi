@@ -9,6 +9,7 @@ class TestMailConfig: public CppUnit::TestFixture
 	CPPUNIT_TEST( TestDomain );
 	CPPUNIT_TEST( TestAddress  );
 	CPPUNIT_TEST( TestChange  );
+	CPPUNIT_TEST( TestChange2  );
 	CPPUNIT_TEST( TestRemove );
 	CPPUNIT_TEST_SUITE_END();
 public:
@@ -18,6 +19,7 @@ public:
 	void TestDomain();
 	void TestAddress();
 	void TestChange();
+	void TestChange2();
 	void TestRemove();
 };
 

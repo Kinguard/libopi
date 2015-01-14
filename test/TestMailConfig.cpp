@@ -195,6 +195,23 @@ void TestMailConfig::TestChange()
 	}
 }
 
+void TestMailConfig::TestChange2()
+{
+	{
+		MailConfig mc("ok.fil","domains");
+
+		mc.SetAddress("labb-opi.op-i.me", "testone", "testone");
+		mc.SetAddress("labb-opi.op-i.me", "testtwo", "testtwo");
+		mc.SetAddress("labb-opi.op-i.me", "testthree", "testthree");
+		mc.SetAddress("labb-opi.op-i.me", "tor", "tor");
+		mc.WriteConfig();
+	}
+
+	MailConfig mc("ok.fil","domains");
+	CPPUNIT_ASSERT_THROW( mc.ChangeDomain("labb-opi","nabb-opi"), std::runtime_error );
+	CPPUNIT_ASSERT_NO_THROW( mc.ChangeDomain("labb-opi.op-i.me","nabb-opi.op-i.me") );
+}
+
 // For bug #114 - Domänfil rensas aldrig
 void TestMailConfig::TestRemove()
 {
