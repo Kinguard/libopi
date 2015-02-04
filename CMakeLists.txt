@@ -37,6 +37,7 @@ include_directories(
 
 set( headers
 	AuthServer.h
+	BackupHelper.h
 	CryptoHelper.h
 	DiskHelper.h
 	DnsHelper.h
@@ -55,6 +56,7 @@ set( headers
 
 set( src
 	AuthServer.cpp
+	BackupHelper.cpp
 	CryptoHelper.cpp
 	DiskHelper.cpp
 	DnsHelper.cpp

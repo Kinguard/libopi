@@ -66,7 +66,7 @@ void TestNetworkConfig::Test()
 
 	{
 		NetworkConfig nc(IFFILE ".1");
-		nc.Dump();
+		//nc.Dump();
 		nc.WriteConfig();
 
 		CPPUNIT_ASSERT_THROW( nc.GetInterface("noifs"), std::runtime_error );
