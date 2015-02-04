@@ -18,6 +18,7 @@ public:
 	virtual list<string> GetRemoteBackups() = 0;
 	virtual void UmountLocal() = 0;
 	virtual void UmountRemote() = 0;
+	virtual bool RestoreBackup( const string& pathtobackup ) = 0;
 };
 
 typedef shared_ptr<BackupInterface> BackupInterfacePtr;
@@ -33,7 +34,7 @@ public:
 	virtual list<string> GetRemoteBackups();
 	virtual void UmountLocal();
 	virtual void UmountRemote();
-
+	virtual bool RestoreBackup( const string& pathtobackup );
 	virtual ~OPIBackup();
 };
 
@@ -43,13 +44,15 @@ class BackupHelper
 public:
 	BackupHelper(const string& pwd, BackupInterfacePtr iface = BackupInterfacePtr( new OPIBackup ));
 
-	bool MountLocal(const string& configpath);
-	bool MountRemote(const string& configpath);
+	bool MountLocal();
+	bool MountRemote();
 	list<string> GetLocalBackups();
 	list<string> GetRemoteBackups();
 
 	void UmountLocal();
 	void UmountRemote();
+
+	bool RestoreBackup( const string& path);
 
 	void CreateConfig();
 
@@ -57,6 +60,9 @@ public:
 
 	~BackupHelper();
 private:
+	bool localmounted;
+	bool remotemounted;
+	bool cfgcreated;
 	BackupInterfacePtr iface;
 	string pwd;
 	char tmpfilename[128];

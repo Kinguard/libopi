@@ -17,38 +17,93 @@
 namespace OPI
 {
 
-BackupHelper::BackupHelper(const string& pwd, BackupInterfacePtr iface): pwd(pwd), iface(iface)
+BackupHelper::BackupHelper(const string& pwd, BackupInterfacePtr iface):
+	localmounted(false), remotemounted(false), cfgcreated(false),
+	pwd(pwd), iface(iface)
 {
 
 }
 
-bool BackupHelper::MountLocal(const string &configpath)
+bool BackupHelper::MountLocal()
 {
-	return this->iface->MountLocal( configpath );
+	this->CreateConfig();
+
+	if( ! this->localmounted )
+	{
+		this->localmounted  = this->iface->MountLocal( this->tmpfilename );
+	}
+	return this->localmounted;
 }
 
-bool BackupHelper::MountRemote(const string &configpath)
+bool BackupHelper::MountRemote( )
 {
-	return this->iface->MountRemote( configpath );
+	this->CreateConfig();
+
+	if ( ! this->remotemounted )
+	{
+		this->remotemounted = this->iface->MountRemote( this->tmpfilename );
+	}
+	return this->remotemounted;
 }
 
 list<string> BackupHelper::GetLocalBackups()
 {
-	return this->iface->GetLocalBackups();
+	if( this->localmounted )
+	{
+		return this->iface->GetLocalBackups();
+	}
+	return {};
 }
 
 list<string> BackupHelper::GetRemoteBackups()
 {
-	return this->iface->GetRemoteBackups();
+	if( this->remotemounted )
+	{
+		return this->iface->GetRemoteBackups();
+	}
+	return {};
+}
+
+void BackupHelper::UmountLocal()
+{
+	this->iface->UmountLocal();
+}
+
+void BackupHelper::UmountRemote()
+{
+	this->iface->UmountRemote();
+}
+
+bool BackupHelper::RestoreBackup(const string &path)
+{
+	return this->iface->RestoreBackup( path );
 }
 
 BackupHelper::~BackupHelper()
 {
-	unlink( this->tmpfilename );
+	if( this->localmounted )
+	{
+		this->UmountLocal();
+	}
+
+	if( this->remotemounted )
+	{
+		this->UmountRemote();
+	}
+
+	if( this->cfgcreated )
+	{
+		unlink( this->tmpfilename );
+	}
 }
 
 void BackupHelper::CreateConfig()
 {
+	if( this->cfgcreated )
+	{
+		return;
+	}
+
 	sprintf( this->tmpfilename,"/tmp/bkcfgXXXXXX");
 
 	int fd = mkstemp(this->tmpfilename);
@@ -74,6 +129,7 @@ void BackupHelper::CreateConfig()
 
 	out << flush;
 
+	this->cfgcreated = true;
 }
 
 string BackupHelper::GetConfigFile()
@@ -191,6 +247,12 @@ void OPIBackup::UmountLocal()
 void OPIBackup::UmountRemote()
 {
 	doumount( false );
+}
+
+bool OPIBackup::RestoreBackup(const string &pathtobackup)
+{
+	// For now since not implemented
+	return false;
 }
 
 OPIBackup::~OPIBackup()

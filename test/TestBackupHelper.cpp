@@ -49,6 +49,11 @@ public:
 	virtual void UmountLocal() {}
 	virtual void UmountRemote() {}
 
+	virtual bool RestoreBackup(const string &pathtobackup)
+	{
+		return true;
+	}
+
 	virtual ~TestBackup() {}
 };
 
@@ -70,14 +75,16 @@ void TestBackupHelper::Test()
 		OPI::BackupHelper bh("Test", OPI::BackupInterfacePtr( new TestBackup ));
 		bh.CreateConfig();
 		cfg = bh.GetConfigFile();
+		cout << "CFG " << cfg << endl;
 		CPPUNIT_ASSERT( Utils::File::FileExists( cfg ));
 
-		CPPUNIT_ASSERT( bh.MountLocal( "hhhh ") );
-		CPPUNIT_ASSERT( bh.MountRemote( "hhhh ") );
+		CPPUNIT_ASSERT( bh.MountLocal( ) );
+		CPPUNIT_ASSERT( bh.MountRemote( ) );
 
 		CPPUNIT_ASSERT( bh.GetLocalBackups().size() > 0 );
 		CPPUNIT_ASSERT( bh.GetRemoteBackups().size() > 0 );
 
+		CPPUNIT_ASSERT( bh.RestoreBackup( "bla bla") );
 	}
 	CPPUNIT_ASSERT( ! Utils::File::FileExists( cfg ) );
 
@@ -85,11 +92,13 @@ void TestBackupHelper::Test()
 	{
 		OPI::BackupHelperPtr bhp( new OPI::BackupHelper("test", OPI::BackupInterfacePtr( new TestBackup)));
 
-		CPPUNIT_ASSERT( bhp->MountLocal( "hhhh ") );
-		CPPUNIT_ASSERT( bhp->MountRemote( "hhhh ") );
+		CPPUNIT_ASSERT( bhp->MountLocal( ) );
+		CPPUNIT_ASSERT( bhp->MountRemote( ) );
 
 		CPPUNIT_ASSERT( bhp->GetLocalBackups().size() > 0 );
 		CPPUNIT_ASSERT( bhp->GetRemoteBackups().size() > 0 );
+
+		CPPUNIT_ASSERT( bhp->RestoreBackup( "bla bla") );
 	}
 
 }
