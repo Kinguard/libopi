@@ -11,6 +11,7 @@
 
 #define MOUNTCMD	"/usr/share/opi-backup/mount_fs.sh"
 #define UMOUNTCMD	"/usr/share/opi-backup/umount_fs.sh"
+#define RESTORECMD	"/usr/share/opi-backup/restore_backup.sh"
 #define LOCALMOUNT	"/tmp/localbackup"
 #define REMOTEMOUNT	"/tmp/remotebackup"
 
@@ -260,8 +261,15 @@ void OPIBackup::UmountRemote()
 
 bool OPIBackup::RestoreBackup(const string &pathtobackup)
 {
-	// For now since not implemented
-	return false;
+	bool result;
+
+	stringstream ss;
+
+	ss << RESTORECMD << " \"" <<pathtobackup << "\"";
+
+	tie(result, std::ignore ) = Utils::Process::Exec( ss.str() );
+
+	return result;
 }
 
 OPIBackup::~OPIBackup()
