@@ -44,6 +44,8 @@ class BackupHelper
 public:
 	BackupHelper(const string& pwd, BackupInterfacePtr iface = BackupInterfacePtr( new OPIBackup ));
 
+	void SetPassword(const string& pwd);
+
 	bool MountLocal();
 	bool MountRemote();
 	list<string> GetLocalBackups();

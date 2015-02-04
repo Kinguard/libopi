@@ -24,6 +24,13 @@ BackupHelper::BackupHelper(const string& pwd, BackupInterfacePtr iface):
 
 }
 
+void BackupHelper::SetPassword(const string &pwd)
+{
+	this->pwd = pwd;
+	unlink( this->tmpfilename );
+	this->cfgcreated = false;
+}
+
 bool BackupHelper::MountLocal()
 {
 	this->CreateConfig();
@@ -67,11 +74,13 @@ list<string> BackupHelper::GetRemoteBackups()
 void BackupHelper::UmountLocal()
 {
 	this->iface->UmountLocal();
+	this->localmounted = false;
 }
 
 void BackupHelper::UmountRemote()
 {
 	this->iface->UmountRemote();
+	this->remotemounted = false;
 }
 
 bool BackupHelper::RestoreBackup(const string &path)
