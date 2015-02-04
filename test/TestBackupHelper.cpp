@@ -80,4 +80,16 @@ void TestBackupHelper::Test()
 
 	}
 	CPPUNIT_ASSERT( ! Utils::File::FileExists( cfg ) );
+
+	// Check shared ptr as well
+	{
+		OPI::BackupHelperPtr bhp( new OPI::BackupHelper("test", OPI::BackupInterfacePtr( new TestBackup)));
+
+		CPPUNIT_ASSERT( bhp->MountLocal( "hhhh ") );
+		CPPUNIT_ASSERT( bhp->MountRemote( "hhhh ") );
+
+		CPPUNIT_ASSERT( bhp->GetLocalBackups().size() > 0 );
+		CPPUNIT_ASSERT( bhp->GetRemoteBackups().size() > 0 );
+	}
+
 }

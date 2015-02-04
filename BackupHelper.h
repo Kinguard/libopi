@@ -41,7 +41,7 @@ public:
 class BackupHelper
 {
 public:
-	BackupHelper(const string& pwd, BackupInterfacePtr iface = BackupInterfacePtr( new OPIBackup));
+	BackupHelper(const string& pwd, BackupInterfacePtr iface = BackupInterfacePtr( new OPIBackup ));
 
 	bool MountLocal(const string& configpath);
 	bool MountRemote(const string& configpath);
@@ -61,6 +61,8 @@ private:
 	string pwd;
 	char tmpfilename[128];
 };
+
+typedef shared_ptr<BackupHelper> BackupHelperPtr;
 
 }
 
