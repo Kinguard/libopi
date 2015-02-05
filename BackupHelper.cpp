@@ -158,7 +158,7 @@ static bool trymount(const string& path, bool local)
 
 	stringstream ss;
 
-	ss << MOUNTCMD << " -r -a " << path << "-b ";
+	ss << MOUNTCMD << " -r -a " << path << " -b ";
 	if( local )
 	{
 		ss << "\"local://\" -m " << LOCALMOUNT;
