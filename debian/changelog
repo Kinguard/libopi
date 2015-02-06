@@ -1,3 +1,9 @@
+libopi (1.5.14) vili; urgency=medium
+
+  * Fix typo in mount command
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 06 Feb 2015 11:48:31 +0100
+
 libopi (1.5.13) vili; urgency=medium
 
   * Add guessed restore command
