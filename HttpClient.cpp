@@ -3,7 +3,7 @@
 namespace OPI
 {
 
-HttpClient::HttpClient(const string& host): host(host),port(0)
+HttpClient::HttpClient(const string& host): host(host),port(0), timeout(0)
 {
 	this->curl = curl_easy_init();
 	if( ! this->curl )
