@@ -9,6 +9,7 @@ class TestFetchmailConfig: public CppUnit::TestFixture
 	CPPUNIT_TEST( TestBasicUsage );
 	CPPUNIT_TEST( TestErrorCases );
 	CPPUNIT_TEST( TestSSL );
+	CPPUNIT_TEST( TestOptionalArgs );
 	CPPUNIT_TEST_SUITE_END();
 public:
 	void setUp();
@@ -17,6 +18,7 @@ public:
 	void TestBasicUsage();
 	void TestSSL();
 	void TestErrorCases();
+	void TestOptionalArgs();
 };
 
 #endif /* TESTFETCHMAILCONFIG_H_ */

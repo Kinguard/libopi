@@ -167,7 +167,6 @@ static bool trymount(const string& path, bool local)
 	{
 		ss << "\"s3op://\" -m " << REMOTEMOUNT;
 	}
-
 	tie(result, std::ignore ) = Utils::Process::Exec( ss.str() );
 
 	return result;

@@ -38,8 +38,24 @@ void FetchmailConfig::UpdateAccount(const string &email, const string &host, con
 		throw runtime_error("User doesnt exists");
 	}
 
+	userinfo ui = this->config[host][identity];
+
+	// Only update user and password if provided
+	if( password != "" )
+	{
+		ui.password = password;
+	}
+
+	if( user != "" )
+	{
+		ui.user = user;
+	}
+
+	ui.use_ssl = use_ssl;
+
+
 	this->cfgfile[host+"\t"+identity] = email;
-	this->config[host][identity] = {password, user, use_ssl};
+	this->config[host][identity] = ui;
 }
 
 list<string> FetchmailConfig::GetHosts()

@@ -43,8 +43,7 @@ public:
 private:
 	bool _hasuser( const string& host, const string& identity);
 	string configfile;
-	// <host < identity < password, user > > >
-	//map<string, map<string, pair<string,string> > > config;
+	// <host < identity, userinfo > >
 	map<string, map<string, struct userinfo > > config;
 	Regex host, user;
 	ConfigFile cfgfile;

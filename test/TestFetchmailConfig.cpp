@@ -155,3 +155,42 @@ void TestFetchmailConfig::TestErrorCases()
 
 	CPPUNIT_ASSERT_NO_THROW( fc.GetAccounts() );
 }
+
+void TestFetchmailConfig::TestOptionalArgs()
+{
+/*	user["email"]);
+	user["host"]);
+	user["identity"]);
+	user["password"]);
+	user["username"]);
+	user["ssl"]);   */
+
+	FetchmailConfig fc("test.fil");
+
+	map<string,string> acc, acc2;
+
+	// Verify that blank password does not update password in config
+	acc = fc.GetAccount( "pop3.mymailhost.nu", "tor@krill.nu");
+	fc.UpdateAccount( acc["email"], acc["host"], acc["identity"], acc["password"], acc["username"], acc["ssl"]=="true");
+	fc.UpdateAccount( acc["email"], acc["host"], acc["identity"], "", acc["username"], acc["ssl"]=="true");
+
+	acc2 = fc.GetAccount( "pop3.mymailhost.nu", "tor@krill.nu");
+	CPPUNIT_ASSERT_EQUAL( acc2["password"], acc["password"]);
+	CPPUNIT_ASSERT( acc2["password"] != string(""));
+
+	// Verify that update still works
+	fc.UpdateAccount( acc["email"], acc["host"], acc["identity"], "new password", acc["username"], acc["ssl"]=="true");
+	acc2 = fc.GetAccount( "pop3.mymailhost.nu", "tor@krill.nu");
+	CPPUNIT_ASSERT_EQUAL( acc2["password"], string("new password"));
+
+	// Verify that blank username doesnt update user field
+	fc.UpdateAccount( acc["email"], acc["host"], acc["identity"], "", "", acc["ssl"]=="true");
+	acc2 = fc.GetAccount( "pop3.mymailhost.nu", "tor@krill.nu");
+	CPPUNIT_ASSERT_EQUAL( acc2["username"], acc["username"]);
+
+	// Verify that update still works
+	fc.UpdateAccount( acc["email"], acc["host"], acc["identity"], "", "New Name", acc["ssl"]=="true");
+	acc2 = fc.GetAccount( "pop3.mymailhost.nu", "tor@krill.nu");
+	CPPUNIT_ASSERT_EQUAL( acc2["username"], string("New Name"));
+
+}
