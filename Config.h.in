@@ -13,6 +13,7 @@
 #define DNS_PRIV_PATH	"/etc/opi/dnspriv.pem"
 #define CSR_PATH		"/etc/opi/opi.csr"
 #define CERT_PATH		"/etc/opi/opi.cert"
+#define OP_DEFAULT_CA	"/etc/opi/op_ca.pem"
 #define SYS_PUB_PATH	"/var/opi/etc/syspub.pem"
 #define SYS_PRIV_PATH	"/var/opi/etc/syspriv.pem"
 #define SYSCONFIG_PATH	"/etc/opi/sysinfo.conf"

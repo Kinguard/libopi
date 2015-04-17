@@ -75,7 +75,7 @@ void TestBackupHelper::Test()
 		OPI::BackupHelper bh("Test", OPI::BackupInterfacePtr( new TestBackup ));
 		bh.CreateConfig();
 		cfg = bh.GetConfigFile();
-		cout << "CFG " << cfg << endl;
+		//cout << "CFG " << cfg << endl;
 		CPPUNIT_ASSERT( Utils::File::FileExists( cfg ));
 
 		CPPUNIT_ASSERT( bh.MountLocal( ) );

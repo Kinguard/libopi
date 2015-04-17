@@ -1,15 +1,18 @@
 #include "HttpClient.h"
+#include "Config.h"
 
 namespace OPI
 {
 
-HttpClient::HttpClient(const string& host): host(host),port(0), timeout(0)
+HttpClient::HttpClient(const string& host, bool verifyca): host(host),port(0), timeout(0), verifyca(verifyca)
 {
 	this->curl = curl_easy_init();
 	if( ! this->curl )
 	{
 		throw runtime_error("Unable to init Curl");
 	}
+
+	this->defaultca = OP_DEFAULT_CA;
 }
 
 HttpClient::~HttpClient()
@@ -22,9 +25,23 @@ void HttpClient::CurlPre()
 	curl_easy_reset( this->curl );
 	this->body.str("");
 
-	//TODO: Setup to use our CA and verify host, setting CURLOPT_CAPATH
-	curl_easy_setopt(this->curl, CURLOPT_SSL_VERIFYPEER, 0L);
-	curl_easy_setopt(this->curl, CURLOPT_SSL_VERIFYHOST, 0L);
+	if( verifyca )
+	{
+		if( this->defaultca != "" )
+		{
+			curl_easy_setopt(this->curl, CURLOPT_CAINFO, this->defaultca.c_str() );
+		}
+
+		if( this->capath != "" )
+		{
+			curl_easy_setopt(this->curl, CURLOPT_CAPATH, this->capath.c_str() );
+		}
+	}
+	else
+	{
+		curl_easy_setopt(this->curl, CURLOPT_SSL_VERIFYPEER, 0L);
+		curl_easy_setopt(this->curl, CURLOPT_SSL_VERIFYHOST, 0L);
+	}
 
 	curl_easy_setopt(this->curl, CURLOPT_WRITEFUNCTION, HttpClient::WriteCallback );
 	curl_easy_setopt(this->curl, CURLOPT_WRITEDATA, (void *)this);
@@ -172,6 +189,16 @@ void HttpClient::setPort(long value)
 void HttpClient::setTimeout(long value)
 {
 	this->timeout = value;
+}
+
+void HttpClient::setDefaultCA(const string &path)
+{
+	this->defaultca = path;
+}
+
+void HttpClient::setCAPath(const string &path)
+{
+	this->capath = path;
 }
 
 } // End NS

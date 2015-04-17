@@ -16,12 +16,15 @@ namespace OPI
 class HttpClient
 {
 public:
-	HttpClient(const string& host);
+	HttpClient(const string& host, bool verifyca = true);
 
 	virtual ~HttpClient();
 
 	void setPort(long value);
 	void setTimeout( long value );
+	void setDefaultCA(const string& path);
+	void setCAPath(const string& path);
+
 protected:
 	void CurlPre();
 	void CurlSetHeaders(const map<string, string> &headers);
@@ -39,13 +42,16 @@ protected:
 	string host;
 	string unit_id;
 	stringstream body;
+	map<string,string> headers;
 private:
 	void setheaders();
 	void clearheaders();
 	struct curl_slist *slist;
-	map<string,string> headers;
 	long port;
 	long timeout;
+	bool verifyca;
+	string capath;
+	string defaultca;
 };
 
 } // End NS

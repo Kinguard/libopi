@@ -1,3 +1,9 @@
+libopi (1.5.16) vili; urgency=medium
+
+  * Update HttpClient to optionally use CAs
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 17 Apr 2015 17:15:17 +0200
+
 libopi (1.5.15) vili; urgency=medium
 
   * Let user & password be optional when updating fetchmailuser
