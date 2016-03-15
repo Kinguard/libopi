@@ -3,17 +3,19 @@ pkg_check_modules( CPPUNIT cppunit>=1.12.1 )
 set( testapp_src
 	test.cpp
 	TestBackupHelper.cpp
+	TestDiskHelper.cpp
+	TestFetchmailConfig.cpp
 	TestHttpClient.cpp
 	TestMailConfig.cpp
-	TestFetchmailConfig.cpp
 	TestMailAliasFile.cpp
 	TestNetworkConfig.cpp
 	TestResolverConfig.cpp
 	TestSmtpClient.cpp
+	TestSysInfo.cpp
 	)
 
 include_directories(
-    "${PROJECT_SOURCE_DIR}"
+	"${PROJECT_SOURCE_DIR}"
 )
 
 add_definitions( -std=c++11 )

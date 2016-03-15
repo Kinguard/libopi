@@ -17,13 +17,17 @@ Led::Led(const string& path): path(path)
 {
 	list<string> parts = String::Split( File::GetFileName( path ), ":" );
 
-	if( parts.size()  != 3 )
+	if( parts.size()  < 2 || parts.size() > 3 )
 	{
 		throw runtime_error("Unknown format on led dir");
 	}
 
-	this->ns = parts.front();
-	parts.pop_front();
+	// Not all platforms are strict in using a NS
+	if( parts.size() == 3 )
+	{
+		this->ns = parts.front();
+		parts.pop_front();
+	}
 
 	this->color = parts.front();
 	parts.pop_front();

@@ -1,6 +1,11 @@
 #include "Luks.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include <libutils/Exceptions.h>
+#include <libutils/FileUtils.h>
 
 #include <libudev.h>
 
@@ -30,8 +35,31 @@ bool Luks::isLuks(const string &device)
 	struct udev_device *dev = udev_device_new_from_subsystem_sysname( udev, "block", device.c_str() );
 	if( ! dev )
 	{
-		udev_unref(udev);
-		return false;
+		// Lets try device number instead
+		try
+		{
+			string rname = File::RealPath(device);
+
+			struct stat sbuf;
+			if( stat(rname.c_str(), &sbuf) != 0 )
+			{
+				udev_unref(udev);
+				return false;
+			}
+
+			dev = udev_device_new_from_devnum(udev, 'b', sbuf.st_rdev );
+
+			if ( ! dev )
+			{
+				udev_unref(udev);
+				return false;
+			}
+		}
+		catch( Utils::ErrnoException& err )
+		{
+			udev_unref(udev);
+			return false;
+		}
 	}
 
 	const char* c_type = udev_device_get_property_value(dev, "ID_FS_TYPE");

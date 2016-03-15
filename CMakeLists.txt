@@ -11,10 +11,12 @@ pkg_check_modules ( LIBCURL REQUIRED libcurl )
 pkg_check_modules ( LIBCRYPTO++ REQUIRED libcrypto++>=5.6.1 )
 pkg_check_modules ( LIBJSONCPP REQUIRED libjsoncpp>=1.0 )
 pkg_check_modules ( LIBSSL REQUIRED libssl )
+pkg_check_modules ( BLKID REQUIRED blkid>=2.20.0 )
+
 
 set (VERSION_MAJOR 1)
-set (VERSION_MINOR 5)
-set (VERSION_PATCH 16)
+set (VERSION_MINOR 6)
+set (VERSION_PATCH 0)
 set (VERSION "${VERSION_MAJOR}.${VERSION_MINOR}")
 set (VERSION_FULL "${VERSION}.${VERSION_PATCH}")
 set (APP_NAME "lib${PROJECT_NAME}")
@@ -33,6 +35,7 @@ configure_file(
 include_directories(
 	"${PROJECT_BINARY_DIR}"
 	"${LIBJSONCPP_INCLUDE_DIRS}"
+	"${BLKID_INCLUDE_DIRS}"
 	)
 
 set( headers
@@ -51,6 +54,7 @@ set( headers
 	Secop.h
 	ServiceHelper.h
 	SmtpConfig.h
+	SysInfo.h
 	"${PROJECT_BINARY_DIR}/Config.h"
 	)
 
@@ -70,6 +74,7 @@ set( src
 	Secop.cpp
 	ServiceHelper.cpp
 	SmtpConfig.cpp
+	SysInfo.cpp
 	)
 
 add_definitions( -std=c++0x )
@@ -77,7 +82,7 @@ add_definitions( -std=c++0x )
 add_library( ${PROJECT_NAME}_static STATIC ${src} )
 add_library( ${PROJECT_NAME} SHARED ${src} )
 
-target_link_libraries(  ${PROJECT_NAME} 
+target_link_libraries(  ${PROJECT_NAME}
 	-ljsoncpp
 	${LIBSSL_LDFLAGS}
 	${LIBJSONCPP_LDFLAGS}
@@ -87,6 +92,7 @@ target_link_libraries(  ${PROJECT_NAME}
 	${LIBPARTED_LDFLAGS}
 	${LIBCURL_LDFLAGS}
 	${LIBCRYPTO++_LDFLAGS}
+	${BLKID_LDFLAGS}
 	)
 
 set_target_properties( ${PROJECT_NAME} PROPERTIES

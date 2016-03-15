@@ -1,6 +1,7 @@
 
 #include <libutils/Exceptions.h>
 #include <libutils/FileUtils.h>
+#include <libutils/Process.h>
 #include <libutils/String.h>
 
 #include <parted/parted.h>
@@ -8,6 +9,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <blkid.h>
 
 #include <iostream>
 #include <sstream>
@@ -101,23 +103,17 @@ void PartitionDevice(const string& device)
 
 }
 
-static int do_call(const string& cmd){
-		int ret=system(cmd.c_str());
-		if(ret<0){
-				return ret;
-		}
-		return WEXITSTATUS(ret);
-}
-
 void FormatPartition(const string& device, const string& label )
 {
 	string cmd="/sbin/mkfs -text4 -q -L"+label + " " + device;
 
-	if( do_call( cmd.c_str() ) != 0 )
+	bool res;
+	tie(res, std::ignore) = Utils::Process::Exec(cmd);
+
+	if( !res )
 	{
 		throw Utils::ErrnoException("Failed to format device ("+device+")");
 	}
-
 }
 
 void Mount(const string& device, const string& mountpoint, bool noatime, bool discard, const string &filesystem)
@@ -145,7 +141,10 @@ void Mount(const string& device, const string& mountpoint, bool noatime, bool di
 
 	ss << device << " " << mountpoint;
 
-	if( do_call( ss.str().c_str() ) != 0 )
+	bool res;
+	tie(res, std::ignore) = Utils::Process::Exec(ss.str());
+
+	if( !res )
 	{
 		throw Utils::ErrnoException("Failed to mount "+device+" on "+mountpoint );
 	}
@@ -156,7 +155,10 @@ void Umount(const string& device)
 	// TODO: Perhaps kill processes locking device using fuser
 	string cmd = "/bin/umount "+device;
 
-	if( do_call( cmd.c_str() ) != 0 )
+	bool res;
+	tie(res, std::ignore) = Utils::Process::Exec( cmd );
+
+	if( !res )
 	{
 		throw Utils::ErrnoException("Failed to umount "+device );
 	}
@@ -169,9 +171,21 @@ bool DeviceExists(const string &device)
 
 size_t DeviceSize(const string &devicename)
 {
-	string size = Utils::File::GetContentAsString( "/sys/class/block/"+devicename+"/size");
-	return strtoull(size.c_str(), NULL, 0);
+
+	blkid_probe pr = blkid_new_probe_from_filename(devicename.c_str());
+
+	if (!pr)
+	{
+		throw std::runtime_error(string("Failed to create blkid probe on ") + devicename);
+	}
+
+	size_t sz = blkid_probe_get_size( pr );
+
+	blkid_free_probe(pr);
+
+	return sz;
 }
+
 
 string IsMounted(const string &device)
 {
@@ -196,7 +210,10 @@ void SyncPaths(const string &src, const string &dst)
 {
 	string cmd = "/usr/bin/rsync -a "+src+" "+dst;
 
-	if( do_call( cmd.c_str() ) != 0 )
+	bool res;
+	tie(res, std::ignore) = Utils::Process::Exec( cmd );
+
+	if( !res )
 	{
 		throw Utils::ErrnoException("Failed sync "+src+" with "+dst );
 	}

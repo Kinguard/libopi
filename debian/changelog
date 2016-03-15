@@ -1,3 +1,10 @@
+libopi (1.6.0) vili; urgency=medium
+
+  * Added sysinfo class
+  * Adapted Led class to accept paths without NS
+
+ -- Tor Krill <tor@openproducts.se>  Wed, 09 Mar 2016 16:48:34 +0100
+
 libopi (1.5.16) vili; urgency=medium
 
   * Update HttpClient to optionally use CAs
