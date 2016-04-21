@@ -21,5 +21,6 @@
 #define ALIASES			"/var/opi/mail/conf/vmailbox"
 #define SASLPASSWD		"/var/opi/mail/conf/sasl_passwd"
 #define OP_RELAYSERVER	"op-mail.openproducts.com"
+#define DEVICEDBPATH	"/etc/opi/devicedb.json"
 
 #endif

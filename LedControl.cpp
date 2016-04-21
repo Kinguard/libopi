@@ -19,7 +19,8 @@ Led::Led(const string& path): path(path)
 
 	if( parts.size()  < 2 || parts.size() > 3 )
 	{
-		throw runtime_error("Unknown format on led dir");
+		// Dont bail out on this, just ignore any leds all together
+		return;
 	}
 
 	// Not all platforms are strict in using a NS

@@ -1,6 +1,7 @@
 #ifndef SYSINFO_H
 #define SYSINFO_H
 
+#include <json/json.h>
 
 #include <string>
 
@@ -16,7 +17,9 @@ public:
 	enum SysType {
 		TypeUndefined,
 		TypeOpi,
-		TypeKeep,
+		TypeXu4,
+		TypeOlimexA20,
+		TypeArmada,
 		TypePC,
 		TypeUnknown
 	};
@@ -64,15 +67,27 @@ public:
 	 */
 	string PasswordDevice();
 
+	/**
+	 * @brief NetworkDevice Get active network device to use for operation
+	 * @return name of device i.e. "eth0"
+	 */
+	string NetworkDevice();
+
 	virtual ~SysInfo();
 
+	static bool isArmada();
 	static bool isOpi();
-	static bool isKeep();
+	static bool isXu4();
+	static bool isOlimexA20();
 	static bool isPC();
+
+	static SysType TypeFromName(const string& devname);
 
 private:
 	void GuessType();
 	void SetupPaths();
+	void ParseExtConfig();
+	void ParseExtEntry(Json::Value& v);
 	int numcpus;
 	SysType type;
 	SysArch arch;
@@ -83,6 +98,7 @@ private:
 
 	string passworddevicepath;	// Where to look for stored password
 
+	string networkdevice;		// Which network device to use for operation
 };
 
 extern SysInfo sysinfo;
