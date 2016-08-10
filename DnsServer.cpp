@@ -107,6 +107,7 @@ bool DnsServer::Auth(const string &unit_id)
 			return false;
 		}
 
+
 		RSAWrapper dnskeys;
 		list<string> rows = File::GetContent( DNS_PRIV_PATH );
 		stringstream pemkey;
@@ -146,7 +147,7 @@ bool DnsServer::Auth(const string &unit_id)
 			return false;
 		}
 	}
-	catch(runtime_error& err)
+	catch(std::exception& err)
 	{
 		logg << Logger::Error << "Failed to dns authenticate "<<err.what()<<lend;
 		return false;
