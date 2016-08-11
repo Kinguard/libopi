@@ -1,3 +1,9 @@
+libopi (1.6.2) vili; urgency=medium
+
+  * Fix program crash upon faulty dns-key
+
+ -- Tor Krill <tor@openproducts.se>  Thu, 11 Aug 2016 10:11:36 +0200
+
 libopi (1.6.1) vili; urgency=medium
 
   * Add network device to sysinfo
