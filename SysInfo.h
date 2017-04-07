@@ -24,7 +24,16 @@ public:
 		TypeUnknown
 	};
 
-	enum SysArch {
+    std::vector<std::string> SysTypeText {
+        "Undefined",
+        "Opi",
+        "Xu4",
+        "OlimexA20",
+        "Armada",
+        "PC",
+        "Unknown"
+    };
+    enum SysArch {
 		ArchUndefined,
 		ArchArm,
 		ArchIntel,
@@ -90,7 +99,7 @@ private:
 	void ParseExtEntry(Json::Value& v);
 	int numcpus;
 	SysType type;
-	SysArch arch;
+    SysArch arch;
 
 	string storagedevicepath;	// Path to device node with storage block devive (/dev)
 	string storagedevice;		// Block device name (sdg,mmcblk0)
