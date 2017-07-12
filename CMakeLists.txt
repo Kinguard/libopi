@@ -9,7 +9,7 @@ pkg_check_modules ( LIBCRYPTSETUP REQUIRED libcryptsetup )
 pkg_check_modules ( LIBPARTED REQUIRED libparted>=2.3 )
 pkg_check_modules ( LIBCURL REQUIRED libcurl )
 pkg_check_modules ( LIBCRYPTO++ REQUIRED libcrypto++>=5.6.1 )
-pkg_check_modules ( LIBJSONCPP REQUIRED libjsoncpp>=1.0 )
+pkg_check_modules ( LIBJSONCPP REQUIRED jsoncpp>=1.0 )
 pkg_check_modules ( LIBSSL REQUIRED libssl )
 pkg_check_modules ( BLKID REQUIRED blkid>=2.20.0 )
 
