@@ -1,3 +1,9 @@
+libopi (1.6.4) vili; urgency=medium
+
+  * Update pkg-config template with jsoncpp
+
+ -- Tor Krill <tor@openproducts.se>  Thu, 13 Jul 2017 14:14:44 +0200
+
 libopi (1.6.3) vili; urgency=medium
 
   * Update cmake dep on jsoncpp

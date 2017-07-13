@@ -6,7 +6,7 @@ includedir=${prefix}/include
 Name: @APP_NAME@
 Description: OPI utility functions
 Version: @VERSION_FULL@
-Requires: libutils >= 1.0, libudev, libcryptsetup, libparted >= 2.3, libcurl, libcrypto++ >= 5.6.1, libjsoncpp >= 1.0, libssl
+Requires: libutils >= 1.0, libudev, libcryptsetup, libparted >= 2.3, libcurl, libcrypto++ >= 5.6.1, jsoncpp >= 1.0, libssl
 Libs: -L${libdir} -lopi -pthread -lrt -lresolv
 Cflags: -I${includedir}
 
