@@ -1,3 +1,9 @@
+libopi (1.6.5) vili; urgency=medium
+
+  * Add Armada(Keep) specific sysconfig
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 14 Jul 2017 15:33:38 +0200
+
 libopi (1.6.4) vili; urgency=medium
 
   * Update pkg-config template with jsoncpp
