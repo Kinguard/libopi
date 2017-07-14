@@ -203,8 +203,14 @@ void SysInfo::SetupPaths()
 		this->passworddevicepath = "Undefined";
 		this->networkdevice = "eth0";
 		break;
-	case TypeOlimexA20:
 	case TypeArmada:
+		this->storagedevicepath = "/dev/disk/by-path";
+		this->storagedevice = "platform-f10a8000.sata-ata-1";
+		this->storagepartition = "-part1";
+		this->passworddevicepath = "/dev/disk/by-path/platform-f10f8000.usb3-usb-0:1:1.0-scsi-0:0:0:0-part1";
+		this->networkdevice = "eth0";
+		break;
+	case TypeOlimexA20:
 		this->storagedevicepath = "/dev";
 		this->storagedevice = "sda";
 		this->storagepartition = "1";
