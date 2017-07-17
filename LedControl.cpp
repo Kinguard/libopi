@@ -17,7 +17,7 @@ Led::Led(const string& path): path(path)
 {
 	list<string> parts = String::Split( File::GetFileName( path ), ":" );
 
-	if( parts.size()  < 2 || parts.size() > 3 )
+	if( parts.size() > 3 )
 	{
 		// Dont bail out on this, just ignore any leds all together
 		return;

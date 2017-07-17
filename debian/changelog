@@ -1,3 +1,10 @@
+libopi (1.6.7) vili; urgency=medium
+
+  * Fix cppunit linking on armhf
+  * Fix bug in ledparse allowing leds without namespace and description
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 17 Jul 2017 13:23:32 +0200
+
 libopi (1.6.6) vili; urgency=medium
 
   * Initial implementation of Notification and some cleanups
