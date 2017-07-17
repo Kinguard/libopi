@@ -1,4 +1,4 @@
-libopi (1.6.5ubuntu1) UNRELEASED; urgency=medium
+libopi (1.6.6) vili; urgency=medium
 
   * Initial implementation of Notification and some cleanups
 
