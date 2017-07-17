@@ -1,3 +1,9 @@
+libopi (1.6.5ubuntu1) UNRELEASED; urgency=medium
+
+  * Initial implementation of Notification and some cleanups
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 17 Jul 2017 10:40:21 +0200
+
 libopi (1.6.5) vili; urgency=medium
 
   * Add Armada(Keep) specific sysconfig
