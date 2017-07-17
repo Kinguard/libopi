@@ -9,6 +9,7 @@ set( testapp_src
 	TestMailConfig.cpp
 	TestMailAliasFile.cpp
 	TestNetworkConfig.cpp
+	TestNotification.cpp
 	TestResolverConfig.cpp
 	TestSmtpClient.cpp
 	TestSysInfo.cpp

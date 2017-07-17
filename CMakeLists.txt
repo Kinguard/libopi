@@ -51,6 +51,7 @@ set( headers
 	Luks.h
 	MailConfig.h
 	NetworkConfig.h
+	Notification.h
 	Secop.h
 	ServiceHelper.h
 	SmtpConfig.h
@@ -71,6 +72,7 @@ set( src
 	Luks.cpp
 	MailConfig.cpp
 	NetworkConfig.cpp
+	Notification.cpp
 	Secop.cpp
 	ServiceHelper.cpp
 	SmtpConfig.cpp

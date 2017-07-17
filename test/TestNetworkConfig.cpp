@@ -1,6 +1,7 @@
 #include "TestNetworkConfig.h"
 
 #include "NetworkConfig.h"
+#include "SysInfo.h"
 
 #include <fstream>
 #include <unistd.h>
@@ -143,11 +144,11 @@ void TestNetworkConfig::TestDefaultRoute()
 void TestNetworkConfig::TestNetmask()
 {
 	CPPUNIT_ASSERT_EQUAL( string(""), NetUtils::GetNetmask("NoInterface") );
-	CPPUNIT_ASSERT( string("") != NetUtils::GetNetmask("eth0") );
+	CPPUNIT_ASSERT( string("") != NetUtils::GetNetmask( sysinfo.NetworkDevice() ) );
 }
 
 void TestNetworkConfig::TestAddress()
 {
 	CPPUNIT_ASSERT_EQUAL( string(""), NetUtils::GetAddress("NoInterface") );
-	CPPUNIT_ASSERT( string("") != NetUtils::GetAddress("eth0") );
+	CPPUNIT_ASSERT( string("") != NetUtils::GetAddress( sysinfo.NetworkDevice() ) );
 }

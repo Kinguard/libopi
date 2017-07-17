@@ -12,6 +12,7 @@ void TestSysInfo::setUp()
 {
 #if 1
 	cout << "\n"
+	<< "Platform         : " << OPI::sysinfo.SysTypeText[OPI::sysinfo.Type() ] << endl
 	<< "Numcpus          : " << OPI::sysinfo.NumCpus() << endl
 	<< "Storagedevicepath: " << OPI::sysinfo.StorageDevicePath() << endl
 	<< "Storagedevice    : " << OPI::sysinfo.StorageDevice() << endl
@@ -88,7 +89,7 @@ void TestSysInfo::TestNetworkDevice()
 		CPPUNIT_ASSERT_EQUAL( OPI::sysinfo.NetworkDevice(), string("eth0") );
 		break;
 	case OPI::SysInfo::TypePC:
-		CPPUNIT_ASSERT_EQUAL( OPI::sysinfo.NetworkDevice(), string("eth0") );
+		CPPUNIT_ASSERT_EQUAL( OPI::sysinfo.NetworkDevice(), string("enp0s31f6") );
 		break;
 	case OPI::SysInfo::TypeXu4:
 		CPPUNIT_ASSERT_EQUAL( OPI::sysinfo.NetworkDevice(), string("eth0") );

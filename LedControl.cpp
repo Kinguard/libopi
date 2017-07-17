@@ -29,9 +29,20 @@ Led::Led(const string& path): path(path)
 		this->ns = parts.front();
 		parts.pop_front();
 	}
+	else
+	{
+		this->ns = "Unknown";
+	}
 
-	this->color = parts.front();
-	parts.pop_front();
+	if( parts.size() == 2 )
+	{
+		this->color = parts.front();
+		parts.pop_front();
+	}
+	else
+	{
+		this->color = "Unknown";
+	}
 
 	this->name = parts.front();
 	parts.pop_front();
