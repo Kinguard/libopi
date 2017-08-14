@@ -67,6 +67,56 @@ string SysInfo::NetworkDevice()
 	return this->networkdevice;
 }
 
+string SysInfo::SerialNumber()
+{
+    char* data;
+    std::string serial;
+    bool exists;
+    if (! File::FileExists(this->serialnbrdevice) )
+    {
+        return "Undefined";
+    }
+    File::Read(this->serialnbrdevice, data, 200);
+    serial.assign(data);
+    int start,end;
+
+    switch ( this->type )
+    {
+    case TypeOpi:
+        exists = serial.find("/OP-I/") != std::string::npos;
+        if ( exists )
+        {
+            start = exists-4;
+            end = exists+8;
+        }
+        break;
+    case TypeArmada:
+        exists = serial.find("/KEEP/") != std::string::npos;
+        if ( exists )
+        {
+            start = exists-4;
+            end = exists+8;
+        }
+        break;
+    case TypeXu4:
+    case TypePC:
+    case TypeOlimexA20:
+        return "Undefined";
+        break;
+    default:
+        break;
+    }
+    if (exists)
+    {
+        return serial.substr(start,end);
+    }
+    else
+    {
+        return "Undefinded";
+    }
+
+}
+
 SysInfo::~SysInfo()
 {
 
@@ -188,6 +238,7 @@ void SysInfo::SetupPaths()
 		this->storagepartition = "-part1";
 		this->passworddevicepath = "/dev/sda1";
 		this->networkdevice = "eth0";
+        this->serialnbrdevice = "/sys/bus/i2c/devices/0-0050/eeprom";
 		break;
 	case TypeXu4:
 		this->storagedevicepath = "/dev/disk/by-path";
@@ -195,28 +246,32 @@ void SysInfo::SetupPaths()
 		this->storagepartition = "-part1";
 		this->passworddevicepath = "/dev/disk/by-path/platform-12110000.usb-usb-0:1:1.0-scsi-0:0:0:0-part1";
 		this->networkdevice = "eth0";
-		break;
+        this->serialnbrdevice = "Undefined";
+        break;
 	case TypePC:
 		this->storagedevicepath = "/dev";
 		this->storagedevice = "sdg";
 		this->storagepartition = "1";
 		this->passworddevicepath = "Undefined";
 		this->networkdevice = "eth0";
-		break;
+        this->serialnbrdevice = "Undefined";
+        break;
 	case TypeArmada:
 		this->storagedevicepath = "/dev/disk/by-path";
 		this->storagedevice = "platform-f10a8000.sata-ata-1";
 		this->storagepartition = "-part1";
 		this->passworddevicepath = "/dev/disk/by-path/platform-f10f8000.usb3-usb-0:1:1.0-scsi-0:0:0:0-part1";
 		this->networkdevice = "eth0";
-		break;
+        this->serialnbrdevice = "/sys/bus/i2c/devices/0-0057/eeprom";
+        break;
 	case TypeOlimexA20:
 		this->storagedevicepath = "/dev";
 		this->storagedevice = "sda";
 		this->storagepartition = "1";
 		this->passworddevicepath = "/dev/sdb1";
 		this->networkdevice = "eth0";
-		break;
+        this->serialnbrdevice = "Undefined";
+        break;
 	default:
 		break;
 	}
@@ -275,6 +330,10 @@ void SysInfo::ParseExtEntry(Json::Value &v)
 	{
 		this->networkdevice = v["networkdevice"].asString();
 	}
+    if( v.isMember("serialnbrdevice") && v["serialnbrdevice"].isString() )
+    {
+        this->serialnbrdevice = v["serialnbrdevice"].asString();
+    }
 }
 
 } // Namespace OPI

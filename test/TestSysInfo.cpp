@@ -98,3 +98,21 @@ void TestSysInfo::TestNetworkDevice()
 		CPPUNIT_FAIL("Missing network device for unknown type");
 	}
 }
+
+void TestSysInfo::TestSerialNumber()
+{
+    switch( OPI::sysinfo.Type() )
+    {
+    case OPI::SysInfo::TypeOpi:
+    case OPI::SysInfo::TypeArmada:
+        CPPUNIT_ASSERT( OPI::sysinfo.SerialNumber().length() != 12 );
+        break;
+    case OPI::SysInfo::TypeOlimexA20:
+    case OPI::SysInfo::TypePC:
+    case OPI::SysInfo::TypeXu4:
+        CPPUNIT_ASSERT_EQUAL( OPI::sysinfo.SerialNumber(), string("Undefined") );
+        break;
+    default:
+        CPPUNIT_FAIL("Missing Serial Number for unknown type");
+    }
+}

@@ -82,6 +82,13 @@ public:
 	 */
 	string NetworkDevice();
 
+    /**
+     * @brief SerialNumber Get the serial number from the eeprom
+     * @return the serial number "1748KEEP1234"
+     */
+    string SerialNumber();
+
+
 	virtual ~SysInfo();
 
 	static bool isArmada();
@@ -108,6 +115,7 @@ private:
 	string passworddevicepath;	// Where to look for stored password
 
 	string networkdevice;		// Which network device to use for operation
+    string serialnbrdevice;		// Path to eeprom that holds the serial number
 };
 
 extern SysInfo sysinfo;
