@@ -1,3 +1,9 @@
+libopi (1.6.8) vili; urgency=medium
+
+  * Added support to read serial number from flash 
+
+ -- PA Nilsson <pa@openproducts.se>  Wed, 16 Aug 2017 13:22:52 +0200
+
 libopi (1.6.7) vili; urgency=medium
 
   * Fix cppunit linking on armhf
