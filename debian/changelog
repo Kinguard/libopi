@@ -1,3 +1,9 @@
+libopi (1.6.9) vili; urgency=medium
+
+  * Updated serial readout from flash 
+
+ -- PA Nilsson <pa@openproducts.se>  Thu, 17 Aug 2017 10:45:54 +0200
+
 libopi (1.6.8) vili; urgency=medium
 
   * Added support to read serial number from flash 
