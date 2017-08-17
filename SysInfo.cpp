@@ -69,52 +69,49 @@ string SysInfo::NetworkDevice()
 
 string SysInfo::SerialNumber()
 {
-    char* data;
-    std::string serial;
-    bool exists;
+    char data[250];
+    const char* p = data;
+    std::vector<std::string> v_serial;
+    string serial = "Undefined";
+    std::size_t found;
+
     if (! File::FileExists(this->serialnbrdevice) )
     {
         return "Undefined";
     }
     File::Read(this->serialnbrdevice, data, 200);
-    serial.assign(data);
-    int start,end;
+
+    while ( string(p).length() > 0 )
+    {
+        v_serial.push_back(string(p));
+        p += v_serial.back().size() + 1;
+    } ;
 
     switch ( this->type )
     {
     case TypeOpi:
-        exists = serial.find("/OP-I/") != std::string::npos;
-        if ( exists )
+        found = v_serial[1].find("OP-I");
+        if (found != std::string::npos)
         {
-            start = exists-4;
-            end = exists+8;
+            serial= v_serial[0].substr(found-4,found+12);
         }
         break;
     case TypeArmada:
-        exists = serial.find("/KEEP/") != std::string::npos;
-        if ( exists )
+        found = v_serial[1].find("TEST");
+        if (found != std::string::npos)
         {
-            start = exists-4;
-            end = exists+8;
+            serial= v_serial[1].substr(found-4,found+12);
         }
         break;
+
     case TypeXu4:
     case TypePC:
     case TypeOlimexA20:
-        return "Undefined";
         break;
     default:
         break;
     }
-    if (exists)
-    {
-        return serial.substr(start,end);
-    }
-    else
-    {
-        return "Undefinded";
-    }
-
+    return serial;
 }
 
 SysInfo::~SysInfo()

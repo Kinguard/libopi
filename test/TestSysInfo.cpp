@@ -105,7 +105,9 @@ void TestSysInfo::TestSerialNumber()
     {
     case OPI::SysInfo::TypeOpi:
     case OPI::SysInfo::TypeArmada:
-        CPPUNIT_ASSERT( OPI::sysinfo.SerialNumber().length() != 12 );
+        printf("\nSERIAL: %s\n",OPI::sysinfo.SerialNumber().c_str());
+        printf("SERIAL length: %d\n",OPI::sysinfo.SerialNumber().length());
+        CPPUNIT_ASSERT( OPI::sysinfo.SerialNumber().length() == 12 );
         break;
     case OPI::SysInfo::TypeOlimexA20:
     case OPI::SysInfo::TypePC:
