@@ -97,7 +97,7 @@ string SysInfo::SerialNumber()
         }
         break;
     case TypeArmada:
-        found = v_serial[1].find("TEST");
+        found = v_serial[1].find("KEEP");
         if (found != std::string::npos)
         {
             serial= v_serial[1].substr(found-4,found+12);
