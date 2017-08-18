@@ -19,7 +19,8 @@ void TestSysInfo::setUp()
 	<< "StorageBlockdev  : " << OPI::sysinfo.StorageDeviceBlock() << endl
 	<< "Storagepartition : " << OPI::sysinfo.StorageDevicePartition() << endl
 	<< "NetworkDevice    : " << OPI::sysinfo.NetworkDevice() << endl
-	<< "Password device  : " << OPI::sysinfo.PasswordDevice() << endl;
+    << "Password device  : " << OPI::sysinfo.PasswordDevice() << endl
+    << "SerialNbr device : " << OPI::sysinfo.SerialNumberDevice() << endl;
 #endif
 }
 
@@ -71,8 +72,6 @@ void TestSysInfo::Test()
 		CPPUNIT_FAIL("Unknown system type");
 	}
 
-
-
 }
 
 void TestSysInfo::TestNetworkDevice()
@@ -101,18 +100,20 @@ void TestSysInfo::TestNetworkDevice()
 
 void TestSysInfo::TestSerialNumber()
 {
+
+    printf("\nSERIAL: %s\n",OPI::sysinfo.SerialNumber().c_str());
+    printf("SERIAL length: %d\n",OPI::sysinfo.SerialNumber().length());
+
     switch( OPI::sysinfo.Type() )
     {
     case OPI::SysInfo::TypeOpi:
     case OPI::SysInfo::TypeArmada:
-        printf("\nSERIAL: %s\n",OPI::sysinfo.SerialNumber().c_str());
-        printf("SERIAL length: %d\n",OPI::sysinfo.SerialNumber().length());
         CPPUNIT_ASSERT( OPI::sysinfo.SerialNumber().length() == 12 );
         break;
     case OPI::SysInfo::TypeOlimexA20:
     case OPI::SysInfo::TypePC:
     case OPI::SysInfo::TypeXu4:
-        CPPUNIT_ASSERT_EQUAL( OPI::sysinfo.SerialNumber(), string("Undefined") );
+        CPPUNIT_ASSERT_EQUAL(  string("Undefined"),OPI::sysinfo.SerialNumber() );
         break;
     default:
         CPPUNIT_FAIL("Missing Serial Number for unknown type");

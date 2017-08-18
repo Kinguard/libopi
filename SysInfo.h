@@ -87,6 +87,7 @@ public:
      * @return the serial number "1748KEEP1234"
      */
     string SerialNumber();
+    string SerialNumberDevice();
 
 
 	virtual ~SysInfo();

@@ -67,13 +67,23 @@ string SysInfo::NetworkDevice()
 	return this->networkdevice;
 }
 
+string SysInfo::SerialNumberDevice()
+{
+    return this->serialnbrdevice;
+}
+
 string SysInfo::SerialNumber()
 {
+
+    // serial number is always places as the last parameter in the flash, so it is in the last element
+    // Serial is in the format of 2712KEEP1234 (12 chars)
     char data[250];
     const char* p = data;
-    std::vector<std::string> v_serial;
-    string serial = "Undefined";
-    std::size_t found;
+    vector<string> v_serial;
+    string serial = "Undefined", pattern;
+    size_t found;
+    int start=-4;
+    int end = 8;
 
     if (! File::FileExists(this->serialnbrdevice) )
     {
@@ -90,27 +100,29 @@ string SysInfo::SerialNumber()
     switch ( this->type )
     {
     case TypeOpi:
-        found = v_serial[1].find("OP-I");
-        if (found != std::string::npos)
-        {
-            serial= v_serial[0].substr(found-4,found+12);
-        }
+        found = v_serial.back().find("OP-I");
         break;
     case TypeArmada:
-        found = v_serial[1].find("KEEP");
-        if (found != std::string::npos)
-        {
-            serial= v_serial[1].substr(found-4,found+12);
-        }
+        found = v_serial.back().find("KEEP");
         break;
-
-    case TypeXu4:
     case TypePC:
+        pattern="serial=";
+        found = v_serial.back().find("serial=");
+        start=pattern.size();
+        end = pattern.size()+12;
+        break;
+    case TypeXu4:
     case TypeOlimexA20:
         break;
     default:
         break;
     }
+
+    if (found != std::string::npos)
+    {
+        serial= v_serial.back().substr(start,end);
+    }
+
     return serial;
 }
 

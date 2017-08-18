@@ -1,3 +1,9 @@
+libopi (1.6.10) vili; urgency=medium
+
+  * Added support to specify serial device in external config 
+
+ -- PA Nilsson <pa@openproducts.se>  Fri, 18 Aug 2017 11:52:24 +0200
+
 libopi (1.6.9) vili; urgency=medium
 
   * Updated serial readout from flash 
