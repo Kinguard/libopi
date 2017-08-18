@@ -82,8 +82,7 @@ string SysInfo::SerialNumber()
     vector<string> v_serial;
     string serial = "Undefined", pattern;
     size_t found;
-    int start=-4;
-    int end = 8;
+    int offset, serial_size = 12;
 
     if (! File::FileExists(this->serialnbrdevice) )
     {
@@ -100,29 +99,29 @@ string SysInfo::SerialNumber()
     switch ( this->type )
     {
     case TypeOpi:
-        found = v_serial.back().find("OP-I");
+        // OPI does not have the "serial=" identifier
+        pattern = "OP_I";
+        offset = -4;
         break;
     case TypeArmada:
-        found = v_serial.back().find("KEEP");
-        break;
     case TypePC:
         pattern="serial=";
-        found = v_serial.back().find("serial=");
-        start=pattern.size();
-        end = pattern.size()+12;
+        offset = 7;
         break;
+
     case TypeXu4:
     case TypeOlimexA20:
-        break;
     default:
         break;
     }
 
-    if (found != std::string::npos)
-    {
-        serial= v_serial.back().substr(start,end);
+    if (pattern.size()) {
+        found = v_serial.back().find(pattern);
+        if (found != std::string::npos)
+        {
+            serial= v_serial.back().substr(found+offset,found+offset+serial_size);
+        }
     }
-
     return serial;
 }
 

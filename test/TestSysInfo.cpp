@@ -102,7 +102,6 @@ void TestSysInfo::TestSerialNumber()
 {
 
     printf("\nSERIAL: %s\n",OPI::sysinfo.SerialNumber().c_str());
-    printf("SERIAL length: %d\n",OPI::sysinfo.SerialNumber().length());
 
     switch( OPI::sysinfo.Type() )
     {
