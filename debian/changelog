@@ -1,3 +1,9 @@
+libopi (1.6.12) vili; urgency=medium
+
+  * Merged dev-domains 
+
+ -- PA Nilsson <pa@openproducts.se>  Tue, 22 Aug 2017 16:04:39 +0200
+
 libopi (1.6.11) vili; urgency=medium
 
   * Added support to read supported domains. 
