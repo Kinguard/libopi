@@ -1,6 +1,5 @@
 #include "DnsServer.h"
 #include "CryptoHelper.h"
-
 #include "Config.h"
 
 #include <libutils/Logger.h>
@@ -23,7 +22,7 @@ DnsServer::DnsServer(const string &host): HttpClient(host)
 tuple<int, Json::Value> DnsServer::CheckOPIName(const string &opiname)
 {
 	map<string,string> postargs = {
-		{"fqdn", opiname+".op-i.me"},
+        {"fqdn", opiname},
 		{"checkname",  "1"}
 	};
 
