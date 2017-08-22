@@ -24,6 +24,16 @@ public:
 		TypeUnknown
 	};
 
+    std::vector<std::string> Domains {
+        "",
+        "op-ime",
+        "",
+        "",
+        "mykeep.net",
+        "",
+        ""
+    };
+
     std::vector<std::string> SysTypeText {
         "Undefined",
         "Opi",

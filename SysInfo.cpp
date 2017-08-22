@@ -247,7 +247,7 @@ void SysInfo::SetupPaths()
 		this->passworddevicepath = "/dev/sda1";
 		this->networkdevice = "eth0";
         this->serialnbrdevice = "/sys/bus/i2c/devices/0-0050/eeprom";
-		break;
+        break;
 	case TypeXu4:
 		this->storagedevicepath = "/dev/disk/by-path";
 		this->storagedevice = "platform-xhci-hcd.2.auto-usb-0:1.1:1.0-scsi-0:0:0:0";
