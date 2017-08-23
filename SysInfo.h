@@ -26,7 +26,7 @@ public:
 
     std::vector<std::string> Domains {
         "",
-        "op-ime",
+        "op-i.me",
         "",
         "",
         "mykeep.net",
