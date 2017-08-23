@@ -409,7 +409,13 @@ void SmtpConfig::getConfig()
 		throw runtime_error("Opiname not found");
 	}
 
-	this->opiname = name+".op-i.me";
+	string domain = opicfg.ValueOrDefault("domain");
+	if( domain == "")
+	{
+		throw runtime_error("Domain not found");
+	}
+
+	this->opiname = name+"."+domain;
 
 
 	this->unit_id = opicfg.ValueOrDefault("unit_id");

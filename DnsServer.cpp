@@ -69,7 +69,7 @@ bool DnsServer::UpdateDynDNS(const string &unit_id, const string &name)
 
 	map<string,string> postargs = {
 		{"unit_id", unit_id},
-		{"fqdn",  name+".op-i.me"}
+		{"fqdn",  name}
 	};
 
 	map<string,string> headers = {
