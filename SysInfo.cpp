@@ -266,7 +266,7 @@ void SysInfo::SetupPaths()
         break;
 	case TypeArmada:
 		this->storagedevicepath = "/dev/disk/by-path";
-		this->storagedevice = "platform-f10a8000.sata-ata-1";
+		this->storagedevice = "platform-f10a8000.sata-ata-2";
 		this->storagepartition = "-part1";
 		this->passworddevicepath = "/dev/disk/by-path/platform-f10f8000.usb3-usb-0:1:1.0-scsi-0:0:0:0-part1";
 		this->networkdevice = "eth0";

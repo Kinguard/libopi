@@ -1,3 +1,9 @@
+libopi (1.6.15) vili; urgency=medium
+
+  * Change default data disk for Keep
+
+ -- Tor Krill <tor@openproducts.se>  Thu, 31 Aug 2017 21:51:14 +0200
+
 libopi (1.6.14) vili; urgency=medium
 
   * Removed hard coded "op-i.me" from helpers. 
