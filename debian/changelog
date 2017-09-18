@@ -1,3 +1,9 @@
+libopi (1.6.16) vili; urgency=medium
+
+  * Fixed path to backup auth-file 
+
+ -- PA Nilsson <pa@openproducts.se>  Mon, 18 Sep 2017 14:26:24 +0200
+
 libopi (1.6.15) vili; urgency=medium
 
   * Change default data disk for Keep
