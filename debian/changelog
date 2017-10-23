@@ -1,3 +1,11 @@
+libopi (1.6.17) vili; urgency=medium
+
+  * Refactor authserver to allow usage of custom keys on file
+  * Add initial unittests for authserver
+  * Cleanup in cryptohelper, use Process:Exec
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 23 Oct 2017 15:33:48 +0200
+
 libopi (1.6.16) vili; urgency=medium
 
   * Fixed path to backup auth-file 
