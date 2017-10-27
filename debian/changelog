@@ -1,8 +1,16 @@
-libopi (1.6.17) vili; urgency=medium
+libopi (1.6.18) vili; urgency=medium
 
   * Added BackupRootPath to sysinfo 
 
  -- PA Nilsson <pa@openproducts.se>  Fri, 27 Oct 2017 08:21:50 +0200
+
+libopi (1.6.17) vili; urgency=medium
+
+  * Refactor authserver to allow usage of custom keys on file
+  * Add initial unittests for authserver
+  * Cleanup in cryptohelper, use Process:Exec
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 23 Oct 2017 15:33:48 +0200
 
 libopi (1.6.16) vili; urgency=medium
 

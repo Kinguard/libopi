@@ -12,6 +12,11 @@
 
 #include "Config.h"
 
+#define TMP_PRIV "/tmp/tmpkey.priv"
+#define TMP_PUB "/tmp/tmpkey.pub"
+
+//TODO: Refactor in implementation for updating/initializing keys with secret
+
 using namespace std;
 
 namespace OPI
@@ -22,13 +27,21 @@ using namespace CryptoHelper;
 class AuthServer: public HttpClient
 {
 public:
-	AuthServer(const string& unit_id, const string& host = "https://auth.openproducts.com/");
+
+	struct AuthCFG
+	{
+		string authserver;
+		string pubkeypath;
+		string privkeypath;
+	};
+
+	AuthServer(const string& unit_id, const struct AuthCFG& cfg = {"https://auth.openproducts.com/", TMP_PUB, TMP_PRIV} );
 
 	tuple<int,string> GetChallenge();
 
 	tuple<int, Json::Value> SendSignedChallenge( const string& challenge);
 
-	tuple<int, Json::Value> Login(void);
+	tuple<int, Json::Value> Login(bool usetempkeys=false);
 
 	tuple<int, Json::Value> SendSecret(const string& secret, const string& pubkey);
 
@@ -40,12 +53,16 @@ public:
 
 	static RSAWrapperPtr GetKeysFromSecop();
 
+	static RSAWrapperPtr GetKeysFromFile(const string& pubpath, const string& privpath);
+
+
 	virtual ~AuthServer();
 private:
 
 	Json::Reader reader;
 	Json::FastWriter writer;
 	string unit_id;
+	struct AuthCFG acfg;
 };
 
 }

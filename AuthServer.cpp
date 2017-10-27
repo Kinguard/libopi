@@ -2,14 +2,17 @@
 #include "Secop.h"
 #include <stdexcept>
 
+#include <libutils/FileUtils.h>
+
 using namespace std;
 
 namespace OPI
 {
 
 
-AuthServer::AuthServer(const string &unit_id, const string &host): HttpClient( host ), unit_id(unit_id)
+AuthServer::AuthServer(const string &unit_id, const AuthCFG &cfg): HttpClient( cfg.authserver ), unit_id(unit_id), acfg(cfg)
 {
+
 }
 
 tuple<int, string> AuthServer::GetChallenge()
@@ -48,14 +51,23 @@ tuple<int, Json::Value> AuthServer::SendSignedChallenge(const string &challenge)
 	return tuple<int,Json::Value>(this->result_code, retobj );
 }
 
-tuple<int, Json::Value> AuthServer::Login()
+tuple<int, Json::Value> AuthServer::Login(bool usetempkeys)
 {
 	Json::Value ret;
-	CryptoHelper::RSAWrapperPtr c = AuthServer::GetKeysFromSecop();
+	CryptoHelper::RSAWrapperPtr c;
+
+	if( usetempkeys )
+	{
+		c = AuthServer::GetKeysFromFile(this->acfg.pubkeypath, this->acfg.privkeypath);
+	}
+	else
+	{
+		c = AuthServer::GetKeysFromSecop();
+	}
 
 	if( ! c )
 	{
-		ret["desc"]="Failed to get keys from secop";
+		ret["desc"]="Failed to get retrieve keys";
 		return tuple<int, Json::Value>(503, ret);
 	}
 
@@ -204,6 +216,19 @@ RSAWrapperPtr AuthServer::GetKeysFromSecop()
 			}
 		}
 	}
+
+	return c;
+}
+
+RSAWrapperPtr AuthServer::GetKeysFromFile(const string &pubpath, const string &privpath)
+{
+	CryptoHelper::RSAWrapperPtr c( new RSAWrapper );
+
+	string pub_pem = Utils::File::GetContentAsString( pubpath, true );
+	string priv_pem = Utils::File::GetContentAsString( privpath, true );
+
+	c->LoadPubKeyFromPEM( pub_pem );
+	c->LoadPrivKeyFromPEM( priv_pem );
 
 	return c;
 }
