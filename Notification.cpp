@@ -58,9 +58,9 @@ void Notification::Notify(Notification::Notice notice, const string &info)
 	{
 		switch ( notice ) {
 		case Notification::Completed:
-			this->leds.Brightness("blue", true);
+            this->leds.Brightness("blue", false);
 			this->leds.Brightness("red", false);
-			this->leds.Brightness("green", false);
+            this->leds.Brightness("green", true);
             this->leds.SetTrigger("blue","none");
             this->leds.SetTrigger("red","none");
             this->leds.SetTrigger("green","none");
