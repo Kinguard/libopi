@@ -61,17 +61,26 @@ void Notification::Notify(Notification::Notice notice, const string &info)
 			this->leds.Brightness("blue", true);
 			this->leds.Brightness("red", false);
 			this->leds.Brightness("green", false);
-			break;
+            this->leds.SetTrigger("blue","none");
+            this->leds.SetTrigger("red","none");
+            this->leds.SetTrigger("green","none");
+            break;
 		case Notification::Waiting:
 			this->leds.Brightness("blue", false);
 			this->leds.Brightness("red", false);
 			this->leds.Brightness("green", true);
-			break;
+            this->leds.SetTrigger("blue","none");
+            this->leds.SetTrigger("red","none");
+            this->leds.SetTrigger("green","heartbeat");
+            break;
 		case Notification::Error:
 			this->leds.Brightness("blue", false);
 			this->leds.Brightness("red", true);
 			this->leds.Brightness("green", false);
-			break;
+            this->leds.SetTrigger("blue","none");
+            this->leds.SetTrigger("red","none");
+            this->leds.SetTrigger("green","none");
+            break;
 		default:
 			break;
 		}

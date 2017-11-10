@@ -1,3 +1,9 @@
+libopi (1.6.19) UNRELEASED; urgency=medium
+
+  * Added "heartbeat" trigger to "Wait" status for Armada 
+
+ -- PA Nilsson <pa@openproducts.se>  Fri, 10 Nov 2017 10:01:46 +0000
+
 libopi (1.6.18) vili; urgency=medium
 
   * Added BackupRootPath to sysinfo 
