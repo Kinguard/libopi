@@ -1,4 +1,4 @@
-libopi (1.6.19) UNRELEASED; urgency=medium
+libopi (1.6.19) vili; urgency=medium
 
   * Added "heartbeat" trigger to "Wait" status for Armada 
 
