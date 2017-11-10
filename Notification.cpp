@@ -57,29 +57,37 @@ void Notification::Notify(Notification::Notice notice, const string &info)
 	case SysInfo::TypeArmada:
 	{
 		switch ( notice ) {
+        // "heartbeat" trigger can have LED in either state, when changing to "none"
+        // make sure to set the value also.
+
 		case Notification::Completed:
             this->leds.SetTrigger("blue","none");
+            this->leds.Brightness("blue", false);  // make sure led is turned off.
+
             this->leds.SetTrigger("red","none");
+            this->leds.Brightness("red", false);  // make sure led is turned off.
+
             this->leds.SetTrigger("green","none");
-            this->leds.Brightness("blue", false);
-            this->leds.Brightness("red", false);
-            this->leds.Brightness("green", true);
+            this->leds.Brightness("green", true);  // make sure led is turned on.
             break;
 		case Notification::Waiting:
             this->leds.SetTrigger("blue","none");
+            this->leds.Brightness("blue", false);  // make sure led is turned off.
+
             this->leds.SetTrigger("red","none");
+            this->leds.Brightness("red", false);  // make sure led is turned off.
+
             this->leds.SetTrigger("green","heartbeat");
-            this->leds.Brightness("blue", false);
-            this->leds.Brightness("red", false);
-            this->leds.Brightness("green", true);
             break;
 		case Notification::Error:
             this->leds.SetTrigger("blue","none");
+            this->leds.Brightness("blue", false);  // make sure led is turned off.
+
             this->leds.SetTrigger("red","none");
+            this->leds.Brightness("red", true);  // make sure led is turned on.
+
             this->leds.SetTrigger("green","none");
-            this->leds.Brightness("blue", false);
-            this->leds.Brightness("red", true);
-            this->leds.Brightness("green", false);
+            this->leds.Brightness("green", false);  // make sure led is turned off.
             break;
 		default:
 			break;
