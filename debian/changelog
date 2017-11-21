@@ -1,3 +1,9 @@
+libopi (1.6.21) vili; urgency=medium
+
+  * Add lvm and luks policies
+
+ -- Tor Krill <tor@openproducts.se>  Tue, 21 Nov 2017 14:20:00 +0100
+
 libopi (1.6.20) vili; urgency=medium
 
   * Add initial thin LVM implementation
