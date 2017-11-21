@@ -200,7 +200,6 @@ RSAWrapperPtr AuthServer::GetKeysFromSecop()
 		return c;
 	}
 
-	bool found = false;
 	for(auto id : ids )
 	{
 		if( id.find("type") != id.end() )
@@ -211,7 +210,6 @@ RSAWrapperPtr AuthServer::GetKeysFromSecop()
 				// Key found
 				c->LoadPrivKeyFromDER( CryptoHelper::Base64Decode( id["privkey"]) );
 				c->LoadPubKeyFromDER( CryptoHelper::Base64Decode( id["pubkey"]) );
-				found = true;
 				break;
 			}
 		}

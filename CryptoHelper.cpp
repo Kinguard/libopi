@@ -611,7 +611,7 @@ PBKDF2 (const SecString &passwd, size_t keylength, const vector<byte>& salt,
 
 	PKCS5_PBKDF2_HMAC<SHA512> df;
 
-	int iters_done = df.DeriveKey(
+	df.DeriveKey(
 		&ret[0], ret.size(),
 		0,
 		(const byte*)passwd.c_str(), passwd.length(),

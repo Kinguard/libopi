@@ -20,7 +20,7 @@ namespace OPI
 
 BackupHelper::BackupHelper(const string& pwd, BackupInterfacePtr iface):
 	localmounted(false), remotemounted(false), cfgcreated(false),
-	pwd(pwd), iface(iface)
+	iface(iface), pwd(pwd)
 {
 
 }
