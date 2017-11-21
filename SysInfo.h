@@ -99,6 +99,12 @@ public:
     string SerialNumber();
     string SerialNumberDevice();
 
+    /**
+     * @brief BackupRootPath Get base path on where remote FS for backup is mounted.
+     * @return path to use for mount points, i.e. "/mnt/backup"
+     */
+    string BackupRootPath();
+
 
 	virtual ~SysInfo();
 
@@ -127,6 +133,7 @@ private:
 
 	string networkdevice;		// Which network device to use for operation
     string serialnbrdevice;		// Path to eeprom that holds the serial number
+    string backuprootpath;      // Root path on where to mount remote FS for backup.
 };
 
 extern SysInfo sysinfo;

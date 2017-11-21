@@ -125,6 +125,11 @@ string SysInfo::SerialNumber()
     return serial;
 }
 
+string SysInfo::BackupRootPath()
+{
+    return this->backuprootpath;
+}
+
 SysInfo::~SysInfo()
 {
 
@@ -247,6 +252,7 @@ void SysInfo::SetupPaths()
 		this->passworddevicepath = "/dev/sda1";
 		this->networkdevice = "eth0";
         this->serialnbrdevice = "/sys/bus/i2c/devices/0-0050/eeprom";
+        this->backuprootpath = "/mnt/backup/";
         break;
 	case TypeXu4:
 		this->storagedevicepath = "/dev/disk/by-path";
@@ -255,6 +261,7 @@ void SysInfo::SetupPaths()
 		this->passworddevicepath = "/dev/disk/by-path/platform-12110000.usb-usb-0:1:1.0-scsi-0:0:0:0-part1";
 		this->networkdevice = "eth0";
         this->serialnbrdevice = "Undefined";
+        this->backuprootpath = "/mnt/backup/";
         break;
 	case TypePC:
 		this->storagedevicepath = "/dev";
@@ -263,6 +270,7 @@ void SysInfo::SetupPaths()
 		this->passworddevicepath = "Undefined";
 		this->networkdevice = "eth0";
         this->serialnbrdevice = "Undefined";
+        this->backuprootpath = "/mnt/backup/";
         break;
 	case TypeArmada:
 		this->storagedevicepath = "/dev/disk/by-path";
@@ -271,6 +279,7 @@ void SysInfo::SetupPaths()
 		this->passworddevicepath = "/dev/disk/by-path/platform-f10f8000.usb3-usb-0:1:1.0-scsi-0:0:0:0-part1";
 		this->networkdevice = "eth0";
         this->serialnbrdevice = "/sys/bus/i2c/devices/0-0057/eeprom";
+        this->backuprootpath = "/mnt/backup/";
         break;
 	case TypeOlimexA20:
 		this->storagedevicepath = "/dev";
@@ -279,6 +288,7 @@ void SysInfo::SetupPaths()
 		this->passworddevicepath = "/dev/sdb1";
 		this->networkdevice = "eth0";
         this->serialnbrdevice = "Undefined";
+        this->backuprootpath = "/mnt/backup/";
         break;
 	default:
 		break;

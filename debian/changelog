@@ -1,10 +1,22 @@
-libopi (1.6.18) vili; urgency=medium
+libopi (1.6.20) vili; urgency=medium
 
   * Add initial thin LVM implementation
   * Increase compile warning level
   * Fix most warnings on increased compile verbosity
 
  -- Tor Krill <tor@openproducts.se>  Tue, 21 Nov 2017 13:39:52 +0100
+
+libopi (1.6.19) vili; urgency=medium
+
+  * Added "heartbeat" trigger to "Wait" status for Armada
+
+ -- PA Nilsson <pa@openproducts.se>  Fri, 10 Nov 2017 10:01:46 +0000
+
+libopi (1.6.18) vili; urgency=medium
+
+  * Added BackupRootPath to sysinfo
+
+ -- PA Nilsson <pa@openproducts.se>  Fri, 27 Oct 2017 08:21:50 +0200
 
 libopi (1.6.17) vili; urgency=medium
 

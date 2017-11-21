@@ -118,3 +118,8 @@ void TestSysInfo::TestSerialNumber()
         CPPUNIT_FAIL("Missing Serial Number for unknown type");
     }
 }
+
+void TestSysInfo::TestBackupRootPath()
+{
+    CPPUNIT_ASSERT_EQUAL( string("/mnt/backup/"),OPI::sysinfo.BackupRootPath() );
+}
