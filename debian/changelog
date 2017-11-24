@@ -1,3 +1,9 @@
+libopi (1.6.23) vili; urgency=medium
+
+  * Add list logical volumes to volume group class
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 24 Nov 2017 17:02:40 +0100
+
 libopi (1.6.22) vili; urgency=medium
 
   * Fix bug, keep should use LVM

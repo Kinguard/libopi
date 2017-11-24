@@ -41,6 +41,12 @@ public:
 	void RemovePhysicalVolume(PhysicalVolumePtr pv);
 
 	/**
+	 * @brief GetLogicalVolumes of VG
+	 * @return list with all logical volumes of VG
+	 */
+	list<LogicalVolumePtr> GetLogicalVolumes();
+
+	/**
 	 * @brief CreateLogicalVolume
 	 * @param name name of volume to create
 	 * @param size size of volume, if zero use all available space in vg

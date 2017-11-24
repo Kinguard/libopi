@@ -224,6 +224,23 @@ void VolumeGroup::RemovePhysicalVolume(PhysicalVolumePtr pv)
 	}
 }
 
+list<LogicalVolumePtr> VolumeGroup::GetLogicalVolumes()
+{
+	list<LogicalVolumePtr> lvs;
+	struct dm_list *list;
+	list = lvm_vg_list_lvs( this->vghandle);
+
+	struct lvm_lv_list *lvitem;
+
+	dm_list_iterate_items(lvitem, list )
+	{
+		lv_t lv = lvitem->lv;
+		lvs.push_back( LogicalVolumePtr( new LogicalVolume( lvm_lv_get_name(lv) , this, lv) ) );
+	}
+
+	return lvs;
+}
+
 LogicalVolumePtr VolumeGroup::CreateLogicalVolume(const string &name, uint64_t size)
 {
 
