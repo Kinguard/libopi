@@ -163,7 +163,7 @@ bool SysInfo::isPC()
 bool SysInfo::useLVM()
 {
 	SysType t = sysinfo.Type();
-	if( t == SysInfo::TypeOpi || t == SysInfo::TypeArmada )
+	if( t == SysInfo::TypeOpi || t == SysInfo::TypeOlimexA20 )
 	{
 		return false;
 	}
