@@ -44,6 +44,14 @@ PhysicalVolumePtr LVM::CreatePhysicalVolume(const string &devpath, uint64_t size
 	return ret;
 }
 
+void LVM::RemovePhysicalVolume(PhysicalVolumePtr pv)
+{
+	if( lvm_pv_remove( this->lvm, pv->Path().c_str() ) != 0 )
+	{
+		throw std::runtime_error( lvm_errmsg( this->lvm ));
+	}
+}
+
 list<VolumeGroupPtr> LVM::ListVolumeGroups()
 {
 	list<VolumeGroupPtr> ret;

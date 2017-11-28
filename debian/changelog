@@ -1,3 +1,10 @@
+libopi (1.6.24) vili; urgency=medium
+
+  * Update deps to include lvm2-dev for opi-dev as well
+  * Add lvm remove physical volume method
+
+ -- Tor Krill <tor@openproducts.se>  Tue, 28 Nov 2017 10:14:49 +0100
+
 libopi (1.6.23) vili; urgency=medium
 
   * Add list logical volumes to volume group class

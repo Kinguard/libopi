@@ -113,6 +113,7 @@ public:
 
 	list<PhysicalVolumePtr> ListUnusedPhysicalVolumes();
 	PhysicalVolumePtr CreatePhysicalVolume(const string& devpath, uint64_t size=0);
+	void RemovePhysicalVolume( PhysicalVolumePtr pv);
 
 	list<VolumeGroupPtr> ListVolumeGroups();
 	VolumeGroupPtr GetVolumeGroup(const string& name);
