@@ -1,3 +1,9 @@
+libopi (1.6.25) vili; urgency=medium
+
+  * Catch null return on list lvs
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 01 Dec 2017 13:53:21 +0100
+
 libopi (1.6.24) vili; urgency=medium
 
   * Update deps to include lvm2-dev for opi-dev as well

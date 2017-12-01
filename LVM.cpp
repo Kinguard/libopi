@@ -238,8 +238,12 @@ list<LogicalVolumePtr> VolumeGroup::GetLogicalVolumes()
 	struct dm_list *list;
 	list = lvm_vg_list_lvs( this->vghandle);
 
-	struct lvm_lv_list *lvitem;
+	if( list == nullptr )
+	{
+		return lvs;
+	}
 
+	struct lvm_lv_list *lvitem;
 	dm_list_iterate_items(lvitem, list )
 	{
 		lv_t lv = lvitem->lv;
