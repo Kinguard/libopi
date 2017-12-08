@@ -1,4 +1,4 @@
-libopi (1.6.26) UNRELEASED; urgency=medium
+libopi (1.6.26) vili; urgency=medium
 
   * Add dep on lvm2 to get lvmetad
 
