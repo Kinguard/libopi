@@ -1,3 +1,9 @@
+libopi (1.6.26) UNRELEASED; urgency=medium
+
+  * Add dep on lvm2 to get lvmetad
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 08 Dec 2017 15:57:28 +0100
+
 libopi (1.6.25) vili; urgency=medium
 
   * Catch null return on list lvs
