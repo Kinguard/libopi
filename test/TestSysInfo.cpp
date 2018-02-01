@@ -10,7 +10,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION ( TestSysInfo );
 
 void TestSysInfo::setUp()
 {
-#if 1
+#if 0
 	cout << "\n"
 	<< "Platform         : " << OPI::sysinfo.SysTypeText[OPI::sysinfo.Type() ] << endl
 	<< "Numcpus          : " << OPI::sysinfo.NumCpus() << endl
