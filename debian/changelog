@@ -1,3 +1,9 @@
+libopi (1.6.27) vili; urgency=medium
+
+  * Added function to generate external certificate(s).
+
+ -- PA Nilsson <pa@openproducts.se>  Thu, 01 Feb 2018 12:50:03 +0000
+
 libopi (1.6.26) vili; urgency=medium
 
   * Add dep on lvm2 to get lvmetad
