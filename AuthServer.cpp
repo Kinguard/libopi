@@ -3,7 +3,6 @@
 #include <stdexcept>
 
 #include <libutils/FileUtils.h>
-#include <libutils/Process.h>
 
 using namespace std;
 
@@ -148,44 +147,6 @@ tuple<int, Json::Value> AuthServer::GetCertificate(const string &csr, const stri
 	this->reader.parse(body, retobj);
 
 	return tuple<int,Json::Value>(this->result_code, retobj );
-}
-
-tuple<int, string> AuthServer::GetExternalCertificates(bool force)
-{
-    string opts,msg;
-    bool res;
-    int retval;
-    const string certhandler = "/usr/share/kinguard-certhandler/letsencrypt.sh";
-
-    if (Utils::File::FileExists(certhandler))
-    {
-        if (force)
-        {
-            opts = " -cf";
-        }
-        else
-        {
-            opts = " -c";
-        }
-
-        tie(res, std::ignore) = Utils::Process::Exec(certhandler+opts);
-        if ( res )
-        {
-            retval = 1;
-            msg = "Failed to generate external certificate(s)";
-        }
-        else
-        {
-            retval = 0;
-            msg = "External certificates generated.";
-        }
-    }
-    else
-    {
-        retval = 1;
-        msg = "No External Certhandler available";
-    }
-    return tuple<int,string>(retval,msg);
 }
 
 tuple<int, Json::Value> AuthServer::UpdateMXPointer(bool useopi, const string &token)

@@ -59,6 +59,7 @@ set( headers
 	ServiceHelper.h
 	SmtpConfig.h
 	SysInfo.h
+	ExtCert.h
 	"${PROJECT_BINARY_DIR}/Config.h"
 	)
 
@@ -81,6 +82,7 @@ set( src
 	ServiceHelper.cpp
 	SmtpConfig.cpp
 	SysInfo.cpp
+	ExtCert.cpp
 	)
 
 add_definitions( -std=c++11 -Wall )
