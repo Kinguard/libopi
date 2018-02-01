@@ -13,11 +13,12 @@ pkg_check_modules ( CPPUNIT REQUIRED cppunit>=1.12.1)
 pkg_check_modules ( LIBJSONCPP REQUIRED jsoncpp>=1.0 )
 pkg_check_modules ( LIBSSL REQUIRED libssl )
 pkg_check_modules ( BLKID REQUIRED blkid>=2.20.0 )
+pkg_check_modules ( LVM2APP REQUIRED lvm2app )
 
 
 set (VERSION_MAJOR 1)
 set (VERSION_MINOR 6)
-set (VERSION_PATCH 4)
+set (VERSION_PATCH 5)
 set (VERSION "${VERSION_MAJOR}.${VERSION_MINOR}")
 set (VERSION_FULL "${VERSION}.${VERSION_PATCH}")
 set (APP_NAME "lib${PROJECT_NAME}")
@@ -50,6 +51,7 @@ set( headers
 	HttpClient.h
 	LedControl.h
 	Luks.h
+	LVM.h
 	MailConfig.h
 	NetworkConfig.h
 	Notification.h
@@ -71,6 +73,7 @@ set( src
 	HttpClient.cpp
 	LedControl.cpp
 	Luks.cpp
+	LVM.cpp
 	MailConfig.cpp
 	NetworkConfig.cpp
 	Notification.cpp
@@ -80,7 +83,7 @@ set( src
 	SysInfo.cpp
 	)
 
-add_definitions( -std=c++0x )
+add_definitions( -std=c++11 -Wall )
 
 add_library( ${PROJECT_NAME}_static STATIC ${src} )
 add_library( ${PROJECT_NAME} SHARED ${src} )
@@ -96,6 +99,7 @@ target_link_libraries(  ${PROJECT_NAME}
 	${LIBCURL_LDFLAGS}
 	${LIBCRYPTO++_LDFLAGS}
 	${BLKID_LDFLAGS}
+	${LVM2APP_LDFLAGS}
 	)
 
 set_target_properties( ${PROJECT_NAME} PROPERTIES

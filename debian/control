@@ -11,18 +11,20 @@ Build-Depends: debhelper (>= 8.0.0), cmake, pkg-config,
 	libssl-dev,
 	libcryptsetup-dev,
 	libparted0-dev,
-	libudev-dev
+	libudev-dev,
+	liblvm2-dev
 Standards-Version: 3.9.4
 Section: libs
 
 Package: libopi-dev
 Section: libdevel
 Architecture: any
-Depends: libopi1 (= ${binary:Version})
+Depends: libopi1 (= ${binary:Version}),
+	liblvm2-dev
 Description: OPI support functions development files
 
 Package: libopi1
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, lvm2
 Description: Library with OPI support functions

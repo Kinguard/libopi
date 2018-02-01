@@ -114,6 +114,9 @@ public:
 	static bool isOlimexA20();
 	static bool isPC();
 
+	static bool useLVM();
+	static bool useLUKS();
+
 	static SysType TypeFromName(const string& devname);
 
 private:

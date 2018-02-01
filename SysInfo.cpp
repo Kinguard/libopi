@@ -160,6 +160,23 @@ bool SysInfo::isPC()
 	return sysinfo.Type() == SysInfo::TypePC;
 }
 
+bool SysInfo::useLVM()
+{
+	SysType t = sysinfo.Type();
+	if( t == SysInfo::TypeOpi || t == SysInfo::TypeOlimexA20 )
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool SysInfo::useLUKS()
+{
+	// All platforms use LUKS atm
+	return true;
+}
+
 SysInfo::SysType SysInfo::TypeFromName(const string &devname)
 {
 	static map<string, SysInfo::SysType> devtypemap =

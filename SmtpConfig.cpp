@@ -347,7 +347,7 @@ void SmtpConfig::SetOPRelayMode(OPRelayConf &conf)
 	}
 
 	this->opconf = conf;
-	this->mode == SmtpMode::OPRelay;
+	this->mode = SmtpMode::OPRelay;
 }
 
 OPRelayConf SmtpConfig::GetOPRelayConfig()
