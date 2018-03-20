@@ -40,15 +40,56 @@ void Notification::Notify(Notification::Notice notice, const string &info)
 	{
 		switch ( notice ) {
 		case Notification::Completed:
-			this->leds.SetTrigger("usr2", "none");
-			this->leds.Brightness("usr2", true);
+            // all green leds on
+            this->leds.SetTrigger("usr0", "none");
+            this->leds.Brightness("usr0", true);
+
+            this->leds.SetTrigger("usr1", "none");
+            this->leds.Brightness("usr1", true);
+
+            this->leds.SetTrigger("usr2", "none");
+            this->leds.Brightness("usr2", true);
+
+            // red led off
+            this->leds.SetTrigger("usr3", "none");
+            this->leds.Brightness("usr3", false);
+
 			break;
+
 		case Notification::Waiting:
-			this->leds.SetTrigger("usr2", "heartbeat");
-			break;
-		case Notification::Error:
-			this->leds.SetTrigger("usr3", "heartbeat");
-			break;
+            // first and second green leds on
+            this->leds.SetTrigger("usr0", "none");
+            this->leds.Brightness("usr0", true);
+
+            this->leds.SetTrigger("usr1", "none");
+            this->leds.Brightness("usr1", true);
+
+            // heartbeat on third led
+            this->leds.SetTrigger("usr2", "heartbeat");
+            this->leds.Brightness("usr2", true);
+
+            // red led off
+            this->leds.SetTrigger("usr3", "none");
+            this->leds.Brightness("usr3", false);
+
+            break;
+
+        case Notification::Error:
+            // first and second green leds on
+            this->leds.SetTrigger("usr0", "none");
+            this->leds.Brightness("usr0", true);
+
+            this->leds.SetTrigger("usr1", "none");
+            this->leds.Brightness("usr1", true);
+
+            // third led off
+            this->leds.SetTrigger("usr2", "none");
+            this->leds.Brightness("usr2", false);
+
+            // red led heartbeat
+            this->leds.SetTrigger("usr3", "heartbeat");
+
+            break;
 		default:
 			break;
 		}

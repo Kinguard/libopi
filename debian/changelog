@@ -1,3 +1,9 @@
+libopi (1.6.28) vili; urgency=medium
+
+  * Updated LED indications for typeOPI 
+
+ -- PA Nilsson <pa@openproducts.se>  Tue, 20 Mar 2018 16:22:22 +0100
+
 libopi (1.6.27) vili; urgency=medium
 
   * Added function to generate external certificate(s).
