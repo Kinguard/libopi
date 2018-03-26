@@ -2,6 +2,7 @@
 #include "Config.h"
 
 #include <map>
+#include <iostream>
 
 #include <json/json.h>
 
@@ -80,7 +81,8 @@ string SysInfo::SerialNumber()
     char data[250];
     const char* p = data;
     vector<string> v_serial;
-    string serial = "Undefined", pattern;
+    string serial = "Undefined";
+    list<string> allowed_patterns;
     size_t found;
     int offset, serial_size = 12;
 
@@ -100,12 +102,13 @@ string SysInfo::SerialNumber()
     {
     case TypeOpi:
         // OPI does not have the "serial=" identifier
-        pattern = "OP_I";
+        allowed_patterns.push_back("OP_I");
+        allowed_patterns.push_back("BBBK");  // used in the first batch of OPI's
         offset = -4;
         break;
     case TypeArmada:
     case TypePC:
-        pattern="serial=";
+        allowed_patterns.push_back("serial=");
         offset = 7;
         break;
 
@@ -114,12 +117,13 @@ string SysInfo::SerialNumber()
     default:
         break;
     }
-
-    if (pattern.size()) {
-        found = v_serial.back().find(pattern);
-        if (found != std::string::npos)
-        {
-            serial= v_serial.back().substr(found+offset,found+offset+serial_size);
+    for (auto const& pattern : allowed_patterns) {
+        if (pattern.size()) {
+            found = v_serial.back().find(pattern);
+            if (found != std::string::npos)
+            {
+                serial= v_serial.back().substr(found+offset,found+offset+serial_size);
+            }
         }
     }
     return serial;
@@ -249,6 +253,21 @@ void SysInfo::GuessType()
 		}
 	}
 
+    // Read override config to set type.
+    // This must be done prior to setting the defaults in order to have "type" set.
+    if( File::FileExists(DEVICEDBPATH) ) {
+        string fil = File::GetContentAsString(DEVICEDBPATH);
+        Json::Value db;
+
+        if( Json::Reader().parse(fil, db) )
+        {
+            if( db.isMember("override") && db["override"].isObject() )
+            {
+                this->ParseExtEntry( db["override"]);
+            }
+        }
+    }
+
 	// Have we found a match?
 	if( this->type == TypeUndefined )
 	{
@@ -298,7 +317,7 @@ void SysInfo::SetupPaths()
         this->serialnbrdevice = "/sys/bus/i2c/devices/0-0057/eeprom";
         this->backuprootpath = "/mnt/backup/";
         break;
-	case TypeOlimexA20:
+    case TypeOlimexA20:
 		this->storagedevicepath = "/dev";
 		this->storagedevice = "sda";
 		this->storagepartition = "1";
@@ -323,7 +342,6 @@ void SysInfo::ParseExtConfig()
 	string fil = File::GetContentAsString(DEVICEDBPATH);
 	Json::Value db;
 
-
 	if( Json::Reader().parse(fil, db) )
 	{
 		list<string> devices({"opi","xu4","olimexa20","armada","pc"});
@@ -340,7 +358,6 @@ void SysInfo::ParseExtConfig()
 		}
 
 	}
-
 }
 
 void SysInfo::ParseExtEntry(Json::Value &v)
@@ -368,6 +385,11 @@ void SysInfo::ParseExtEntry(Json::Value &v)
     if( v.isMember("serialnbrdevice") && v["serialnbrdevice"].isString() )
     {
         this->serialnbrdevice = v["serialnbrdevice"].asString();
+    }
+    if( v.isMember("type") && v["type"].isString() )
+    {
+        this->type = this->TypeFromName( v["type"].asString() );
+        cout << "Setting type to: " << this->SysTypeText[this->type ] << "\n";
     }
 }
 
