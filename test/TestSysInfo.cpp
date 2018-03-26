@@ -11,7 +11,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION ( TestSysInfo );
 void TestSysInfo::setUp()
 {
 #if 0
-	cout << "\n"
+    cout << "\n"
 	<< "Platform         : " << OPI::sysinfo.SysTypeText[OPI::sysinfo.Type() ] << endl
 	<< "Numcpus          : " << OPI::sysinfo.NumCpus() << endl
 	<< "Storagedevicepath: " << OPI::sysinfo.StorageDevicePath() << endl
@@ -79,19 +79,19 @@ void TestSysInfo::TestNetworkDevice()
 	switch( OPI::sysinfo.Type() )
 	{
 	case OPI::SysInfo::TypeArmada:
-		CPPUNIT_ASSERT_EQUAL( OPI::sysinfo.NetworkDevice(), string("eth0") );
+        CPPUNIT_ASSERT_EQUAL( string("eth0"), OPI::sysinfo.NetworkDevice() );
 		break;
 	case OPI::SysInfo::TypeOlimexA20:
-		CPPUNIT_ASSERT_EQUAL( OPI::sysinfo.NetworkDevice(), string("eth0") );
+        CPPUNIT_ASSERT_EQUAL( string("eth0"), OPI::sysinfo.NetworkDevice());
 		break;
 	case OPI::SysInfo::TypeOpi:
-		CPPUNIT_ASSERT_EQUAL( OPI::sysinfo.NetworkDevice(), string("eth0") );
+        CPPUNIT_ASSERT_EQUAL( string("eth0"), OPI::sysinfo.NetworkDevice() );
 		break;
 	case OPI::SysInfo::TypePC:
-		CPPUNIT_ASSERT_EQUAL( OPI::sysinfo.NetworkDevice(), string("enp0s31f6") );
+        CPPUNIT_ASSERT_EQUAL( string("enp0s31f6"), OPI::sysinfo.NetworkDevice() );
 		break;
 	case OPI::SysInfo::TypeXu4:
-		CPPUNIT_ASSERT_EQUAL( OPI::sysinfo.NetworkDevice(), string("eth0") );
+        CPPUNIT_ASSERT_EQUAL( string("eth0"), OPI::sysinfo.NetworkDevice() );
 		break;
 	default:
 		CPPUNIT_FAIL("Missing network device for unknown type");
@@ -106,6 +106,8 @@ void TestSysInfo::TestSerialNumber()
     switch( OPI::sysinfo.Type() )
     {
     case OPI::SysInfo::TypeOpi:
+        CPPUNIT_ASSERT( OPI::sysinfo.SerialNumber().length() == 12 );
+        break;
     case OPI::SysInfo::TypeArmada:
         CPPUNIT_ASSERT( OPI::sysinfo.SerialNumber().length() == 12 );
         break;
