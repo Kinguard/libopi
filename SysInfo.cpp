@@ -3,6 +3,7 @@
 
 #include <map>
 #include <iostream>
+#include <algorithm>
 
 #include <json/json.h>
 
@@ -191,11 +192,12 @@ SysInfo::SysType SysInfo::TypeFromName(const string &devname)
 		{"armada",SysInfo::TypeArmada },
 		{"pc",SysInfo::TypePC },
 	};
+    string dev = devname;
+    transform(dev.begin(), dev.end(), dev.begin(), ::tolower);
 
-
-	if( devtypemap.find(devname) != devtypemap.end() )
+    if( devtypemap.find(dev) != devtypemap.end() )
 	{
-		return devtypemap[devname];
+        return devtypemap[dev];
 	}
 	return SysType::TypeUnknown;
 }
