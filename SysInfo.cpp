@@ -103,7 +103,7 @@ string SysInfo::SerialNumber()
     {
     case TypeOpi:
         // OPI does not have the "serial=" identifier
-        allowed_patterns.push_back("OP_I");
+        allowed_patterns.push_back("OP-I");
         allowed_patterns.push_back("BBBK");  // used in the first batch of OPI's
         offset = -4;
         break;
@@ -123,7 +123,7 @@ string SysInfo::SerialNumber()
             found = v_serial.back().find(pattern);
             if (found != std::string::npos)
             {
-                serial= v_serial.back().substr(found+offset,found+offset+serial_size);
+                serial= v_serial.back().substr(found+offset,serial_size);
             }
         }
     }

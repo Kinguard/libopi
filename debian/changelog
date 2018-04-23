@@ -1,3 +1,9 @@
+libopi (1.6.30) vili; urgency=medium
+
+  * Fixed match pattern and length for OPI serials. 
+
+ -- PA Nilsson <pa@openproducts.se>  Mon, 23 Apr 2018 14:18:26 +0200
+
 libopi (1.6.29) vili; urgency=medium
 
   * Support for multiple serial number formats for each device. 
