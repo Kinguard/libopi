@@ -58,6 +58,7 @@ set( headers
 	Secop.h
 	ServiceHelper.h
 	SmtpConfig.h
+	SysConfig.h
 	SysInfo.h
 	ExtCert.h
 	"${PROJECT_BINARY_DIR}/Config.h"
@@ -81,6 +82,7 @@ set( src
 	Secop.cpp
 	ServiceHelper.cpp
 	SmtpConfig.cpp
+	SysConfig.cpp
 	SysInfo.cpp
 	ExtCert.cpp
 	)

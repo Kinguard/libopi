@@ -22,5 +22,6 @@
 #define SASLPASSWD		"/var/opi/mail/conf/sasl_passwd"
 #define OP_RELAYSERVER	"op-mail.openproducts.com"
 #define DEVICEDBPATH	"/etc/opi/devicedb.json"
+#define SYSCONFIGDBPATH	"/etc/kinguard/sysconfig.json"
 
 #endif

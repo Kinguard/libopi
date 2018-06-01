@@ -124,7 +124,10 @@ void TestHttpClient::TestNoCA()
 		TestHttp th("https://www.google.com");
 		th.setDefaultCA("");
 		CPPUNIT_ASSERT_NO_THROW( tie(rc,data) = th.Get("/",{}) );
-		CPPUNIT_ASSERT_EQUAL( 302, rc);
+		// Google seems to have changed this
+		// Should really rewrite this to accept 2xx and 3xx
+		//CPPUNIT_ASSERT_EQUAL( 302, rc);
+		CPPUNIT_ASSERT( rc == 302 || rc == 200) ;
 	}
 
 	// Verify with no CAs, should fail

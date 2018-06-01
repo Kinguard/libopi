@@ -14,6 +14,7 @@ set( testapp_src
 	TestResolverConfig.cpp
 	TestSmtpClient.cpp
 	TestSysInfo.cpp
+	TestSysConfig.cpp
 	)
 
 include_directories(
