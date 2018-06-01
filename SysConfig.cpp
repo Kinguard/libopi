@@ -1,6 +1,8 @@
 /*
 *	This file is part of libopi.
 *
+*	Copyright (c) 2018 Tor Krill <tor@openproducts.com>
+*
 *	libopi is free software: you can redistribute it and/or modify
 *	it under the terms of the GNU Affero General Public License as published
 *	by the Free Software Foundation, either version 3 of the License, or
@@ -56,8 +58,124 @@ string SysConfig::GetKeyAsString(const string &scope, const string &key)
 	}
 
 	logg << Logger::Error << "Key " << key << " not of wanted type" << lend;
+	throw runtime_error("Key not of wanted type in config db");
+}
 
-	throw( runtime_error("Key not of wanted type in config db"));
+list<string> SysConfig::GetKeyAsStringList(const string &scope, const string &key)
+{
+	Json::Value db = this->LoadDB();
+
+	Json::Value val = this->GetKey( db, scope, key );
+
+	if( val.isArray() )
+	{
+		list<string> ret;
+		for( Json::ArrayIndex i = 0; i < val.size(); i++ )
+		{
+			if( val[i].isString() )
+			{
+				ret.push_back(val[i].asString() );
+			}
+			else
+			{
+				logg << Logger::Error << "ConfigDB: unexpected data type in list"<<lend;
+				throw runtime_error("Unexpected data type in list");
+			}
+		}
+		return ret;
+	}
+
+	logg << Logger::Error << "Key " << key << " not of wanted type" << lend;
+	throw runtime_error("Key not of wanted type in config db");
+}
+
+int SysConfig::GetKeyAsInt(const string &scope, const string &key)
+{
+	Json::Value db = this->LoadDB();
+
+	Json::Value val = this->GetKey( db, scope, key );
+
+	if( val.isIntegral() )
+	{
+		 return val.asInt();
+	}
+
+	logg << Logger::Error << "Key " << key << " not of wanted type" << lend;
+
+	throw runtime_error("Key not of wanted type in config db");
+}
+
+list<int> SysConfig::GetKeyAsIntList(const string &scope, const string &key)
+{
+	Json::Value db = this->LoadDB();
+
+	Json::Value val = this->GetKey( db, scope, key );
+
+	if( val.isArray() )
+	{
+		list<int> ret;
+		for( Json::ArrayIndex i = 0; i < val.size(); i++ )
+		{
+			if( val[i].isInt() )
+			{
+				ret.push_back(val[i].asInt() );
+			}
+			else
+			{
+				logg << Logger::Error << "ConfigDB: unexpected data type in list"<<lend;
+				throw runtime_error("Unexpected data type in list");
+			}
+		}
+		return ret;
+	}
+
+	logg << Logger::Error << "Key " << key << " not of wanted type" << lend;
+	throw runtime_error("Key not of wanted type in config db");
+}
+
+bool SysConfig::GetKeyAsBool(const string &scope, const string &key)
+{
+	Json::Value db = this->LoadDB();
+
+	Json::Value val = this->GetKey( db, scope, key );
+
+	if( val.isBool() )
+	{
+		 return val.asBool();
+	}
+
+	logg << Logger::Error << "Key " << key << " not of wanted type" << lend;
+
+	throw runtime_error("Key not of wanted type in config db");
+}
+
+list<bool> SysConfig::GetKeyAsBoolList(const string &scope, const string &key)
+{
+	Json::Value db = this->LoadDB();
+
+	Json::Value val = this->GetKey( db, scope, key );
+
+	if( val.isArray() )
+	{
+		list<bool> ret;
+		for( Json::ArrayIndex i = 0; i < val.size(); i++ )
+		{
+			if( val[i].isBool() )
+			{
+				ret.push_back(val[i].asBool() );
+			}
+			else
+			{
+				logg << Logger::Error << "ConfigDB: unexpected data type in list"<<lend;
+				throw runtime_error("Unexpected data type in list");
+			}
+		}
+		return ret;
+	}
+
+	logg << Logger::Error << "Key " << key << " not of wanted type" << lend;
+	throw runtime_error("Key not of wanted type in config db");
+
 }
 
 void SysConfig::PutKey(const string &scope, const string &key, const string &value)
@@ -67,6 +185,92 @@ void SysConfig::PutKey(const string &scope, const string &key, const string &val
 	Json::Value db = this->ReadDB();
 
 	db[scope][key]=value;
+
+	this->WriteDB(db);
+
+	this->CloseDB();
+}
+
+void SysConfig::PutKey(const string &scope, const string &key, const list<string> &value)
+{
+	this->OpenDB();
+
+	Json::Value db = this->ReadDB();
+
+	Json::Value l(Json::arrayValue);
+
+	for(const auto& val: value)
+	{
+		l.append(val);
+	}
+
+	db[scope][key] = l;
+
+	this->WriteDB(db);
+
+	this->CloseDB();
+}
+
+void SysConfig::PutKey(const string &scope, const string &key, int value)
+{
+	this->OpenDB();
+
+	Json::Value db = this->ReadDB();
+
+	db[scope][key]=value;
+
+	this->WriteDB(db);
+
+	this->CloseDB();
+}
+
+void SysConfig::PutKey(const string &scope, const string &key, const list<int> &value)
+{
+	this->OpenDB();
+
+	Json::Value db = this->ReadDB();
+
+	Json::Value l(Json::arrayValue);
+
+	for(const auto& val: value)
+	{
+		l.append(val);
+	}
+
+	db[scope][key] = l;
+
+	this->WriteDB(db);
+
+	this->CloseDB();
+}
+
+void SysConfig::PutKey(const string &scope, const string &key, bool value)
+{
+	this->OpenDB();
+
+	Json::Value db = this->ReadDB();
+
+	db[scope][key]=value;
+
+	this->WriteDB(db);
+
+	this->CloseDB();
+}
+
+void SysConfig::PutKey(const string &scope, const string &key, const list<bool> &value)
+{
+	this->OpenDB();
+
+	Json::Value db = this->ReadDB();
+
+	Json::Value l(Json::arrayValue);
+
+	for(const auto& val: value)
+	{
+		l.append(val);
+	}
+
+	db[scope][key] = l;
 
 	this->WriteDB(db);
 
@@ -90,6 +294,28 @@ void SysConfig::RemoveKey(const string &scope, const string &key)
 	}
 	this->WriteDB(db);
 	this->CloseDB();
+}
+
+bool SysConfig::HasKey(const string &scope, const string &key)
+{
+	Json::Value db = this->LoadDB();
+
+	bool res = this->HasKey( db, scope, key);
+
+	this->CloseDB();
+
+	return res;
+}
+
+bool SysConfig::HasScope(const string &scope)
+{
+	Json::Value db = this->LoadDB();
+
+	bool res = this->HasScope( db, scope );
+
+	this->CloseDB();
+
+	return res;
 }
 
 SysConfig::~SysConfig()
@@ -229,7 +455,7 @@ void SysConfig::WriteDB(const Json::Value &db)
 		throw ErrnoException("ConfigDB: failed to truncate db-file before write");
 	}
 
-	Json::FastWriter writer;
+	Json::StyledWriter writer;
 	string out = writer.write( db );
 
 	__gnu_cxx::stdio_filebuf<char> fb(this->fd,std::ios_base::out);

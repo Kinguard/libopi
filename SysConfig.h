@@ -1,6 +1,8 @@
 /*
 *	This file is part of libopi.
 *
+*	Copyright (c) 2018 Tor Krill <tor@openproducts.com>
+*
 *	libopi is free software: you can redistribute it and/or modify
 *	it under the terms of the GNU Affero General Public License as published
 *	by the Free Software Foundation, either version 3 of the License, or
@@ -18,6 +20,7 @@
 #ifndef SYSCONFIG_H
 #define SYSCONFIG_H
 
+#include <list>
 #include <string>
 #include <json/json.h>
 
@@ -32,8 +35,23 @@ public:
 	SysConfig(const string& path);
 
 	string GetKeyAsString(const string& scope, const string& key);
+	list<string> GetKeyAsStringList(const string& scope, const string& key);
+	int GetKeyAsInt(const string& scope, const string& key);
+	list<int> GetKeyAsIntList(const string& scope, const string& key);
+	bool GetKeyAsBool(const string& scope, const string& key);
+	list<bool> GetKeyAsBoolList(const string& scope, const string& key);
+
 	void PutKey(const string& scope, const string& key, const string& value);
+	void PutKey(const string& scope, const string& key, const list<string>& value);
+	void PutKey(const string& scope, const string& key, int value);
+	void PutKey(const string& scope, const string& key, const list<int>& value);
+	void PutKey(const string& scope, const string& key, bool value);
+	void PutKey(const string& scope, const string& key, const list<bool>& value);
+
 	void RemoveKey(const string& scope, const string& key);
+
+	bool HasKey(const string& scope, const string& key);
+	bool HasScope(const string& scope);
 
 	virtual ~SysConfig();
 private:

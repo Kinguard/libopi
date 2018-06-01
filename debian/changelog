@@ -1,3 +1,9 @@
+libopi (1.6.31) vili; urgency=medium
+
+  * Added SysConfig class
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 01 Jun 2018 17:02:57 +0200
+
 libopi (1.6.30) vili; urgency=medium
 
   * Fixed match pattern and length for OPI serials. 
