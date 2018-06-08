@@ -1,3 +1,9 @@
+libopi (1.6.32) vili; urgency=medium
+
+  * Added "local IP" update to DnsServer 
+
+ -- PA Nilsson <pa@openproducts.se>  Fri, 08 Jun 2018 11:00:09 +0200
+
 libopi (1.6.31) vili; urgency=medium
 
   * Added SysConfig class

@@ -1,6 +1,8 @@
 #include "DnsServer.h"
 #include "CryptoHelper.h"
 #include "Config.h"
+#include "SysInfo.h"
+#include "NetworkConfig.h"
 
 #include <libutils/Logger.h>
 #include <libutils/FileUtils.h>
@@ -69,7 +71,8 @@ bool DnsServer::UpdateDynDNS(const string &unit_id, const string &name)
 
 	map<string,string> postargs = {
 		{"unit_id", unit_id},
-		{"fqdn",  name}
+        {"fqdn",  name},
+        {"local_ip", NetUtils::GetAddress(sysinfo.NetworkDevice())}
 	};
 
 	map<string,string> headers = {
