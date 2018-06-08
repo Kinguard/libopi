@@ -61,25 +61,39 @@ bool DnsServer::RegisterPublicKey(const string &unit_id, const string &key, cons
 
 bool DnsServer::UpdateDynDNS(const string &unit_id, const string &name)
 {
+    map<string,string> postargs;
 
-	if( ! this->Auth( unit_id ) )
-	{
-		return false;
-	}
+    if ( unit_id.length() ) {
+        // use normal login method
+        if( ! this->Auth( unit_id ) )
+        {
+            return false;
+        }
+        logg << Logger::Debug << "Update DNS pointer"<< lend;
 
-	logg << Logger::Debug << "Update DNS pointer"<< lend;
+        postargs = {
+            {"unit_id", unit_id},
+            {"fqdn",  name},
+            {"local_ip", NetUtils::GetAddress(sysinfo.NetworkDevice())}
+        };
 
-	map<string,string> postargs = {
-		{"unit_id", unit_id},
-        {"fqdn",  name},
-        {"local_ip", NetUtils::GetAddress(sysinfo.NetworkDevice())}
-	};
+        map<string,string> headers = {
+            {"token", this->token}
+        };
 
-	map<string,string> headers = {
-		{"token", this->token}
-	};
+        this->CurlSetHeaders(headers);
+    }
+    else
+    {
+        // update OP DNS servers based on serial number
+        logg << Logger::Debug << "Update DNS based on device serial number"<< lend;
+        postargs = {
+            {"fqdn",  sysinfo.SerialNumber() + "." + sysinfo.Domains[sysinfo.Type()]},
+            {"local_ip", NetUtils::GetAddress(sysinfo.NetworkDevice())}
+        };
 
-	this->CurlSetHeaders(headers);
+    }
+
 
 	string body = this->DoPost("update_dns.php", postargs);
 

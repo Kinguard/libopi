@@ -1,6 +1,7 @@
 libopi (1.6.32) vili; urgency=medium
 
   * Added "local IP" update to DnsServer 
+  * Added DnsServer support for serial number update
 
  -- PA Nilsson <pa@openproducts.se>  Fri, 08 Jun 2018 11:00:09 +0200
 
