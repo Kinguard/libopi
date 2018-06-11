@@ -26,5 +26,5 @@ Description: OPI support functions development files
 Package: libopi1
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, lvm2
+Depends: ${shlibs:Depends}, ${misc:Depends}, lvm2, haveged
 Description: Library with OPI support functions
