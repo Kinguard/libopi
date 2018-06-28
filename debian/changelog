@@ -1,3 +1,10 @@
+libopi (1.6.33) vili; urgency=medium
+
+  * Add dep on haveged to increase available entropy
+  * Update sysconfig class to support read only operation
+
+ -- Tor Krill <tor@openproducts.se>  Thu, 28 Jun 2018 14:43:44 +0000
+
 libopi (1.6.32) vili; urgency=medium
 
   * Added "local IP" update to DnsServer 
