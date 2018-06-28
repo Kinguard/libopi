@@ -9,6 +9,7 @@ class TestSysConfig: public CppUnit::TestFixture
 	CPPUNIT_TEST_SUITE( TestSysConfig );
 	CPPUNIT_TEST( TestCreate );
 	CPPUNIT_TEST( TestAccess );
+	CPPUNIT_TEST( TestReadWrite );
 	CPPUNIT_TEST( TestInt );
 	CPPUNIT_TEST( TestBool );
 	CPPUNIT_TEST( TestList );
@@ -18,6 +19,7 @@ public:
 	void tearDown();
 	void TestCreate();
 	void TestAccess();
+	void TestReadWrite();
 	void TestInt();
 	void TestBool();
 	void TestList();

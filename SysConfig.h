@@ -32,7 +32,11 @@ class SysConfig
 {
 public:
 	SysConfig();
-	SysConfig(const string& path);
+	SysConfig(bool writeable);
+	SysConfig(const string& path, bool writeable = false);
+
+	void Writeable(bool writeable);
+	bool IsWriteable();
 
 	string GetKeyAsString(const string& scope, const string& key);
 	list<string> GetKeyAsStringList(const string& scope, const string& key);
@@ -72,6 +76,7 @@ private:
 
 	string path;
 	int fd;
+	bool writeable;
 };
 }
 

@@ -26,7 +26,7 @@ void TestSysConfig::TestCreate()
 
 void TestSysConfig::TestAccess()
 {
-	SysConfig cfg(TESTDB);
+	SysConfig cfg(TESTDB, true);
 	// Should fail
 	CPPUNIT_ASSERT_THROW(cfg.GetKeyAsString("a","b"), runtime_error);
 
@@ -42,9 +42,37 @@ void TestSysConfig::TestAccess()
 	CPPUNIT_ASSERT_THROW( cfg.GetKeyAsString("a","b1"), runtime_error );
 }
 
+void TestSysConfig::TestReadWrite()
+{
+
+	{
+		// File should not exist,  and thus not possible to open
+		SysConfig cfg;
+		CPPUNIT_ASSERT_THROW( cfg.PutKey("a","b","c"), std::runtime_error );
+	}
+
+	{
+		// File should not exist,  and thus not possible to open
+		SysConfig cfg(TESTDB, false);
+		CPPUNIT_ASSERT_THROW( cfg.PutKey("a","b", "c"), std::runtime_error );
+	}
+
+	{
+		SysConfig cfg(TESTDB, true);
+		CPPUNIT_ASSERT_NO_THROW( cfg.PutKey("a","b", "c"));
+		// File shuld be created
+	}
+
+	{
+		// File should exist,  and write should fail
+		SysConfig cfg(TESTDB, false);
+		CPPUNIT_ASSERT_THROW( cfg.PutKey("a","b", "c"), std::runtime_error );
+	}
+}
+
 void TestSysConfig::TestInt()
 {
-	SysConfig cfg(TESTDB);
+	SysConfig cfg(TESTDB, true);
 	CPPUNIT_ASSERT( ! cfg.HasScope( "a") );
 	CPPUNIT_ASSERT( ! cfg.HasKey( "a", "b") );
 
@@ -60,7 +88,7 @@ void TestSysConfig::TestInt()
 
 void TestSysConfig::TestBool()
 {
-	SysConfig cfg(TESTDB);
+	SysConfig cfg(TESTDB, true);
 	CPPUNIT_ASSERT( ! cfg.HasScope( "a") );
 	CPPUNIT_ASSERT( ! cfg.HasKey( "a", "b") );
 
@@ -71,7 +99,7 @@ void TestSysConfig::TestBool()
 
 void TestSysConfig::TestList()
 {
-	SysConfig cfg(TESTDB);
+	SysConfig cfg(TESTDB, true);
 
 	CPPUNIT_ASSERT_NO_THROW( cfg.PutKey("a","b",list<string>({"a","b","c"})) );
 

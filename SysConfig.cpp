@@ -36,14 +36,29 @@ using namespace Utils;
 
 namespace OPI {
 
-SysConfig::SysConfig(): path(SYSCONFIGDBPATH),fd(0)
+SysConfig::SysConfig(): path(SYSCONFIGDBPATH),fd(0), writeable(false)
 {
 
 }
 
-SysConfig::SysConfig(const string &path): path(path), fd(0)
+SysConfig::SysConfig(bool writeable): path(SYSCONFIGDBPATH),fd(0), writeable(writeable)
 {
 
+}
+
+SysConfig::SysConfig(const string &path, bool writeable): path(path), fd(0), writeable(writeable)
+{
+
+}
+
+void SysConfig::Writeable(bool writeable)
+{
+	this->writeable = writeable;
+}
+
+bool SysConfig::IsWriteable()
+{
+	return this->writeable;
 }
 
 string SysConfig::GetKeyAsString(const string &scope, const string &key)
@@ -370,10 +385,12 @@ void SysConfig::OpenDB()
 		throw runtime_error("Configdb already open");
 	}
 
-	if((this->fd=open(this->path.c_str(),O_RDWR|O_CREAT, S_IRUSR|S_IWUSR))<0)
+	int flags = this->writeable ? O_RDWR|O_CREAT : O_RDONLY;
+
+	if((this->fd=open(this->path.c_str(), flags, S_IRUSR|S_IWUSR))<0)
 	{
 		logg << Logger::Error << "Unable to open file sysconfig database"<< lend;
-		throw ErrnoException("Unable to open file '"+path+"' for reading");
+		throw ErrnoException("Unable to open file '"+path+"'");
 	}
 
 	if( flock(this->fd, LOCK_EX) == -1 )
@@ -445,6 +462,12 @@ Json::Value SysConfig::ReadDB()
 
 void SysConfig::WriteDB(const Json::Value &db)
 {
+	if( ! this->writeable )
+	{
+		logg << Logger::Error << "SysConfig: tried to write readonly sysconfig" << lend;
+		throw std::runtime_error("Attempt to write readonly config database");
+	}
+
 	if( lseek( this->fd, SEEK_SET, 0 ) < 0 )
 	{
 		throw ErrnoException("ConfigDB: failed to rewind db-file before write");
