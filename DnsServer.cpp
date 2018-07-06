@@ -2,6 +2,7 @@
 #include "CryptoHelper.h"
 #include "Config.h"
 #include "SysInfo.h"
+#include "SysConfig.h"
 #include "NetworkConfig.h"
 
 #include <libutils/Logger.h>
@@ -125,7 +126,7 @@ bool DnsServer::Auth(const string &unit_id)
 
 
 		RSAWrapper dnskeys;
-		list<string> rows = File::GetContent( DNS_PRIV_PATH );
+		list<string> rows = File::GetContent( SysConfig().GetKeyAsString("dns", "dnsauthkey") );
 		stringstream pemkey;
 
 		for( auto row: rows)

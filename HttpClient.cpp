@@ -1,4 +1,5 @@
 #include "HttpClient.h"
+#include "SysConfig.h"
 #include "Config.h"
 
 namespace OPI
@@ -12,7 +13,7 @@ HttpClient::HttpClient(const string& host, bool verifyca): host(host),port(0), t
 		throw runtime_error("Unable to init Curl");
 	}
 
-	this->defaultca = OP_DEFAULT_CA;
+	this->defaultca = SysConfig().GetKeyAsString("filesystem", "opcertificate");
 }
 
 HttpClient::~HttpClient()

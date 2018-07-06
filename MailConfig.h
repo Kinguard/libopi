@@ -4,12 +4,17 @@
 #include <libutils/FileUtils.h>
 #include <libutils/String.h>
 #include <libutils/Logger.h>
+#include "SysConfig.h"
 #include <map>
 #include <string>
 #include <tuple>
 
 #include "Config.h"
 
+// Convenience defines
+#define SCFG	(OPI::SysConfig())
+#define SAREA (SCFG.GetKeyAsString("filesystem","storagemount"))
+#define MCFG(opt)  (SAREA+SCFG.GetKeyAsString("mail", opt))
 
 using namespace std;
 using namespace Utils;
@@ -68,7 +73,8 @@ protected:
 class MailConfig: public MailMapFile
 {
 public:
-	MailConfig(const string& aliasfile=ALIASES,const string& domainfile=DOMAINFILE);
+	MailConfig(const string& aliasfile=MCFG("vmailbox"),
+			   const string& domainfile=MCFG("vdomains"));
 
 	virtual void ReadConfig();
 	virtual void WriteConfig();

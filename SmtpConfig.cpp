@@ -13,6 +13,7 @@
 #include "DnsHelper.h"
 #include "AuthServer.h"
 #include "SmtpConfig.h"
+#include "SysConfig.h"
 #include "Config.h"
 
 // Forwards for helpers
@@ -20,6 +21,14 @@
 static inline string getmatchstring(const string& line, Regex::Match m);
 static string gethost(const string & host);
 static string getport(const string &host);
+
+// Convenience defines
+#define SCFG	(OPI::SysConfig())
+#define SAREA (SCFG.GetKeyAsString("filesystem","storagemount"))
+#define MCFG(opt)  (SAREA+SCFG.GetKeyAsString("mail", opt))
+#define CFGOPT(scope, key) (SCFG.GetKeyAsString(scope, key))
+
+// MCFG accesses a config option in mail scope prefixed with storageareapath
 
 namespace OPI
 {
@@ -277,7 +286,7 @@ void SmtpConfig::SetStandAloneMode()
 	passwdline pw;
 	pw.enabled = false;
 
-	SmtpClientConfig scli( SASLPASSWD );
+	SmtpClientConfig scli( MCFG("saslpasswd") );
 	scli.SetConfig( pw );
 
 	scli.WriteConfig();
@@ -318,7 +327,7 @@ void SmtpConfig::SetOPRelayMode(OPRelayConf &conf)
 		pw.host = "op-mail.openproducts.com";
 		pw.port="587";
 
-		SmtpClientConfig scli( SASLPASSWD );
+		SmtpClientConfig scli( MCFG("saslpasswd") );
 		scli.SetConfig( pw );
 
 		scli.WriteConfig();
@@ -329,7 +338,7 @@ void SmtpConfig::SetOPRelayMode(OPRelayConf &conf)
 		passwdline pw;
 		pw.enabled = false;
 
-		SmtpClientConfig scli( SASLPASSWD );
+		SmtpClientConfig scli( MCFG("saslpasswd") );
 		scli.SetConfig( pw );
 
 		scli.WriteConfig();
@@ -400,29 +409,34 @@ SmtpConfig::~SmtpConfig()
 
 void SmtpConfig::getConfig()
 {
-	ConfigFile opicfg(SYSCONFIG_PATH);
+	//ConfigFile opicfg(SYSCONFIG_PATH);
+	SysConfig sysconf;
 	passwdline pass = cfg.GetConfig();
 
+	string name = sysconf.GetKeyAsString("hostinfo", "hostname");
+	string domain = sysconf.GetKeyAsString("hostinfo", "domain");
+	/*
 	string name = opicfg.ValueOrDefault("opi_name");
 	if( name == "")
 	{
 		throw runtime_error("Opiname not found");
 	}
-
 	string domain = opicfg.ValueOrDefault("domain");
 	if( domain == "")
 	{
 		throw runtime_error("Domain not found");
 	}
 
-	this->opiname = name+"."+domain;
-
-
 	this->unit_id = opicfg.ValueOrDefault("unit_id");
 	if( this->unit_id == "")
 	{
 		throw runtime_error("Unit id not found");
 	}
+*/
+
+	this->opiname = name+"."+domain;
+	this->unit_id = sysconf.GetKeyAsString("hostinfo", "unitid");
+	const string relay = sysconf.GetKeyAsString("hostinfo", "oprelayserver");
 
 	// OP relay?
 	if( this->checkMX( this->opiname ) )
@@ -430,7 +444,7 @@ void SmtpConfig::getConfig()
 		this->mode = SmtpMode::OPRelay;
 		this->opconf.receive = true;
 
-		if( pass.host == OP_RELAYSERVER )
+		if( pass.host == relay )
 		{
 			this->opconf.send = true;
 		}
@@ -443,7 +457,7 @@ void SmtpConfig::getConfig()
 	}
 
 	// OP relay send only?
-	if( pass.host == OP_RELAYSERVER )
+	if( pass.host == relay )
 	{
 		this->mode = SmtpMode::OPRelay;
 		this->opconf.receive = false;
