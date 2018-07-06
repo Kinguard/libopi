@@ -1,3 +1,9 @@
+libopi (1.6.34) vili; urgency=medium
+
+  * Updates to use sysconfig internally
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 06 Jul 2018 11:19:32 +0200
+
 libopi (1.6.33) vili; urgency=medium
 
   * Add dep on haveged to increase available entropy
