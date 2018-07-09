@@ -436,7 +436,7 @@ void SmtpConfig::getConfig()
 
 	this->opiname = name+"."+domain;
 	this->unit_id = sysconf.GetKeyAsString("hostinfo", "unitid");
-	const string relay = sysconf.GetKeyAsString("hostinfo", "oprelayserver");
+    const string relay = sysconf.GetKeyAsString("mail", "oprelayserver");
 
 	// OP relay?
 	if( this->checkMX( this->opiname ) )

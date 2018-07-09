@@ -13,7 +13,7 @@ HttpClient::HttpClient(const string& host, bool verifyca): host(host),port(0), t
 		throw runtime_error("Unable to init Curl");
 	}
 
-	this->defaultca = SysConfig().GetKeyAsString("filesystem", "opcertificate");
+    this->defaultca = SysConfig().GetKeyAsString("hostinfo", "cafile");
 }
 
 HttpClient::~HttpClient()
