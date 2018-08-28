@@ -88,8 +88,19 @@ bool DnsServer::UpdateDynDNS(const string &unit_id, const string &name)
     {
         // update OP DNS servers based on serial number
         logg << Logger::Debug << "Update DNS based on device serial number"<< lend;
+        string domain;
+        SysConfig sysconfig;
+
+        if ( sysconfig.HasKey("hostinfo","domain") )
+        {
+            domain=sysconfig.GetKeyAsString("hostinfo","domain");
+        }
+        else
+        {
+            domain=sysinfo.Domains[sysinfo.Type()];
+        }
         postargs = {
-            {"fqdn",  sysinfo.SerialNumber() + "." + sysinfo.Domains[sysinfo.Type()]},
+            {"fqdn",  sysinfo.SerialNumber() + "." + domain},
             {"local_ip", NetUtils::GetAddress(sysinfo.NetworkDevice())}
         };
 
