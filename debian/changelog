@@ -1,3 +1,9 @@
+libopi (1.6.36) vili; urgency=medium
+
+  * Make sysconfig readable for all, closes #481 
+
+ -- PA Nilsson <pa@openproducts.se>  Fri, 31 Aug 2018 09:11:18 +0200
+
 libopi (1.6.35) vili; urgency=medium
 
   * Updated config parameter locations. 

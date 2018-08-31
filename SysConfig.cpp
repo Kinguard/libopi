@@ -387,7 +387,7 @@ void SysConfig::OpenDB()
 
 	int flags = this->writeable ? O_RDWR|O_CREAT : O_RDONLY;
 
-	if((this->fd=open(this->path.c_str(), flags, S_IRUSR|S_IWUSR))<0)
+    if((this->fd=open(this->path.c_str(), flags, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH))<0)
 	{
 		logg << Logger::Error << "Unable to open file sysconfig database"<< lend;
 		throw ErrnoException("Unable to open file '"+path+"'");
