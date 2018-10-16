@@ -18,6 +18,10 @@
 namespace OPI
 {
 
+
+BackupInterface::~BackupInterface()
+{}
+
 BackupHelper::BackupHelper(const string& pwd, BackupInterfacePtr iface):
 	localmounted(false), remotemounted(false), cfgcreated(false),
 	iface(iface), pwd(pwd)

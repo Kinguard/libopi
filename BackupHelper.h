@@ -25,9 +25,6 @@ public:
 	virtual  ~BackupInterface();
 };
 
-BackupInterface::~BackupInterface()
-{}
-
 typedef shared_ptr<BackupInterface> BackupInterfacePtr;
 
 class OPIBackup: public BackupInterface

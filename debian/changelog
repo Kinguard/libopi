@@ -1,3 +1,9 @@
+libopi (1.6.39) vili; urgency=medium
+
+  * Move BackupInterface destructor away from headerfile
+
+ -- Tor Krill <tor@openproducts.se>  Tue, 16 Oct 2018 11:52:36 +0200
+
 libopi (1.6.38) vili; urgency=medium
 
   * Change includes in IdentityManager to local includes
