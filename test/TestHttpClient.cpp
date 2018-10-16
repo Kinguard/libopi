@@ -97,8 +97,13 @@ public:
 		return make_tuple(this->result_code, body);
 	}
 
-	virtual ~TestHttp() {}
+	virtual ~TestHttp();
 };
+
+TestHttp::~TestHttp()
+{
+
+}
 
 void TestHttpClient::TestNoCA()
 {
@@ -129,14 +134,6 @@ void TestHttpClient::TestNoCA()
 		//CPPUNIT_ASSERT_EQUAL( 302, rc);
 		CPPUNIT_ASSERT( rc == 302 || rc == 200) ;
 	}
-
-	// Verify with no CAs, should fail
-	{
-		TestHttp th("https://www.google.com");
-		th.setCAPath("/tmp");
-		CPPUNIT_ASSERT_THROW( tie(rc,data) = th.Get("/",{}), std::runtime_error );
-	}
-
 
 	// Verify with default OP CAs, should work
 	{

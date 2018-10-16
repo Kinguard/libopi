@@ -13,7 +13,15 @@ HttpClient::HttpClient(const string& host, bool verifyca): host(host),port(0), t
 		throw runtime_error("Unable to init Curl");
 	}
 
-    this->defaultca = SysConfig().GetKeyAsString("hostinfo", "cafile");
+	try
+	{
+		this->defaultca = SysConfig().GetKeyAsString("hostinfo", "cafile");
+	}
+	catch (std::exception& err)
+	{
+		(void) err;
+		// Is could ok to not have this, http client should not fail if we miss sysconfig
+	}
 }
 
 HttpClient::~HttpClient()
@@ -28,6 +36,7 @@ void HttpClient::CurlPre()
 
 	if( verifyca )
 	{
+
 		if( this->defaultca != "" )
 		{
 			curl_easy_setopt(this->curl, CURLOPT_CAINFO, this->defaultca.c_str() );

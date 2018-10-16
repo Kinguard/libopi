@@ -389,7 +389,7 @@ void SysConfig::OpenDB()
 
     if((this->fd=open(this->path.c_str(), flags, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH))<0)
 	{
-		logg << Logger::Error << "Unable to open file sysconfig database"<< lend;
+		logg << Logger::Error << "Unable to open file sysconfig database (" << path << ")"<< lend;
 		throw ErrnoException("Unable to open file '"+path+"'");
 	}
 

@@ -77,7 +77,7 @@ public:
 	SysArch Arch();
 
 	/**
-	 * @brief StorageDevicePath Get complete path to storage device
+	 * @brief StorageDevicePath Get complete path to storage device including partition
 	 * @return  path to storage device
 	 */
 	string StorageDevicePath();

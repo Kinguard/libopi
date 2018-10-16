@@ -18,7 +18,7 @@ pkg_check_modules ( LVM2APP REQUIRED lvm2app )
 
 set (VERSION_MAJOR 1)
 set (VERSION_MINOR 6)
-set (VERSION_PATCH 34)
+set (VERSION_PATCH 37)
 set (VERSION "${VERSION_MAJOR}.${VERSION_MINOR}")
 set (VERSION_FULL "${VERSION}.${VERSION_PATCH}")
 set (APP_NAME "lib${PROJECT_NAME}")
@@ -43,12 +43,14 @@ include_directories(
 set( headers
 	AuthServer.h
 	BackupHelper.h
+	BaseManager.h
 	CryptoHelper.h
 	DiskHelper.h
 	DnsHelper.h
 	DnsServer.h
 	FetchmailConfig.h
 	HttpClient.h
+	IdentityManager.h
 	LedControl.h
 	Luks.h
 	LVM.h
@@ -67,12 +69,14 @@ set( headers
 set( src
 	AuthServer.cpp
 	BackupHelper.cpp
+	BaseManager.cpp
 	CryptoHelper.cpp
 	DiskHelper.cpp
 	DnsHelper.cpp
 	DnsServer.cpp
 	FetchmailConfig.cpp
 	HttpClient.cpp
+	IdentityManager.cpp
 	LedControl.cpp
 	Luks.cpp
 	LVM.cpp

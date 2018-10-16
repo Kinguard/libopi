@@ -1,3 +1,11 @@
+libopi (1.6.37) vili; urgency=medium
+
+  * Added IdentityManager and BaseManager classes
+  * Made sysconfig optional in HttpClient class
+  * Remove test in TestHttpClient since curl changed settings
+
+ -- Tor Krill <tor@openproducts.se>  Tue, 16 Oct 2018 11:08:25 +0200
+
 libopi (1.6.36) vili; urgency=medium
 
   * Make sysconfig readable for all, closes #481 

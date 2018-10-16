@@ -6,8 +6,11 @@
 #include <list>
 using namespace std;
 
-namespace OPI {
 
+//TODO: Generalize this and include auth to make self contained
+// and possible to add alternative backup solutions
+
+namespace OPI {
 
 class BackupInterface
 {
@@ -19,7 +22,11 @@ public:
 	virtual void UmountLocal() = 0;
 	virtual void UmountRemote() = 0;
 	virtual bool RestoreBackup( const string& pathtobackup ) = 0;
+	virtual  ~BackupInterface();
 };
+
+BackupInterface::~BackupInterface()
+{}
 
 typedef shared_ptr<BackupInterface> BackupInterfacePtr;
 
