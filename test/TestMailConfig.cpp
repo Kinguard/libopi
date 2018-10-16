@@ -57,6 +57,7 @@ void TestMailConfig::TestDomain()
 {
 	{
 		MailConfig* mc;
+		(void) mc;
 		CPPUNIT_ASSERT_THROW( mc = new MailConfig("error.fil"), runtime_error );
 	}
 

@@ -6,9 +6,9 @@
 #include <libutils/FileUtils.h>
 
 
-#include <libopi/AuthServer.h>
-#include <libopi/SysConfig.h>
-#include <libopi/DnsServer.h>
+#include "AuthServer.h"
+#include "SysConfig.h"
+#include "DnsServer.h"
 
 using namespace Utils;
 
