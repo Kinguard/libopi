@@ -1,3 +1,11 @@
+libopi (1.6.38) vili; urgency=medium
+
+  * Change includes in IdentityManager to local includes
+  * Silence compiler warining in unittest
+  * Bump version
+
+ -- Tor Krill <tor@openproducts.se>  Tue, 16 Oct 2018 11:30:58 +0200
+
 libopi (1.6.37) vili; urgency=medium
 
   * Added IdentityManager and BaseManager classes
