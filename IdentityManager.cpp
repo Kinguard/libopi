@@ -63,6 +63,22 @@ bool IdentityManager::SetDomain(const string &domain)
 
 }
 
+bool IdentityManager::DnsNameAvailable(const string &hostname, const string &domain)
+{
+	OPI::DnsServer dns;
+	int result_code;
+	Json::Value ret;
+	tie(result_code, ret) = dns.CheckOPIName( hostname +"."+ domain );
+
+	if( result_code != 200 && result_code != 403 )
+	{
+		logg << Logger::Notice << "Request for DNS check name failed" << lend;
+		return false;
+	}
+
+	return result_code == 200;
+}
+
 bool IdentityManager::AddDnsName(const string &hostname, const string &domain)
 {
 	logg << Logger::Debug << "Add DNS name" << lend;

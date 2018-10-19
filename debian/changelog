@@ -1,3 +1,9 @@
+libopi (1.6.40) vili; urgency=medium
+
+  * Add initial implementation of DnsNameAvailable
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 19 Oct 2018 14:10:04 +0200
+
 libopi (1.6.39) vili; urgency=medium
 
   * Move BackupInterface destructor away from headerfile
