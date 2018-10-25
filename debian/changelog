@@ -1,3 +1,9 @@
+libopi (1.6.41) vili; urgency=medium
+
+  * Add MakeSelfSigned cert to Cryptohelper
+
+ -- Tor Krill <tor@openproducts.se>  Thu, 25 Oct 2018 09:35:00 +0200
+
 libopi (1.6.40) vili; urgency=medium
 
   * Add initial implementation of DnsNameAvailable

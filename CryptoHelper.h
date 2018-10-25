@@ -122,6 +122,8 @@ typedef shared_ptr<AESWrapper> AESWrapperPtr;
 
 bool MakeCSR(const string& privkeypath, const string& csrpath, const string& cn, const string& company);
 
+bool MakeSelfSignedCert(const string& privkeypath, const string& certpath, const string& cn, const string& company);
+
 string Base64Encode(const vector<byte> &in);
 string Base64Encode(const string &s);
 

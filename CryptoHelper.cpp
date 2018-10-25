@@ -644,5 +644,18 @@ bool MakeCSR(const string &privkeypath, const string &csrpath, const string &cn,
 	return ret;
 }
 
+bool MakeSelfSignedCert(const string &privkeypath, const string &certpath, const string &cn, const string &company)
+{
+	stringstream cmd;
+
+	// TODO: Parametrizise digest and vailidity
+	cmd << "/usr/bin/openssl ";
+	cmd << "req -x509 -sha512 -key " << privkeypath << " -out " << certpath << " -days 365 -subj '/O=" << company <<"/CN=" << cn <<"'";
+
+	bool ret;
+	tie(ret, ignore) = Process::Exec(cmd.str() );
+	return ret;
+}
+
 }
 }

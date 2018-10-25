@@ -4,6 +4,7 @@ set( testapp_src
 	test.cpp
 	TestAuthServer.cpp
 	TestBackupHelper.cpp
+	TestCryptoHelper.cpp
 	TestDiskHelper.cpp
 	TestFetchmailConfig.cpp
 	TestHttpClient.cpp
