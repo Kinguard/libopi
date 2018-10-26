@@ -1,3 +1,9 @@
+libopi (1.6.43) vili; urgency=medium
+
+  * Bump version of library
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 26 Oct 2018 16:26:49 +0200
+
 libopi (1.6.42) vili; urgency=medium
 
   * Move syskey setup to authserver class
