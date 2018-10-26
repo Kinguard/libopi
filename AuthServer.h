@@ -51,6 +51,11 @@ public:
 
 	tuple<int, Json::Value> CheckMXPointer(const string& name);
 
+	/**
+	 * @brief Setup, create keys and register in Secop if needed
+	 */
+	static void Setup();
+
 	static RSAWrapperPtr GetKeysFromSecop();
 
 	static RSAWrapperPtr GetKeysFromFile(const string& pubpath, const string& privpath);

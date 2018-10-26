@@ -63,6 +63,32 @@ bool IdentityManager::SetDomain(const string &domain)
 
 }
 
+bool IdentityManager::CreateCertificate()
+{
+	try
+	{
+		OPI::SysConfig cfg;
+
+		if( ! OPI::CryptoHelper::MakeSelfSignedCert(
+					cfg.GetKeyAsString("dns","dnsauthkey"),
+					cfg.GetKeyAsString("hostinfo","syscert"),
+					cfg.GetKeyAsString("hostinfo","hostname") + "." + cfg.GetKeyAsString("hostinfo","domain"),
+					cfg.GetKeyAsString("dns","provider")
+					) )
+		{
+			return false;
+		}
+
+	}
+	catch (std::runtime_error& err)
+	{
+		logg << Logger::Error << "Failed to generate certificate:" << err.what() << lend;
+		this->global_error = string("Failed to generate certificate:") + err.what();
+		return false;
+	}
+	return true;
+}
+
 bool IdentityManager::DnsNameAvailable(const string &hostname, const string &domain)
 {
 	OPI::DnsServer dns;
@@ -151,7 +177,7 @@ bool IdentityManager::GetCertificate(const string &fqdn, const string &provider)
 	string syscert = SCFG.GetKeyAsString("hostinfo","syscert");
 	string dnsauthkey = SCFG.GetKeyAsString("dns","dnsauthkey");
 
-	string csrfile = File::GetPath(SCFG.GetKeyAsString("hostinfo","syscert"))+"/"+String::Split(fqdn,".",2).front()+".csr";
+	string csrfile = File::GetPath( syscert )+"/"+String::Split(fqdn,".",2).front()+".csr";
 
 	if( ! CryptoHelper::MakeCSR(dnsauthkey, csrfile, fqdn, provider) )
 	{

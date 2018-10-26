@@ -40,6 +40,13 @@ public:
 	bool SetDomain(const string& domain);
 
 	/**
+	 * @brief CreateCertificate, create self signed certificate for set
+	 *        hostname and domain.
+	 * @return true upon success
+	 */
+	bool CreateCertificate();
+
+	/**
 	 * @brief DnsNameAvailable Check availability of dns-name
 	 * @param hostname
 	 * @param domain

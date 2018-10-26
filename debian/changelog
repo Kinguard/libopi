@@ -1,3 +1,10 @@
+libopi (1.6.42) vili; urgency=medium
+
+  * Move syskey setup to authserver class
+  * Add CreateCertificate to IdManager
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 26 Oct 2018 11:38:16 +0200
+
 libopi (1.6.41) vili; urgency=medium
 
   * Add MakeSelfSigned cert to Cryptohelper

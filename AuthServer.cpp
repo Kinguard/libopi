@@ -186,6 +186,40 @@ tuple<int, Json::Value> AuthServer::CheckMXPointer(const string &name)
 	return tuple<int,Json::Value>(this->result_code, retobj );
 }
 
+void AuthServer::Setup()
+{
+	Secop s;
+
+	s.SockAuth();
+	list<map<string,string>> ids;
+
+	try
+	{
+		ids = s.AppGetIdentifiers("op-backend");
+	}
+	catch( __attribute__((unused)) runtime_error& err )
+	{
+		// Do nothing, appid is missing but thats ok.
+	}
+
+	if( ids.size() == 0 )
+	{
+		s.AppAddID("op-backend");
+
+		RSAWrapper ob;
+		ob.GenerateKeys();
+
+		// Write to secop
+		map<string,string> data;
+
+		data["type"] = "backendkeys";
+		data["pubkey"] = Base64Encode(ob.GetPubKeyAsDER());
+		data["privkey"] = Base64Encode(ob.GetPrivKeyAsDER());
+		s.AppAddIdentifier("op-backend", data);
+	}
+
+}
+
 RSAWrapperPtr AuthServer::GetKeysFromSecop()
 {
 	CryptoHelper::RSAWrapperPtr c;
