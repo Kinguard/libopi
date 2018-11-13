@@ -1,3 +1,12 @@
+libopi (1.6.44) vili; urgency=medium
+
+  * Removed Manager classes that moved to libkinguard
+  * Rework ServiceHelper to use systemd
+  * Update documentation on MailConfig
+  * Update SmtpConfig to know if sys is OP or not
+
+ -- Tor Krill <tor@openproducts.se>  Tue, 13 Nov 2018 11:41:21 +0100
+
 libopi (1.6.43) vili; urgency=medium
 
   * Bump version of library
