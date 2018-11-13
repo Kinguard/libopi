@@ -43,14 +43,12 @@ include_directories(
 set( headers
 	AuthServer.h
 	BackupHelper.h
-	BaseManager.h
 	CryptoHelper.h
 	DiskHelper.h
 	DnsHelper.h
 	DnsServer.h
 	FetchmailConfig.h
 	HttpClient.h
-	IdentityManager.h
 	LedControl.h
 	Luks.h
 	LVM.h
@@ -69,14 +67,12 @@ set( headers
 set( src
 	AuthServer.cpp
 	BackupHelper.cpp
-	BaseManager.cpp
 	CryptoHelper.cpp
 	DiskHelper.cpp
 	DnsHelper.cpp
 	DnsServer.cpp
 	FetchmailConfig.cpp
 	HttpClient.cpp
-	IdentityManager.cpp
 	LedControl.cpp
 	Luks.cpp
 	LVM.cpp
