@@ -27,6 +27,8 @@ static string getport(const string &host);
 #define SAREA (SCFG.GetKeyAsString("filesystem","storagemount"))
 #define MCFG(opt)  (SAREA+SCFG.GetKeyAsString("mail", opt))
 #define CFGOPT(scope, key) (SCFG.GetKeyAsString(scope, key))
+#define IS_OP	(SCFG.HasKey("dns", "provider") && SCFG.GetKeyAsString("dns", "provider") == "OpenProducts")
+
 
 // MCFG accesses a config option in mail scope prefixed with storageareapath
 
@@ -265,6 +267,7 @@ void Postconf::WriteConfig()
 
 SmtpConfig::SmtpConfig(const string &path): cfg(path)
 {
+	this->is_op = IS_OP;
 	this->getConfig();
 }
 
@@ -291,7 +294,7 @@ void SmtpConfig::SetStandAloneMode()
 
 	scli.WriteConfig();
 
-	if( this->mode == SmtpMode::OPRelay && this->opconf.receive )
+	if( this->is_op && this->mode == SmtpMode::OPRelay && this->opconf.receive )
 	{
 		// We used OP relay and OP configed to handle our mail, change
 		this->setMX( false );
@@ -305,6 +308,10 @@ void SmtpConfig::SetStandAloneMode()
 
 void SmtpConfig::SetOPRelayMode(OPRelayConf &conf)
 {
+	if( ! this->is_op )
+	{
+		throw std::runtime_error("Trying to set relay mode on none OP system");
+	}
 
 	if( !conf.send && ! conf.receive )
 	{
@@ -384,7 +391,7 @@ void SmtpConfig::SetCustomMode(OPCustomConf &conf)
 	this->cfg.SetConfig( cf );
 	this->cfg.WriteConfig();
 
-	if( this->mode == SmtpMode::OPRelay && this->opconf.receive )
+	if( this->is_op && this->mode == SmtpMode::OPRelay && this->opconf.receive )
 	{
 		this->setMX( false );
 	}
@@ -409,37 +416,21 @@ SmtpConfig::~SmtpConfig()
 
 void SmtpConfig::getConfig()
 {
-	//ConfigFile opicfg(SYSCONFIG_PATH);
 	SysConfig sysconf;
 	passwdline pass = cfg.GetConfig();
 
 	string name = sysconf.GetKeyAsString("hostinfo", "hostname");
 	string domain = sysconf.GetKeyAsString("hostinfo", "domain");
-	/*
-	string name = opicfg.ValueOrDefault("opi_name");
-	if( name == "")
-	{
-		throw runtime_error("Opiname not found");
-	}
-	string domain = opicfg.ValueOrDefault("domain");
-	if( domain == "")
-	{
-		throw runtime_error("Domain not found");
-	}
-
-	this->unit_id = opicfg.ValueOrDefault("unit_id");
-	if( this->unit_id == "")
-	{
-		throw runtime_error("Unit id not found");
-	}
-*/
 
 	this->opiname = name+"."+domain;
-	this->unit_id = sysconf.GetKeyAsString("hostinfo", "unitid");
+	if( this->is_op )
+	{
+		this->unit_id = sysconf.GetKeyAsString("hostinfo", "unitid");
+	}
     const string relay = sysconf.GetKeyAsString("mail", "oprelayserver");
 
 	// OP relay?
-	if( this->checkMX( this->opiname ) )
+	if( this->is_op && this->checkMX( this->opiname ) )
 	{
 		this->mode = SmtpMode::OPRelay;
 		this->opconf.receive = true;
@@ -457,7 +448,7 @@ void SmtpConfig::getConfig()
 	}
 
 	// OP relay send only?
-	if( pass.host == relay )
+	if( this->is_op &&  pass.host == relay )
 	{
 		this->mode = SmtpMode::OPRelay;
 		this->opconf.receive = false;
@@ -482,6 +473,12 @@ void SmtpConfig::getConfig()
 
 bool SmtpConfig::checkMX(const string& name)
 {
+
+	if( ! this->is_op )
+	{
+		throw std::runtime_error("Trying to get MX on none OP system");
+	}
+
 	OPI::AuthServer auth(this->unit_id);
 
 	int resultcode;
@@ -494,6 +491,11 @@ bool SmtpConfig::checkMX(const string& name)
 
 void SmtpConfig::setMX(bool mxmode)
 {
+	if( ! this->is_op )
+	{
+		throw std::runtime_error("Trying to set MX on none OP system");
+	}
+
 	int resultcode;
 	Json::Value ret;
 

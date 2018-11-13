@@ -130,6 +130,7 @@ private:
 
 	string opiname;
 	string unit_id;
+	bool is_op;
 };
 
 } // End namespace
