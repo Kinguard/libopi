@@ -45,6 +45,7 @@ public:
 	bool GetKeyAsBool(const string& scope, const string& key);
 	list<bool> GetKeyAsBoolList(const string& scope, const string& key);
 
+	void PutKey(const string& scope, const string& key, const char* value);
 	void PutKey(const string& scope, const string& key, const string& value);
 	void PutKey(const string& scope, const string& key, const list<string>& value);
 	void PutKey(const string& scope, const string& key, int value);

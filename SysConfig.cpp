@@ -193,6 +193,11 @@ list<bool> SysConfig::GetKeyAsBoolList(const string &scope, const string &key)
 
 }
 
+void SysConfig::PutKey(const string &scope, const string &key, const char *value)
+{
+	this->PutKey(scope, key, string(value));
+}
+
 void SysConfig::PutKey(const string &scope, const string &key, const string &value)
 {
 	this->OpenDB();
