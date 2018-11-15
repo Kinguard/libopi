@@ -88,6 +88,17 @@ void DnsHelper::doquery(const char *name, uint16_t type)
 	this->parse_additional();
 }
 
+string DnsHelper::parsecharstring()
+{
+
+	const char *start = (const char*) this->cur_pos;
+	size_t len = this->bufsize - (this->cur_pos - this->buffer);
+	string txt(start, len);
+
+	this->cur_pos += len;
+	return txt;
+}
+
 uint32_t DnsHelper::u32_parse()
 {
 	uint32_t res = ntohl( *( (uint32_t*) this->cur_pos ) );
@@ -116,6 +127,7 @@ int16_t DnsHelper::s16_parse()
 	return res;
 }
 
+
 string DnsHelper::parsename()
 {
 	char buf[256];
@@ -134,9 +146,9 @@ void DnsHelper::dumpqueries()
 {
 	for( auto x: this->queries )
 	{
-		cout << "Name "<< x.name << endl
-			 << "Type "<< x.qtype << endl
-			 << "Class" << x.qclass <<endl;
+		cout << "Name  "<< x.name << endl
+			 << "Type  "<< x.qtype << endl
+			 << "Class " << x.qclass <<endl;
 	}
 }
 
@@ -203,6 +215,12 @@ RRDataPtr DnsHelper::parserrdata(rr &r)
 			ret = RRDataPtr( new SOAData(mn,rn,ser,ref,a_ret,exp,min));
 		}
 		break;
+	case ns_t_txt:
+		{
+			string txt = this->parsecharstring();
+			ret = RRDataPtr( new TXTData(txt) );
+		}
+		break;
 	default:
 		cout << "Unknown type "<<r.type<<endl;
 		this->cur_pos += r.length;
@@ -242,10 +260,10 @@ void DnsHelper::dumprrs(list<struct rr>& rrs)
 {
 	for( const auto x: rrs )
 	{
-		cout << "Name " << x.name << endl
-			 << "Type " << x.type << endl
-			 << "Class" << x.klass << endl
-			 << "TTL " << x.ttl << endl
+		cout << "Name   " << x.name << endl
+			 << "Type   " << x.type << endl
+			 << "Class  " << x.klass << endl
+			 << "TTL    " << x.ttl << endl
 			 << "Length " << x.length << endl;
 		x.data->operator()();
 	}

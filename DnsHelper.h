@@ -73,6 +73,7 @@ public:
 
 typedef shared_ptr<ResourceData> RRDataPtr;
 
+#include <resolv.h>
 class MXData: public ResourceData
 {
 public:
@@ -138,6 +139,19 @@ public:
 	int32_t minimum;
 };
 
+class TXTData: public ResourceData
+{
+public:
+	TXTData(const string& txt): txt(txt)
+	{}
+
+	virtual void operator() () const
+	{
+		cout << "TXT " << this->txt << endl;
+	}
+
+	string txt;
+};
 
 struct rr
 {
@@ -147,6 +161,27 @@ struct rr
 	int32_t ttl;
 	uint16_t length;
 	RRDataPtr data;
+};
+
+
+enum QueryType
+{
+	A = 1,
+	NS,
+	MD,
+	MF,
+	CNAME,
+	SOA,
+	MB,
+	MG,
+	MR,
+	NULL_RR,
+	WKS,
+	PTR,
+	HINFO,
+	MINFO,
+	MX,
+	TXT
 };
 
 class DnsHelper
@@ -170,6 +205,7 @@ private:
 	void reset();
 	void doquery(const char *name, uint16_t type);
 
+	string parsecharstring();
 	string parsename();
 	uint32_t u32_parse();
 	uint16_t u16_parse();
