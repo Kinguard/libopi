@@ -7,3 +7,5 @@ debian/libopi*.substvars
 debian/libopi1
 debian/libopi-dev
 debian/libopi*.debhelper
+debian/.debhelper
+debian/debhelper-build-stamp

@@ -49,6 +49,7 @@ set( headers
 	DnsServer.h
 	FetchmailConfig.h
 	HttpClient.h
+	JsonHelper.h
 	LedControl.h
 	Luks.h
 	LVM.h
@@ -73,6 +74,7 @@ set( src
 	DnsServer.cpp
 	FetchmailConfig.cpp
 	HttpClient.cpp
+	JsonHelper.cpp
 	LedControl.cpp
 	Luks.cpp
 	LVM.cpp

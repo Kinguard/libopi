@@ -9,6 +9,7 @@ set( testapp_src
 	TestDnsHelper.cpp
 	TestFetchmailConfig.cpp
 	TestHttpClient.cpp
+	TestJsonHelper.cpp
 	TestMailConfig.cpp
 	TestMailAliasFile.cpp
 	TestNetworkConfig.cpp
