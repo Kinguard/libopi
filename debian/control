@@ -20,6 +20,11 @@ Package: libopi-dev
 Section: libdevel
 Architecture: any
 Depends: libopi1 (= ${binary:Version}),
+	libparted-dev,
+	libcurl4-gnutls-dev,
+	libcrypto++-dev,
+	libjsoncpp-dev,
+	libssl-dev,
 	liblvm2-dev
 Description: OPI support functions development files
 
