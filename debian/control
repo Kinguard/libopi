@@ -24,6 +24,7 @@ Depends: libopi1 (= ${binary:Version}),
 	libcurl4-gnutls-dev,
 	libcrypto++-dev,
 	libjsoncpp-dev,
+	libcryptsetup-dev,
 	libssl-dev,
 	liblvm2-dev
 Description: OPI support functions development files
