@@ -68,7 +68,7 @@ bool IsRunning(const string &service)
 {
 	bool result;
 
-	tie(result, std::ignore) = Process::Exec("/bin/systemctl -q is-active " + service + " &> /dev/null");
+	tie(result, std::ignore) = Process::Exec("/bin/systemctl -q is-active " + service);
 
 	return result;
 }

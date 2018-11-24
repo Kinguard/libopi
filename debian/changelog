@@ -1,3 +1,10 @@
+libopi (1.6.49) UNRELEASED; urgency=medium
+
+  * Fix servicehelper that did not like redirection when
+    converting to use systemd
+
+ -- Tor Krill <tor@openproducts.se>  Sat, 24 Nov 2018 09:33:54 +0100
+
 libopi (1.6.48) vili; urgency=medium
 
   * More deps
