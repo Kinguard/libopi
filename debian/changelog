@@ -1,4 +1,4 @@
-libopi (1.6.49) UNRELEASED; urgency=medium
+libopi (1.6.49) vili; urgency=medium
 
   * Fix servicehelper that did not like redirection when
     converting to use systemd
