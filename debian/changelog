@@ -1,3 +1,9 @@
+libopi (1.6.50) vili; urgency=medium
+
+  * Update diskhelper to resolve devicepath before check if mounted
+
+ -- Tor Krill <tor@openproducts.se>  Tue, 11 Dec 2018 11:41:50 +0100
+
 libopi (1.6.49) vili; urgency=medium
 
   * Fix servicehelper that did not like redirection when

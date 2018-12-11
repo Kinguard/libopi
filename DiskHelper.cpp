@@ -190,6 +190,7 @@ size_t DeviceSize(const string &devicename)
 string IsMounted(const string &device)
 {
 	list<string> lines = Utils::File::GetContent( "/etc/mtab");
+	string rdev = Utils::File::RealPath(device);
 	map<string,string> tab;
 	for( auto line: lines)
 	{
@@ -203,7 +204,7 @@ string IsMounted(const string &device)
 		}
 	}
 
-	return tab.find(device)==tab.end()?"":tab[device];
+	return tab.find(rdev)==tab.end()?"":tab[rdev];
 }
 
 void SyncPaths(const string &src, const string &dst)
