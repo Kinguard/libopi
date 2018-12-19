@@ -190,7 +190,20 @@ size_t DeviceSize(const string &devicename)
 string IsMounted(const string &device)
 {
 	list<string> lines = Utils::File::GetContent( "/etc/mtab");
-	string rdev = Utils::File::RealPath(device);
+
+	string rdev;
+	const string mapper ="/dev/mapper";
+	if( device.compare(0,mapper.length(), mapper) == 0 )
+	{
+		// This is a mapper device that is mounted as its symlink
+		// and not resolved namne, thus use provided name
+		rdev = device;
+	}
+	else
+	{
+		rdev = Utils::File::RealPath(device);
+	}
+
 	map<string,string> tab;
 	for( auto line: lines)
 	{
