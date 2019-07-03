@@ -28,9 +28,11 @@ Depends: libopi1 (= ${binary:Version}),
 	libssl-dev,
 	liblvm2-dev
 Description: OPI support functions development files
+  This is the development version of this library
 
 Package: libopi1
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, lvm2, haveged
 Description: Library with OPI support functions
+  This is the main library
