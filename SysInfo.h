@@ -41,6 +41,8 @@ public:
 		TypeOlimexA20,
 		TypeArmada,
 		TypePC,
+		TypeRPI3,
+		TypeRPI4,
 		TypeUnknown
 	};
 
@@ -51,7 +53,9 @@ public:
         "",
         "mykeep.net",
         "",
-        ""
+		"",
+		"",
+		""
     };
 
     std::vector<std::string> SysTypeText {
@@ -61,7 +65,9 @@ public:
         "OlimexA20",
         "Armada",
         "PC",
-        "Unknown"
+		"RPi 3",
+		"RPi 4",
+		"Unknown"
     };
     enum SysArch {
 		ArchUndefined,
@@ -133,6 +139,8 @@ public:
 	static bool isXu4();
 	static bool isOlimexA20();
 	static bool isPC();
+	static bool isRPI3();
+	static bool isRPI4();
 
 	static bool useLVM();
 	static bool useLUKS();

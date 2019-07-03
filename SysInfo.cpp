@@ -185,6 +185,16 @@ bool SysInfo::isPC()
 	return sysinfo.Type() == SysInfo::TypePC;
 }
 
+bool SysInfo::isRPI3()
+{
+	return sysinfo.Type() == SysInfo::TypeRPI3;
+}
+
+bool SysInfo::isRPI4()
+{
+	return sysinfo.Type() == SysInfo::TypeRPI3;
+}
+
 bool SysInfo::useLVM()
 {
 	SysType t = sysinfo.Type();
@@ -271,6 +281,10 @@ void SysInfo::GuessType()
 				{
 					this->type = SysInfo::TypeArmada;
 				}
+				else if ( val.find("BCM2835") != string::npos )
+				{
+					this->type = SysInfo::TypeRPI3;
+				}
 			}
 		}
 	}
@@ -348,6 +362,15 @@ void SysInfo::SetupPaths()
         this->serialnbrdevice = "Undefined";
         this->backuprootpath = "/mnt/backup/";
         break;
+	case TypeRPI3:
+		this->storagedevicepath = "/dev";
+		this->storagedevice = "sda";
+		this->storagepartition = "1";
+		this->passworddevicepath = "/undefined";
+		this->networkdevice = "eth0";
+		this->serialnbrdevice = "Undefined";
+		this->backuprootpath = "/mnt/backup/";
+		break;
 	default:
 		break;
 	}
@@ -366,7 +389,7 @@ void SysInfo::ParseExtConfig()
 
 	if( Json::Reader().parse(fil, db) )
 	{
-		list<string> devices({"opi","xu4","olimexa20","armada","pc"});
+		list<string> devices({"opi","xu4","olimexa20","armada","pc","rpi3","rpi4"});
 
 		for(const string& dev: devices )
 		{
