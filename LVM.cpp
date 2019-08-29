@@ -1,151 +1,226 @@
 #include "LVM.h"
 
-using namespace OPI;
+#include <libutils/Process.h>
+#include <libutils/String.h>
 
-#include <iostream>
+#include <json/json.h>
 
-using namespace std;
+#include <algorithm>
+#include <sstream>
+
+using namespace Utils;
+
+namespace OPI
+{
+
+LVM::LVM()
+{
+
+}
 
 list<PhysicalVolumePtr> LVM::ListUnusedPhysicalVolumes()
 {
+	list<PhysicalVolumePtr> pvs = this->ListPhysicalVolumes();
 
-	this->checkLVM();
+	auto last = remove_if(pvs.begin(), pvs.end(), [](const PhysicalVolumePtr item){ return item->inUse(); }  );
 
-	list<PhysicalVolumePtr> ret;
+	return list<PhysicalVolumePtr>(pvs.begin(), last);
+}
 
-	struct dm_list *pvs;
-	pvs = lvm_list_pvs( this->lvm );
+list<PhysicalVolumePtr> LVM::ListPhysicalVolumes()
+{
+	list<PhysicalVolumePtr> res;
+	bool result;
+	string ret;
 
-	struct lvm_pv_list *pvlist;
-	dm_list_iterate_items( pvlist, pvs )
+	tie(result, ret) = Process::Exec("/sbin/pvs --reportformat json");
+
+	if( ! result )
 	{
-		ret.push_back( PhysicalVolumePtr(
-						   new PhysicalVolume( lvm_pv_get_name( pvlist->pv ) )
-						   ));
+		throw std::runtime_error("LVM: Failed to retrieve pvs");
 	}
 
-	if( lvm_list_pvs_free( pvs ) != 0 )
+	Json::Reader r;
+	Json::Value v;
+	if( !r.parse( ret, v) )
 	{
-		throw std::runtime_error( lvm_errmsg( this->lvm ));
+		throw std::runtime_error("LVM: Failed to parse reply when retrieving pvs");
 	}
 
-	return ret;
+	if( ! v["report"][0]["pv"].isArray() )
+	{
+		throw std::runtime_error("LVM: Unable to retrieve pvs from reply");
+	}
+
+	Json::Value pvs = v["report"][0]["pv"];
+	for (size_t i=0; i < pvs.size(); i++)
+	{
+		Json::Value p = pvs[static_cast<int>(i)];
+		PhysicalVolumePtr pv(new PhysicalVolume(p["pv_name"].asString(), p["vg_name"].asString()));
+		res.push_back(pv);
+	}
+
+	return res;
 }
 
 PhysicalVolumePtr LVM::CreatePhysicalVolume(const string &devpath, uint64_t size)
 {
-	PhysicalVolumePtr ret(new PhysicalVolume(devpath) );
+	bool result;
+	stringstream cmd;
 
-	if( lvm_pv_create( this->lvm, devpath.c_str(), size) != 0 )
+	cmd << "/sbin/pvcreate " << devpath;
+
+	if( size > 0 )
 	{
-		throw std::runtime_error( lvm_errmsg( this->lvm ));
+		cmd << " --setphysicalvolumesize " << size;
 	}
 
-	return ret;
+	tie(result, ignore) = Process::Exec(cmd.str());
+
+	if( ! result )
+	{
+		throw std::runtime_error("LVM: Failed to create pv");
+	}
+
+	return  PhysicalVolumePtr(new PhysicalVolume(devpath));
 }
 
 void LVM::RemovePhysicalVolume(PhysicalVolumePtr pv)
 {
-	if( lvm_pv_remove( this->lvm, pv->Path().c_str() ) != 0 )
+	stringstream cmd;
+	bool result;
+
+	cmd << "/sbin/pvremove " << pv->Path();
+
+	tie(result, ignore) = Process::Exec(cmd.str());
+
+	if( ! result )
 	{
-		throw std::runtime_error( lvm_errmsg( this->lvm ));
+		throw std::runtime_error("LVM: Failed to remove pv");
 	}
 }
 
 list<VolumeGroupPtr> LVM::ListVolumeGroups()
 {
-	list<VolumeGroupPtr> ret;
+	list<VolumeGroupPtr> res;
+	bool result;
+	string ret;
 
-	struct dm_list *vgnames;
-	struct lvm_str_list *slist;
+	tie(result, ret) = Process::Exec("/sbin/vgs --reportformat json");
 
-	vgnames = lvm_list_vg_names( this->lvm );
-	dm_list_iterate_items( slist, vgnames )
+	if( ! result )
 	{
-		ret.push_back(
-					VolumeGroupPtr( new VolumeGroup(slist->str, this ) )
-					);
+		throw std::runtime_error("LVM: Failed to retrieve vgs");
 	}
 
-	return ret;
+
+	Json::Reader r;
+	Json::Value v;
+	if( !r.parse( ret, v) )
+	{
+		throw std::runtime_error("LVM: Failed to parse reply when retrieving vgs");
+	}
+
+	if( ! v["report"][0]["vg"].isArray() )
+	{
+		throw std::runtime_error("LVM: Unable to retrieve vgs from reply");
+	}
+
+	Json::Value vgs = v["report"][0]["vg"];
+	for (size_t i=0; i < vgs.size(); i++)
+	{
+		Json::Value v = vgs[static_cast<int>(i)];
+		VolumeGroupPtr pv(new VolumeGroup(v["vg_name"].asString(), this));
+		res.push_back(pv);
+	}
+
+	return res;
 }
 
 VolumeGroupPtr LVM::GetVolumeGroup(const string &name)
 {
-	return VolumeGroupPtr( new VolumeGroup(name, this) );
+	auto vgs = this->ListVolumeGroups();
+
+	auto it=find_if(vgs.begin(), vgs.end(), [name](VolumeGroupPtr vg)
+	{
+		return vg->Name() == name;
+	});
+
+	if( it == vgs.end() )
+	{
+		return nullptr;
+	}
+	return *it;
 }
 
 VolumeGroupPtr LVM::CreateVolumeGroup(const string &name, list<PhysicalVolumePtr> pvs)
 {
-	if( pvs.size() == 0 )
+
+	if( pvs.size() == 0)
 	{
 		pvs = this->ListUnusedPhysicalVolumes();
 	}
 
-	vg_t vg = lvm_vg_create( this->lvm, name.c_str() );
-
-	VolumeGroupPtr volgroup = VolumeGroupPtr( new VolumeGroup(name, this, vg) );
-
-	for( auto& pv: pvs)
+	if( pvs.size() == 0 )
 	{
-		volgroup->AddPhysicalVolume(pv);
+		throw std::runtime_error("LVM: Create volumegroup without any physical volumes available");
 	}
 
+	stringstream cmd;
+	bool result;
 
-	if( lvm_vg_write( vg ) != 0 )
+	cmd << "/sbin/vgcreate " << name << " ";
+	for(auto pv:pvs)
 	{
-		throw std::runtime_error( lvm_errmsg( this->lvm ) );
+		cmd << " " << pv->Path();
 	}
 
-	return volgroup;
+	tie(result, ignore) = Process::Exec(cmd.str());
+
+	if( ! result )
+	{
+		throw std::runtime_error("LVM: Failed to create volume group");
+	}
+
+	VolumeGroupPtr vg(new VolumeGroup(name, this) );
+
+	return vg;
 }
 
 void LVM::RemoveVolumeGroup(VolumeGroupPtr vg)
 {
-	if( lvm_vg_remove( vg->vghandle ) != 0 )
+	stringstream cmd;
+	bool result;
+
+	cmd << "/sbin/vgremove " << vg->Name();
+
+	tie(result, ignore) = Process::Exec(cmd.str());
+
+	if( ! result )
 	{
-		throw std::runtime_error( lvm_errmsg( this->lvm ) );
+		throw std::runtime_error("LVM: Failed to remove vg");
 	}
-
-
-	if( lvm_vg_write( vg->vghandle ) != 0 )
-	{
-		throw std::runtime_error( lvm_errmsg( this->lvm ) );
-	}
-
-}
-
-LVM::LVM()
-{
-	this->lvm = lvm_init(nullptr);
-
-	this->checkLVM();
 }
 
 LVM::~LVM()
 {
-	if( this->lvm != nullptr )
-	{
-		lvm_quit( this->lvm );
-	}
+
 }
 
-lvm_t LVM::GetLVMHandle()
+PhysicalVolume::PhysicalVolume(const string &path, const string &volumegroup)
+	:path(path), volumegroup(volumegroup)
 {
-	return this->lvm;
+
 }
 
-void LVM::checkLVM()
+bool PhysicalVolume::inUse()
 {
-	if( this->lvm == nullptr )
-	{
-		throw std::runtime_error("No LVM context available");
-	}
+	return this->volumegroup!="";
 }
 
-PhysicalVolume::PhysicalVolume(const string &path): path(path)
+string PhysicalVolume::VolumeGroup()
 {
-
+	return this->volumegroup;
 }
 
 string PhysicalVolume::Path()
@@ -158,22 +233,16 @@ PhysicalVolume::~PhysicalVolume()
 
 }
 
-VolumeGroup::VolumeGroup(const string &name, LVM *lvm): name(name),lvm(lvm)
-{
-	this->vghandle = lvm_vg_open( this->lvm->GetLVMHandle(), this->name.c_str(), "w",0);
+/*
+ *
+ * Volume group
+ *
+ */
 
-	if( this->vghandle == nullptr )
-	{
-		throw std::runtime_error( lvm_errmsg( this->lvm->GetLVMHandle() ) );
-	}
-}
-
-VolumeGroup::VolumeGroup(const string &name, LVM *lvm, vg_t vg): name(name), vghandle(vg), lvm(lvm)
+VolumeGroup::VolumeGroup(const string &name, LVM *lvm)
+	:name(name), lvm(lvm)
 {
-	if( this->vghandle == nullptr )
-	{
-		throw std::runtime_error( lvm_errmsg( this->lvm->GetLVMHandle() ) );
-	}
+
 }
 
 string VolumeGroup::Name()
@@ -183,137 +252,172 @@ string VolumeGroup::Name()
 
 list<PhysicalVolumePtr> VolumeGroup::ListPhysicalVolumes()
 {
-	list<PhysicalVolumePtr> ret;
+	auto pvs = this->lvm->ListPhysicalVolumes();
+	auto last = remove_if(pvs.begin(),pvs.end(),
+						  [this](const PhysicalVolumePtr pv)
+							{
+								return pv->VolumeGroup()!=this->name;
+							}
+						  );
 
-	struct dm_list *pvnames;
-	pvnames = lvm_vg_list_pvs( this->vghandle);
-
-	struct lvm_pv_list *lvlist;
-
-	dm_list_iterate_items(lvlist, pvnames )
-	{
-		ret.push_back( PhysicalVolumePtr(new PhysicalVolume( lvm_pv_get_name(lvlist->pv) ) ));
-	}
-
-#if 0
-	if( lvm_list_pvs_free( pvnames ) != 0 )
-	{
-		throw std::runtime_error( lvm_errmsg( this->lvm->GetLVMHandle() ) );
-	}
-#endif
-
-	return ret;
+	return list<PhysicalVolumePtr>(pvs.begin(), last);
 }
 
 void VolumeGroup::AddPhysicalVolume(PhysicalVolumePtr pv)
 {
-	if( lvm_vg_extend( this->vghandle, pv->Path().c_str() ) != 0 )
-	{
-		throw std::runtime_error( lvm_errmsg( this->lvm->GetLVMHandle() ) );
-	}
+	stringstream cmd;
+	bool result;
 
-	if( lvm_vg_write( this->vghandle) != 0 )
-	{
-		throw std::runtime_error( lvm_errmsg( this->lvm->GetLVMHandle() ) );
-	}
+	cmd << "/sbin/vgextend " << this->Name() << " " << pv->Path();
 
+	tie(result, ignore) = Process::Exec(cmd.str());
+
+	if( ! result )
+	{
+		throw std::runtime_error("LVM: Failed to add pv to vg");
+	}
 }
 
 void VolumeGroup::RemovePhysicalVolume(PhysicalVolumePtr pv)
 {
-	if( lvm_vg_reduce( this->vghandle, pv->Path().c_str() )  != 0 )
-	{
-		throw std::runtime_error( lvm_errmsg( this->lvm->GetLVMHandle() ) );
-	}
+	stringstream cmd;
+	bool result;
 
-	if( lvm_vg_write( this->vghandle) != 0 )
+	cmd << "/sbin/vgreduce " << this->Name() << " " << pv->Path();
+
+	tie(result, ignore) = Process::Exec(cmd.str());
+
+	if( ! result )
 	{
-		throw std::runtime_error( lvm_errmsg( this->lvm->GetLVMHandle() ) );
+		throw std::runtime_error("LVM: Failed to add pv to vg");
 	}
 }
 
 list<LogicalVolumePtr> VolumeGroup::GetLogicalVolumes()
 {
-	list<LogicalVolumePtr> lvs;
-	struct dm_list *list;
-	list = lvm_vg_list_lvs( this->vghandle);
+	list<LogicalVolumePtr> res;
 
-	if( list == nullptr )
+	bool result;
+	string ret;
+
+	tie(result, ret) = Process::Exec("/sbin/lvs --reportformat json");
+
+	if( ! result )
 	{
-		return lvs;
+		throw std::runtime_error("LVM: Failed to retrieve lvs");
 	}
 
-	struct lvm_lv_list *lvitem;
-	dm_list_iterate_items(lvitem, list )
+	Json::Reader r;
+	Json::Value v;
+	if( !r.parse( ret, v) )
 	{
-		lv_t lv = lvitem->lv;
-		lvs.push_back( LogicalVolumePtr( new LogicalVolume( lvm_lv_get_name(lv) , this, lv) ) );
+		throw std::runtime_error("LVM: Failed to parse reply when retrieving lvs");
 	}
 
-	return lvs;
+	if( ! v["report"][0]["lv"].isArray() )
+	{
+		throw std::runtime_error("LVM: Unable to retrieve lvs from reply");
+	}
+
+	Json::Value lvs = v["report"][0]["lv"];
+	for (size_t i=0; i < lvs.size(); i++)
+	{
+		Json::Value v = lvs[static_cast<int>(i)];
+		if( v["vg_name"].asString() == this->Name() )
+		{
+			LogicalVolumePtr lv(new LogicalVolume(v["lv_name"].asString(), this));
+			res.push_back(lv);
+		}
+	}
+
+	return res;
 }
 
 LogicalVolumePtr VolumeGroup::CreateLogicalVolume(const string &name, uint64_t size)
 {
+	stringstream cmd;
+	bool result;
 
+	cmd << "/sbin/lvcreate --type linear ";
 	if( size == 0 )
 	{
-		size = lvm_vg_get_free_extent_count( this->vghandle ) * lvm_vg_get_extent_size( this->vghandle);
+		cmd << " -l 100%VG ";
 	}
-
-	cout << "Create lv using " << size << " extents"<< endl;
-
-	lv_t lv = lvm_vg_create_lv_linear( this->vghandle, name.c_str(), size );
-
-	if( lv == nullptr )
+	else
 	{
-		throw std::runtime_error( lvm_errmsg( this->lvm->GetLVMHandle() ) );
+		cmd << " -l " << size << " ";
 	}
-	return LogicalVolumePtr( new LogicalVolume(name, this, lv) );
+
+	cmd << "-n " << name << " " << this->Name();
+
+	tie(result, ignore) = Process::Exec(cmd.str());
+
+	if( ! result )
+	{
+		throw std::runtime_error("LVM: Failed to create lv");
+	}
+
+	return LogicalVolumePtr(new LogicalVolume(name,this));
 }
 
 LogicalVolumePtr VolumeGroup::GetLogicalVolume(const string &name)
 {
-	lv_t lv = lvm_lv_from_name( this->vghandle, name.c_str() );
-
-	if( lv == nullptr )
+	auto lvs = this->GetLogicalVolumes();
+	for(auto lv:lvs)
 	{
-		throw std::runtime_error( lvm_errmsg( this->lvm->GetLVMHandle() ) );
+		if( lv->Name() == name )
+		{
+			return lv;
+		}
 	}
-
-	return LogicalVolumePtr( new LogicalVolume(name, this, lv) );
+	return nullptr;
 }
 
 void VolumeGroup::RemoveLogicalVolume(LogicalVolumePtr vol)
 {
-	if( lvm_vg_remove_lv( vol->lv ) != 0 )
+	stringstream cmd;
+	bool result;
+
+	cmd << "/sbin/lvremove -y " << this->Name()<<"/"<<vol->Name();
+
+	tie(result, ignore) = Process::Exec(cmd.str());
+
+	if( ! result )
 	{
-		throw std::runtime_error( lvm_errmsg( this->lvm->GetLVMHandle() ) );
+		throw std::runtime_error("LVM: Failed to create lv");
 	}
 }
 
 VolumeGroup::~VolumeGroup()
 {
-	if( lvm_vg_close( this->vghandle ) != 0 )
-	{
-		cout << "Close failed"<< endl;
-		// Not throwing any exception
-		// TOdo:: How to handle?
-		//throw std::runtime_error( lvm_errmsg( this->lvm->GetLVMHandle() ) );
-	}
-}
-
-LogicalVolume::LogicalVolume(const string &name, VolumeGroup *volume, lv_t lv):name(name), volume(volume), lv(lv)
-{
 
 }
+
+/*
+ * Logical volume implementation
+ */
 
 string LogicalVolume::Name()
 {
 	return this->name;
 }
 
+string LogicalVolume::VolumeName()
+{
+	return this->volume->Name();
+}
+
 LogicalVolume::~LogicalVolume()
 {
 
 }
+
+LogicalVolume::LogicalVolume(const string &name, VolumeGroup *volume)
+	:name(name), volume(volume)
+{
+
+}
+
+
+}
+

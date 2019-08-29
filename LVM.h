@@ -5,7 +5,6 @@
 #include <string>
 #include <memory>
 
-#include <lvm2app.h>
 #include <stdint.h>
 
 using namespace std;
@@ -49,7 +48,7 @@ public:
 	/**
 	 * @brief CreateLogicalVolume
 	 * @param name name of volume to create
-	 * @param size size of volume, if zero use all available space in vg
+	 * @param size size of volume in bytes, if zero use all available space in vg
 	 * @return New shared ponter to the new Logical volume
 	 */
 	LogicalVolumePtr CreateLogicalVolume(const string& name, uint64_t size=0);
@@ -70,25 +69,11 @@ public:
 	virtual ~VolumeGroup();
 private:
 	VolumeGroup(const string& name, LVM* lvm);
-	VolumeGroup(const string& name, LVM* lvm, vg_t vg);
 
 	string name;
-	vg_t vghandle;
 	LVM* lvm;
 	friend class LogicalVolume;
 	friend class LVM;
-};
-
-class PhysicalVolume
-{
-public:
-	PhysicalVolume(const string& path);
-
-	string Path();
-
-	virtual ~PhysicalVolume();
-private:
-	string path;
 };
 
 class LogicalVolume
@@ -96,14 +81,30 @@ class LogicalVolume
 public:
 
 	string Name();
+	string VolumeName();
 
 	~LogicalVolume();
 private:
-	LogicalVolume(const string& name,VolumeGroup *volume, lv_t lv );
+	LogicalVolume(const string& name,VolumeGroup *volume );
 	string name;
 	VolumeGroup* volume;
-	lv_t lv;
 	friend class VolumeGroup;
+};
+
+class PhysicalVolume
+{
+public:
+	PhysicalVolume(const string& path, const string& volumegroup="");
+
+	bool inUse();
+	string VolumeGroup();
+
+	string Path();
+
+	virtual ~PhysicalVolume();
+private:
+	string path;
+	string volumegroup;
 };
 
 class LVM
@@ -112,6 +113,7 @@ public:
 	LVM();
 
 	list<PhysicalVolumePtr> ListUnusedPhysicalVolumes();
+	list<PhysicalVolumePtr> ListPhysicalVolumes();
 	PhysicalVolumePtr CreatePhysicalVolume(const string& devpath, uint64_t size=0);
 	void RemovePhysicalVolume( PhysicalVolumePtr pv);
 
@@ -125,10 +127,6 @@ public:
 
 	virtual ~LVM();
 protected:
-	lvm_t GetLVMHandle();
-private:
-	void checkLVM();
-	lvm_t lvm;
 
 	friend class VolumeGroup;
 };

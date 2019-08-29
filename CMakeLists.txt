@@ -13,7 +13,6 @@ pkg_check_modules ( CPPUNIT REQUIRED cppunit>=1.12.1)
 pkg_check_modules ( LIBJSONCPP REQUIRED jsoncpp>=1.0 )
 pkg_check_modules ( LIBSSL REQUIRED libssl )
 pkg_check_modules ( BLKID REQUIRED blkid>=2.20.0 )
-pkg_check_modules ( LVM2APP REQUIRED lvm2app )
 
 
 set (VERSION_MAJOR 1)
