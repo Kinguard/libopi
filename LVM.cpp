@@ -68,7 +68,7 @@ PhysicalVolumePtr LVM::CreatePhysicalVolume(const string &devpath, uint64_t size
 	bool result;
 	stringstream cmd;
 
-	cmd << "/sbin/pvcreate " << devpath;
+	cmd << "/sbin/pvcreate -y " << devpath;
 
 	if( size > 0 )
 	{
@@ -90,7 +90,7 @@ void LVM::RemovePhysicalVolume(PhysicalVolumePtr pv)
 	stringstream cmd;
 	bool result;
 
-	cmd << "/sbin/pvremove " << pv->Path();
+	cmd << "/sbin/pvremove -y " << pv->Path();
 
 	tie(result, ignore) = Process::Exec(cmd.str());
 
@@ -169,7 +169,7 @@ VolumeGroupPtr LVM::CreateVolumeGroup(const string &name, list<PhysicalVolumePtr
 	stringstream cmd;
 	bool result;
 
-	cmd << "/sbin/vgcreate " << name << " ";
+	cmd << "/sbin/vgcreate -y " << name << " ";
 	for(auto pv:pvs)
 	{
 		cmd << " " << pv->Path();
@@ -192,7 +192,7 @@ void LVM::RemoveVolumeGroup(VolumeGroupPtr vg)
 	stringstream cmd;
 	bool result;
 
-	cmd << "/sbin/vgremove " << vg->Name();
+	cmd << "/sbin/vgremove -y " << vg->Name();
 
 	tie(result, ignore) = Process::Exec(cmd.str());
 
@@ -338,7 +338,7 @@ LogicalVolumePtr VolumeGroup::CreateLogicalVolume(const string &name, uint64_t s
 	stringstream cmd;
 	bool result;
 
-	cmd << "/sbin/lvcreate --type linear ";
+	cmd << "/sbin/lvcreate -y --type linear ";
 	if( size == 0 )
 	{
 		cmd << " -l 100%VG ";

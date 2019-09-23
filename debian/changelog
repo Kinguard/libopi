@@ -1,3 +1,9 @@
+libopi (1.6.56) vili; urgency=medium
+
+  * Add default yes to all lvm create/delete operations
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 23 Sep 2019 16:44:50 +0200
+
 libopi (1.6.55) vili; urgency=medium
 
   * Buster adaptations
