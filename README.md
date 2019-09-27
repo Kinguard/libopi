@@ -1,3 +1,3 @@
-# libkgp
+# libopi
 
-Library with Kinguard specific code. Used by kgp-control, kgp-backend etc.
+Library with low level Kinguard specific code. Used mainly by libkinguard, kgp-control etc.
