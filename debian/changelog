@@ -1,3 +1,9 @@
+libopi (1.6.58) vili; urgency=medium
+
+  * Add some more verbose errormsg in DiskHelper class
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 18 Oct 2019 14:06:52 +0200
+
 libopi (1.6.57) vili; urgency=medium
 
   * Make sure authserver does not propagate exception from secop

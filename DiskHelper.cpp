@@ -108,11 +108,12 @@ void FormatPartition(const string& device, const string& label )
 	string cmd="/sbin/mkfs -text4 -q -L"+label + " " + device;
 
 	bool res;
-	tie(res, std::ignore) = Utils::Process::Exec(cmd);
+	string errmsg;
+	tie(res, errmsg) = Utils::Process::Exec(cmd);
 
 	if( !res )
 	{
-		throw Utils::ErrnoException("Failed to format device ("+device+")");
+		throw Utils::ErrnoException("Failed to format device ("+device+") errmsg ("+errmsg+")");
 	}
 }
 
@@ -142,11 +143,12 @@ void Mount(const string& device, const string& mountpoint, bool noatime, bool di
 	ss << device << " " << mountpoint;
 
 	bool res;
-	tie(res, std::ignore) = Utils::Process::Exec(ss.str());
+	string errmsg;
+	tie(res, errmsg) = Utils::Process::Exec(ss.str());
 
 	if( !res )
 	{
-		throw Utils::ErrnoException("Failed to mount "+device+" on "+mountpoint );
+		throw Utils::ErrnoException("Failed to mount "+device+" on "+mountpoint+ " errmsg ("+errmsg+")" );
 	}
 }
 
@@ -156,11 +158,12 @@ void Umount(const string& device)
 	string cmd = "/bin/umount "+device;
 
 	bool res;
-	tie(res, std::ignore) = Utils::Process::Exec( cmd );
+	string errmsg;
+	tie(res, errmsg) = Utils::Process::Exec( cmd );
 
 	if( !res )
 	{
-		throw Utils::ErrnoException("Failed to umount "+device );
+		throw Utils::ErrnoException("Failed to umount "+device+" ("+errmsg+")" );
 	}
 }
 
