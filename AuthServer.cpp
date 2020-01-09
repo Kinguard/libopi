@@ -56,13 +56,22 @@ tuple<int, Json::Value> AuthServer::Login(bool usetempkeys)
 	Json::Value ret;
 	CryptoHelper::RSAWrapperPtr c;
 
-	if( usetempkeys )
+	try
 	{
-		c = AuthServer::GetKeysFromFile(this->acfg.pubkeypath, this->acfg.privkeypath);
+		// Secop operations might throw an exception
+		if( usetempkeys )
+		{
+			c = AuthServer::GetKeysFromFile(this->acfg.pubkeypath, this->acfg.privkeypath);
+		}
+		else
+		{
+			c = AuthServer::GetKeysFromSecop();
+		}
 	}
-	else
+	catch (std::runtime_error& err)
 	{
-		c = AuthServer::GetKeysFromSecop();
+		ret["desc"]=string("Failed to retrieve keys: ")+err.what();
+		return tuple<int, Json::Value>(503, ret);
 	}
 
 	if( ! c )

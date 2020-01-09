@@ -1,3 +1,16 @@
+libopi (1.6.58) vili; urgency=medium
+
+  * Add some more verbose errormsg in DiskHelper class
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 18 Oct 2019 14:06:52 +0200
+
+libopi (1.6.57) vili; urgency=medium
+
+  * Make sure authserver does not propagate exception from secop
+    during login
+
+ -- Tor Krill <tor@openproducts.se>  Thu, 03 Oct 2019 15:46:38 +0200
+
 libopi (1.6.56) vili; urgency=medium
 
   * Add default yes to all lvm create/delete operations
