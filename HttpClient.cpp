@@ -2,6 +2,8 @@
 #include "SysConfig.h"
 #include "Config.h"
 
+#include <libutils/FileUtils.h>
+
 namespace OPI
 {
 
@@ -16,11 +18,20 @@ HttpClient::HttpClient(const string& host, bool verifyca): host(host),port(0), t
 	try
 	{
 		this->defaultca = SysConfig().GetKeyAsString("hostinfo", "cafile");
+
+		string rpca = Utils::File::RealPath(this->defaultca);
+		if( ! Utils::File::FileExists(rpca) )
+		{
+			// Config points at none existant file, reset ca
+			this->defaultca = "";
+		}
+
 	}
 	catch (std::exception& err)
 	{
 		(void) err;
 		// Is could ok to not have this, http client should not fail if we miss sysconfig
+		this->defaultca = "";
 	}
 }
 

@@ -1,3 +1,10 @@
+libopi (1.6.59) vili; urgency=medium
+
+  * HttpClient: Only set ca if certfile exists
+  * SysConfig: Change loglevel on missing key on read
+
+ -- Tor Krill <tor@openproducts.se>  Tue, 12 Nov 2019 09:59:52 +0100
+
 libopi (1.6.58) vili; urgency=medium
 
   * Add some more verbose errormsg in DiskHelper class
