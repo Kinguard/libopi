@@ -1,3 +1,10 @@
+libopi (1.6.60~test1) vili; urgency=medium
+
+  * Change dep on libcurl to use openssl version to make it easier
+    to temporarily allow sha1 checksums on certs
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 03 Feb 2020 15:59:58 +0100
+
 libopi (1.6.59) vili; urgency=medium
 
   * HttpClient: Only set ca if certfile exists
