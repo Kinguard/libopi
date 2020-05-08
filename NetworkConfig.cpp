@@ -89,7 +89,7 @@ void NetworkConfig::WriteConfig()
 
 	Json::Value::Members mems = this->cfg.getMemberNames();
 
-	for( auto iface: mems)
+	for( const auto& iface: mems)
 	{
 		Json::Value ifc = this->cfg[iface];
 		if( ifc["auto"].asBool() )
@@ -99,10 +99,10 @@ void NetworkConfig::WriteConfig()
 		ss << "iface " << iface << " inet "<< ifc["addressing"].asString()<<endl;
 
 		Json::Value::Members opts = ifc["options"].getMemberNames();
-		for( auto opt: opts )
+		for( const auto& opt: opts )
 		{
 			ss << "\t"<<opt;
-			for( auto optval: ifc["options"][opt])
+			for( const auto& optval: ifc["options"][opt])
 			{
 				ss << " " << optval.asString();
 			}
@@ -153,7 +153,7 @@ void NetworkConfig::parse()
 				// asume option to iface
 				string key = words.front();
 				words.pop_front();
-				for( auto option: words)
+				for( const auto& option: words)
 				{
 					this->cfg[cif]["options"][key].append(option);
 				}
@@ -162,7 +162,7 @@ void NetworkConfig::parse()
 
 	}
 	// Add auto on ifs using it
-	for( auto ifs: autoifs)
+	for( const auto& ifs: autoifs)
 	{
 		this->cfg[ifs]["auto"]=true;
 	}
@@ -220,7 +220,7 @@ void ResolverConfig::WriteConfig()
 		ss << "search "<< this->search<<endl;
 	}
 
-	for( auto ns: this->nss )
+	for( const auto& ns: this->nss )
 	{
 		ss << "nameserver "<< ns<<endl;
 	}
@@ -233,7 +233,7 @@ void ResolverConfig::Dump()
 {
 	cout << "Search : "<< this->search<<endl;
 	cout << "Domain : "<< this->domain<<endl;
-	for( auto x: this->nss )
+	for( const auto& x: this->nss )
 	{
 		cout << "Nameserver: "<<x<<endl;
 	}
@@ -313,7 +313,7 @@ string GetDefaultRoute()
 	string defgateway;
 	list<string> fil = File::GetContent("/proc/net/route");
 	fil.pop_front();
-	for(auto row: fil){
+	for( const auto& row: fil){
 		list<string> line= String::Split( row, "\t");
 		if(line.size()==11){
 			list<string>::iterator lIt=line.begin();
@@ -365,7 +365,7 @@ string GetNetmask(const string& ifname)
 	int ret;
 	struct ifreq req;
 
-	bzero( &req, sizeof(struct ifreq) );
+	memset( &req, 0, sizeof(struct ifreq) );
 	sprintf( req.ifr_name, "%s",ifname.c_str() );
 
 	int sock = socket( AF_INET,SOCK_DGRAM, 0 );
@@ -383,7 +383,7 @@ string GetAddress(const string& ifname)
 		int ret;
 		struct ifreq req;
 
-		bzero( &req, sizeof( struct ifreq ) );
+		memset( &req, 0, sizeof( struct ifreq ) );
 		sprintf( req.ifr_name, "%s", ifname.c_str() );
 
 		int sock = socket( AF_INET,SOCK_DGRAM, 0 );

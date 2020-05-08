@@ -208,7 +208,7 @@ string IsMounted(const string &device)
 	}
 
 	map<string,string> tab;
-	for( auto line: lines)
+	for( auto& line: lines)
 	{
 		list<string> words = Utils::String::Split(line);
 		if( words.size() > 2 )

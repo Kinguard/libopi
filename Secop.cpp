@@ -134,7 +134,7 @@ vector<string> Secop::GetUsers()
 	vector<string> users;
 	if( this->CheckReply(rep) )
 	{
-		for(auto x: rep["users"])
+		for(const auto& x: rep["users"])
 		{
 			users.push_back(x.asString() );
 		}
@@ -158,7 +158,7 @@ vector<string> Secop::GetUserGroups(const string& user)
 	vector<string> groups;
 	if( this->CheckReply(rep) )
 	{
-		for(auto x: rep["groups"])
+		for(const auto& x: rep["groups"])
 		{
 			groups.push_back(x.asString() );
 		}
@@ -209,7 +209,7 @@ vector<string> Secop::GetAttributes(const string &user)
 	vector<string> attrs;
 	if( this->CheckReply(rep) )
 	{
-		for(auto x: rep["attributes"])
+		for(const auto& x: rep["attributes"])
 		{
 			attrs.push_back(x.asString() );
 		}
@@ -249,7 +249,7 @@ vector<string> Secop::GetServices(const string& user)
 	vector<string> services;
 	if( this->CheckReply(rep) )
 	{
-		for(auto x: rep["services"])
+		for(const auto& x: rep["services"])
 		{
 			services.push_back(x.asString() );
 		}
@@ -300,7 +300,7 @@ vector<string> Secop::GetACL(const string& user, const string& service)
 	vector<string> acl;
 	if( this->CheckReply(rep) )
 	{
-		for(auto x: rep["acl"])
+		for(const auto& x: rep["acl"])
 		{
 			acl.push_back(x.asString() );
 		}
@@ -420,7 +420,7 @@ list<map<string,string>> Secop::GetIdentifiers(const string& user, const string&
 		{
 			Json::Value::Members mems = x.getMemberNames();
 			map<string,string> id;
-			for( auto mem: mems)
+			for( const auto& mem: mems)
 			{
 				id[ mem ] = x[mem].asString();
 			}
@@ -473,7 +473,7 @@ vector<string> Secop::GetGroupMembers(const string &group)
 	vector<string> ret;
 	if( this->CheckReply(rep) )
 	{
-		for( auto member: rep["members"])
+		for( const auto& member: rep["members"])
 		{
 			ret.push_back( member.asString() );
 		}
@@ -497,7 +497,7 @@ vector<string> Secop::GetGroups()
 	vector<string> ret;
 	if ( this->CheckReply(rep) )
 	{
-		for(auto group: rep["groups"])
+		for(const auto& group: rep["groups"])
 		{
 			ret.push_back( group.asString() );
 		}
@@ -557,7 +557,7 @@ vector<string> Secop::AppGetIDs()
 	vector<string> users;
 	if( this->CheckReply(rep) )
 	{
-		for(auto x: rep["appids"])
+		for(const auto& x: rep["appids"])
 		{
 			users.push_back(x.asString() );
 		}
@@ -616,7 +616,7 @@ list<map<string, string> > Secop::AppGetIdentifiers(const string &appid)
 		{
 			Json::Value::Members mems = x.getMemberNames();
 			map<string,string> id;
-			for( auto mem: mems)
+			for( const auto& mem: mems)
 			{
 				id[ mem ] = x[mem].asString();
 			}
@@ -673,7 +673,7 @@ vector<string> Secop::AppGetACL(const string &appid)
 	vector<string> acl;
 	if( this->CheckReply(rep) )
 	{
-		for(auto x: rep["acl"])
+		for(const auto& x: rep["acl"])
 		{
 			acl.push_back(x.asString() );
 		}

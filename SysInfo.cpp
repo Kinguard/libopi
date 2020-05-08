@@ -105,7 +105,7 @@ string SysInfo::SerialNumber()
     string serial = "Undefined";
     list<string> allowed_patterns;
     size_t found;
-    int offset, serial_size = 12;
+	int offset = 0, serial_size = 12;
 
     if (! File::FileExists(this->serialnbrdevice) )
     {
@@ -117,7 +117,7 @@ string SysInfo::SerialNumber()
     {
         v_serial.push_back(string(p));
         p += v_serial.back().size() + 1;
-    } ;
+	}
 
     switch ( this->type )
     {
@@ -239,7 +239,7 @@ void SysInfo::GuessType()
 		return;
 	}
 	list<string> lines = File::GetContent("/proc/cpuinfo");
-	for( string line: lines)
+	for( const string& line: lines)
 	{
 		list<string> kval = String::Split(line,":");
 		if( kval.size() == 2 )
@@ -389,6 +389,12 @@ void SysInfo::ParseExtConfig()
 
 	if( Json::Reader().parse(fil, db) )
 	{
+		// First add any default settings from file
+		if( db.isMember("default") && db["default"].isObject() )
+		{
+			this->ParseExtEntry(db["default"]);
+		}
+
 		list<string> devices({"opi","xu4","olimexa20","armada","pc","rpi3","rpi4"});
 
 		for(const string& dev: devices )

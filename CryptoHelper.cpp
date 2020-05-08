@@ -379,7 +379,7 @@ vector<byte> RSAWrapper::PEMToDER(const string &key)
 
 	// Merge rows again
 	stringstream ss;
-	for(auto row: rows)
+	for(auto& row: rows)
 	{
 		ss << row;
 	}

@@ -139,7 +139,7 @@ string HttpClient::MakeFormData(map<string, string> data)
 {
 	stringstream postdata;
 	bool first = true;
-	for(auto arg: data )
+	for(const auto& arg: data )
 	{
 		if (!first)
 		{
@@ -180,7 +180,7 @@ void HttpClient::setheaders()
 	if( this->headers.size() > 0 )
 	{
 		this->slist = NULL;
-		for(auto h: this->headers )
+		for(const auto& h: this->headers )
 		{
 			string header = h.first+ ":" + h.second;
 			this->slist = curl_slist_append( this->slist, header.c_str() );

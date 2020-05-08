@@ -104,7 +104,6 @@ target_link_libraries(  ${PROJECT_NAME}
 	${LIBCURL_LDFLAGS}
 	${LIBCRYPTO++_LDFLAGS}
 	${BLKID_LDFLAGS}
-	${LVM2APP_LDFLAGS}
 	)
 
 set_target_properties( ${PROJECT_NAME} PROPERTIES

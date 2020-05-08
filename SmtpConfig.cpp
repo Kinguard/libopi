@@ -143,7 +143,7 @@ SmtpClientConfig::~SmtpClientConfig()
 void SmtpClientConfig::_parsesasl()
 {
 	list<string> plines = File::GetContent( this->path );
-	for( auto line: plines )
+	for( const auto& line: plines )
 	{
 		vector<Regex::Match> m = this->lreg.DoMatch(line);
 		if( m.size() == 4 )

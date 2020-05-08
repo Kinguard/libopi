@@ -1,6 +1,8 @@
 #include <unistd.h>
 #include <fstream>
 
+#include <libutils/FileUtils.h>
+#include <libutils/Logger.h>
 
 #include "TestSmtpClient.h"
 
@@ -48,6 +50,12 @@ public:
 
 void TestSmtpClient::Test()
 {
+
+	if ( ! Utils::File::FileExists("/usr/sbin/postmap") )
+	{
+		Utils::logg << "Postfix not installed on testsystem, skipping smtp tests"<<Utils::lend;
+		return;
+	}
 
 	CPPUNIT_ASSERT_NO_THROW( SmtpClientConfig scfg(SMTPSASL, PostConfInterfacePtr( new TestPostconf("one.more",true) ) ) );
 

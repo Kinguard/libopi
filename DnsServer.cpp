@@ -140,7 +140,7 @@ bool DnsServer::Auth(const string &unit_id)
 		list<string> rows = File::GetContent( SysConfig().GetKeyAsString("dns", "dnsauthkey") );
 		stringstream pemkey;
 
-		for( auto row: rows)
+		for( const auto& row: rows)
 		{
 			pemkey << row << "\n";
 		}
