@@ -524,7 +524,6 @@ void RaspbianNetworkConfig::SetDHCP(const string &iface)
 			this->cfg[iface].removeMember("options");
 		}
 	}
-	this->Dump();
 }
 
 void RaspbianNetworkConfig::SetStatic(const string &iface, const string &ip,
@@ -659,8 +658,6 @@ void RaspbianNetworkConfig::WriteConfig()
 
 	File::Write(this->path, ss.str(), 0644);
 
-	cout << "Written config " << this->path << " [\n"<< ss.str()<< "]"<< endl;
-
 }
 
 void RaspbianNetworkConfig::Dump()
@@ -700,7 +697,6 @@ void RaspbianNetworkConfig::ProcessOption(const string &iface, const string &key
 		list<string> dnss = String::Split(value, " ");
 		for( const auto& dns: dnss)
 		{
-			cout << "Add dns!"<<endl;
 			this->cfg[iface]["options"]["dns"].append(dns);
 		}
 	}
@@ -747,12 +743,6 @@ void RaspbianNetworkConfig::Parse()
 			{
 				this->cfg["other"].append(line);
 			}
-
-			for(auto& word: words)
-			{
-				cout << ":" << word;
-			}
-			cout << "\n";
 		}
 
 	}
