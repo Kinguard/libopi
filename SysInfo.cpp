@@ -30,18 +30,21 @@
 #include <libutils/FileUtils.h>
 #include <libutils/String.h>
 
-using namespace Utils;
+static constexpr const char* OS_INFOFILE="/etc/os-release";
+static constexpr const char* CPU_INFOFILE="/proc/cpuinfo";
 
+using namespace Utils;
 
 namespace OPI
 {
 
 SysInfo sysinfo;
 
-SysInfo::SysInfo(): numcpus(0), type(TypeUndefined), arch(ArchUndefined)
+SysInfo::SysInfo()
 {
 	this->GuessType();
 	this->SetupPaths();
+	this->GetOSInfo();
 }
 
 int SysInfo::NumCpus()
@@ -57,6 +60,16 @@ SysInfo::SysType SysInfo::Type()
 SysInfo::SysArch SysInfo::Arch()
 {
 	return this->arch;
+}
+
+SysInfo::OSType SysInfo::OS()
+{
+	return this->os;
+}
+
+string SysInfo::OSVersion()
+{
+	return this->osversion;
 }
 
 string SysInfo::StorageDevicePath()
@@ -115,7 +128,7 @@ string SysInfo::SerialNumber()
 
     while ( string(p).length() > 0 )
     {
-        v_serial.push_back(string(p));
+        v_serial.emplace_back(p);
         p += v_serial.back().size() + 1;
 	}
 
@@ -123,13 +136,13 @@ string SysInfo::SerialNumber()
     {
     case TypeOpi:
         // OPI does not have the "serial=" identifier
-        allowed_patterns.push_back("OP-I");
-        allowed_patterns.push_back("BBBK");  // used in the first batch of OPI's
+        allowed_patterns.emplace_back("OP-I");
+        allowed_patterns.emplace_back("BBBK");  // used in the first batch of OPI's
         offset = -4;
         break;
     case TypeArmada:
     case TypePC:
-        allowed_patterns.push_back("serial=");
+        allowed_patterns.emplace_back("serial=");
         offset = 7;
         break;
 
@@ -153,11 +166,6 @@ string SysInfo::SerialNumber()
 string SysInfo::BackupRootPath()
 {
     return this->backuprootpath;
-}
-
-SysInfo::~SysInfo()
-{
-
 }
 
 bool SysInfo::isArmada()
@@ -214,7 +222,7 @@ bool SysInfo::useLUKS()
 
 SysInfo::SysType SysInfo::TypeFromName(const string &devname)
 {
-	static map<string, SysInfo::SysType> devtypemap =
+	static const map<string, SysInfo::SysType> devtypemap =
 	{
 		{"opi",SysInfo::TypeOpi },
 		{"xu4",SysInfo::TypeXu4 },
@@ -227,18 +235,58 @@ SysInfo::SysType SysInfo::TypeFromName(const string &devname)
 
     if( devtypemap.find(dev) != devtypemap.end() )
 	{
-        return devtypemap[dev];
+		return devtypemap.at(dev);
 	}
 	return SysType::TypeUnknown;
 }
 
-void SysInfo::GuessType()
+void SysInfo::GetOSInfo()
 {
-	if( ! File::FileExists("/proc/cpuinfo") )
+	static const map<string, SysInfo::OSType> ostypemap =
+	{
+		{"debian", OSType::OSDebian},
+		{"raspbian", OSType::OSRaspbian},
+		{"ubuntu", OSType::OSUbuntu}
+	};
+
+	if( !File::FileExists(OS_INFOFILE) && ! File::LinkExists(OS_INFOFILE) )
 	{
 		return;
 	}
-	list<string> lines = File::GetContent("/proc/cpuinfo");
+
+	list<string> lines = File::GetContent(OS_INFOFILE);
+	for( const string& line: lines)
+	{
+		list<string> kval = String::Split(line,"=");
+		if( kval.size() != 2 )
+		{
+			continue;
+		}
+
+		this->osinfo[kval.front()] = String::Trimmed(kval.back(), "\"\t ");
+	}
+
+	if( this->osinfo.find("ID") != this->osinfo.end() )
+	{
+		if( ostypemap.find(this->osinfo["ID"]) != ostypemap.end() )
+		{
+			this->os = ostypemap.at(this->osinfo["ID"] );
+		}
+	}
+
+	if( this->osinfo.find("VERSION_CODENAME") != this->osinfo.end() )
+	{
+		this->osversion = this->osinfo["VERSION_CODENAME"];
+	}
+}
+
+void SysInfo::GuessType()
+{
+	if( ! File::FileExists(CPU_INFOFILE) )
+	{
+		return;
+	}
+	list<string> lines = File::GetContent(CPU_INFOFILE);
 	for( const string& line: lines)
 	{
 		list<string> kval = String::Split(line,":");

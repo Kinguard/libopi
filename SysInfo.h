@@ -23,6 +23,8 @@
 
 #include <json/json.h>
 
+#include <map>
+#include <vector>
 #include <string>
 
 using namespace std;
@@ -33,6 +35,20 @@ namespace OPI
 class SysInfo
 {
 public:
+
+	SysInfo();
+
+	const std::vector<std::string> Domains {
+        "",
+        "op-i.me",
+        "",
+        "",
+        "mykeep.net",
+        "",
+		"",
+		"",
+		""
+    };
 
 	enum SysType {
 		TypeUndefined,
@@ -46,29 +62,24 @@ public:
 		TypeUnknown
 	};
 
-    std::vector<std::string> Domains {
-        "",
-        "op-i.me",
-        "",
-        "",
-        "mykeep.net",
-        "",
-		"",
-		"",
-		""
-    };
-
-    std::vector<std::string> SysTypeText {
-        "Undefined",
-        "Opi",
-        "Xu4",
-        "OlimexA20",
-        "Armada",
-        "PC",
+	const std::vector<std::string> SysTypeText {
+		"Undefined",
+		"Opi",
+		"Xu4",
+		"OlimexA20",
+		"Armada",
+		"PC",
 		"RPi 3",
 		"RPi 4",
 		"Unknown"
-    };
+	};
+
+	/**
+	 * @brief Type
+	 * @return hardware "board" type detected
+	 */
+	SysType Type();
+
     enum SysArch {
 		ArchUndefined,
 		ArchArm,
@@ -76,11 +87,42 @@ public:
 		ArchUnknown
 	};
 
-	SysInfo();
+	/**
+	 * @brief Arch
+	 * @return System hardware architecture detected
+	 */
+	SysArch Arch();
+
 
 	int NumCpus();
-	SysType Type();
-	SysArch Arch();
+
+	enum OSType {
+		OSUndefined,
+		OSDebian,
+		OSRaspbian,
+		OSUbuntu,
+		OSUnknown
+	};
+
+	const std::vector<std::string> OSTypeText {
+		"Undefined",
+		"Debian",
+		"Raspbian",
+		"Ubuntu",
+		"Unknown"
+	};
+
+	/**
+	 * @brief OS
+	 * @return operating system as detected
+	 */
+	OSType OS();
+
+	/**
+	 * @brief OSVersion get the os version reported
+	 * @return Os version as reported in "Version_codename" in /etc/os-release
+	 */
+	string OSVersion();
 
 	/**
 	 * @brief StorageDevicePath Get complete path to storage device including partition
@@ -132,7 +174,7 @@ public:
     string BackupRootPath();
 
 
-	virtual ~SysInfo();
+	virtual ~SysInfo() = default;
 
 	static bool isArmada();
 	static bool isOpi();
@@ -148,13 +190,16 @@ public:
 	static SysType TypeFromName(const string& devname);
 
 private:
+	void GetOSInfo();
 	void GuessType();
 	void SetupPaths();
 	void ParseExtConfig();
 	void ParseExtEntry(Json::Value& v);
-	int numcpus;
-	SysType type;
-    SysArch arch;
+	int numcpus = 0;
+	SysType type = TypeUndefined;
+	SysArch arch = ArchUndefined;
+	OSType os = OSUndefined;
+	string osversion = "Undefined";
 
 	string storagedevicepath;	// Path to device node with storage block devive (/dev)
 	string storagedevice;		// Block device name (sdg,mmcblk0)
@@ -165,6 +210,8 @@ private:
 	string networkdevice;		// Which network device to use for operation
     string serialnbrdevice;		// Path to eeprom that holds the serial number
     string backuprootpath;      // Root path on where to mount remote FS for backup.
+
+	map<string,string> osinfo;
 };
 
 extern SysInfo sysinfo;

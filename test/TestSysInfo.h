@@ -11,6 +11,7 @@ class TestSysInfo: public CppUnit::TestFixture
     CPPUNIT_TEST( TestSerialNumber );
     CPPUNIT_TEST( TestBackupRootPath );
 	CPPUNIT_TEST( TestDeviceDB );
+	CPPUNIT_TEST( TestOSInfo );
 	CPPUNIT_TEST_SUITE_END();
 public:
 	void setUp();
@@ -20,6 +21,7 @@ public:
     void TestSerialNumber();
     void TestBackupRootPath();
 	void TestDeviceDB();
+	void TestOSInfo();
 };
 
 #endif /* TESTSYSINFO_H_ */

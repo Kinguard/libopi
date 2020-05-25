@@ -105,7 +105,7 @@ void TestSysInfo::TestNetworkDevice()
 void TestSysInfo::TestSerialNumber()
 {
 
-    printf("\nSERIAL: %s\n",OPI::sysinfo.SerialNumber().c_str());
+	logg << Logger::Debug << "\nSERIAL: " << OPI::sysinfo.SerialNumber() << lend;
 
     switch( OPI::sysinfo.Type() )
     {
@@ -144,4 +144,17 @@ void TestSysInfo::TestDeviceDB()
 	cout << "Typ     :" << OPI::sysinfo.SysTypeText[OPI::sysinfo.Type() ]  << endl;
 	cout << "Password:" << OPI::sysinfo.PasswordDevice()  << endl;
 
+}
+
+void TestSysInfo::TestOSInfo()
+{
+
+	CPPUNIT_ASSERT( OPI::sysinfo.OS() != OPI::SysInfo::OSUnknown );
+	CPPUNIT_ASSERT( OPI::sysinfo.OS() != OPI::SysInfo::OSUndefined );
+
+	CPPUNIT_ASSERT( OPI::sysinfo.OSVersion() != "Undefined" );
+
+	OPI::SysInfo::OSType os = OPI::sysinfo.OS();
+	logg << Logger::Debug << "OS: " <<  os << " : " << OPI::sysinfo.OSTypeText[os]  << lend;
+	logg << Logger::Debug << "OS version " << OPI::sysinfo.OSVersion() << lend;
 }
