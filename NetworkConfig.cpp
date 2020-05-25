@@ -1,8 +1,9 @@
 
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "NetworkConfig.h"
 
@@ -18,7 +19,93 @@ namespace NetUtils
 
 using namespace Utils;
 
-NetworkConfig::NetworkConfig(const string &path): path(path)
+
+constexpr const int NETWIDTH=32;
+
+static uint32_t toval(Ipv4Address& addr)
+{
+	return (addr[0] << 24) | (addr[1] << 16) | (addr[2]<<8) | addr[3];
+}
+
+constexpr static uint32_t toval(uint8_t net)
+{
+	return (((uint64_t)1 << net) -1) << (NETWIDTH-net);
+}
+
+static Ipv4Address toaddress(uint8_t netk)
+{
+	uint32_t addr = toval(netk);
+	auto *val = (uint8_t*) &addr;
+	return {val[3],val[2],val[1],val[0]};
+}
+
+IPv4Network::IPv4Network(uint8_t net)
+{
+	this->address = toaddress(net);
+}
+
+IPv4Network::IPv4Network(const string &addr)
+{
+	// First assume we have a dotted address
+	vector<string> apart;
+	String::Split(addr, apart, ".");
+	if( apart.size() == 4 )
+	{
+		this->address[0] = std::stoi(apart[0]);
+		this->address[1] = std::stoi(apart[1]);
+		this->address[2] = std::stoi(apart[2]);
+		this->address[3] = std::stoi(apart[3]);
+	}
+	else
+	{
+		// Lets try to parse this as a net-specifier part
+		// i.e. x.x.x.x/(YYY)
+		this->address  = toaddress(std::stoi(addr));
+	}
+}
+
+IPv4Network::IPv4Network(const Ipv4Address &addr): address(addr)
+{
+}
+
+uint8_t IPv4Network::asNetwork()
+{
+	uint32_t val = toval(this->address);
+
+	if( val == 0)
+	{
+		return 0;
+	}
+
+	int net = 0;
+
+	// count ones
+	do{
+		net++;
+	}while( (val=val<<1) );
+
+	return net;
+}
+
+Ipv4Address IPv4Network::asAddress()
+{
+	return this->address;
+}
+
+std::string IPv4Network::asString()
+{
+	stringstream ss;
+	ss << (int) this->address[0]
+			<< "." << (int)this->address[1]
+			<< "." << (int)this->address[2]
+			<< "." << (int)this->address[3];
+
+	return ss.str();
+}
+
+
+
+DebianNetworkConfig::DebianNetworkConfig(string path): NetworkConfig(), path(std::move(path))
 {
 	if( ! File::FileExists( this->path ) )
 	{
@@ -27,26 +114,7 @@ NetworkConfig::NetworkConfig(const string &path): path(path)
 	this->parse();
 }
 
-Json::Value NetworkConfig::GetInterfaces()
-{
-	return this->cfg;
-}
-
-Json::Value NetworkConfig::GetInterface(const string &iface)
-{
-	if( ! this->cfg.isMember( iface ) )
-	{
-		throw std::runtime_error("Interface not found");
-	}
-	return this->cfg[iface];
-}
-
-void NetworkConfig::SetInterface(const string& iface, const Json::Value &v)
-{
-	this->cfg[iface]=v;
-}
-
-void NetworkConfig::SetDHCP(const string &iface)
+void DebianNetworkConfig::SetDHCP(const string &iface)
 {
 	if( ! this->cfg.isMember( iface ) )
 	{
@@ -57,9 +125,10 @@ void NetworkConfig::SetDHCP(const string &iface)
 	v["auto"]=true;
 
 	this->cfg[iface] = v;
+	this->dnslist.clear();
 }
 
-void NetworkConfig::SetStatic(const string &iface, const string &ip, const string &nm, const string &gw)
+void DebianNetworkConfig::SetStatic(const string &iface, const string &ip, const string &nm, const string &gw, const list<string> &dnss)
 {
 	if( ! this->cfg.isMember( iface ) )
 	{
@@ -76,14 +145,16 @@ void NetworkConfig::SetStatic(const string &iface, const string &ip, const strin
 	}
 
 	this->cfg[iface] = v;
+
+	this->dnslist = dnss;
 }
 
-void NetworkConfig::Dump()
+void DebianNetworkConfig::Dump()
 {
 	cout << this->cfg.toStyledString()<<endl;
 }
 
-void NetworkConfig::WriteConfig()
+void DebianNetworkConfig::WriteConfig()
 {
 	stringstream ss;
 
@@ -111,14 +182,23 @@ void NetworkConfig::WriteConfig()
 		ss<< endl;
 	}
 	File::Write( this->path, ss.str(), 0644 );
+
+
+	// Only write dns-server config if servers present
+	// Not sure this is the "right" thing to do though
+	if( this->dnslist.size()>0)
+	{
+		NetUtils::ResolverConfig rc;
+		rc.setDomain("localdomain");
+		rc.setSearch("");
+		rc.setNameservers(this->dnslist);
+		rc.WriteConfig();
+	}
+
 }
 
-NetworkConfig::~NetworkConfig()
-{
 
-}
-
-void NetworkConfig::parse()
+void DebianNetworkConfig::parse()
 {
 	list<string> lines = File::GetContent( this->path );
 	list<string> autoifs;
@@ -166,18 +246,21 @@ void NetworkConfig::parse()
 	{
 		this->cfg[ifs]["auto"]=true;
 	}
+
+	// Read dns servers
+	NetUtils::ResolverConfig rc;
+	this->dnslist = rc.getNameservers();
+
 }
 
 
-ResolverConfig::ResolverConfig(const string &path): path(path)
+ResolverConfig::ResolverConfig(string path): path(std::move(path))
 {
 	this->parse();
 }
 
 ResolverConfig::~ResolverConfig()
-{
-
-}
+= default;
 string ResolverConfig::getDomain() const
 {
 	return this->domain;
@@ -225,7 +308,14 @@ void ResolverConfig::WriteConfig()
 		ss << "nameserver "<< ns<<endl;
 	}
 
-	File::Write( this->path, ss.str(), 0644 );
+	try {
+		File::Write( this->path, ss.str(), 0644 );
+
+	}
+	catch (ErrnoException& err)
+	{
+		cerr << "Failed to write resolv.conf: " << err.what() << endl;
+	}
 
 }
 
@@ -316,7 +406,7 @@ string GetDefaultRoute()
 	for( const auto& row: fil){
 		list<string> line= String::Split( row, "\t");
 		if(line.size()==11){
-			list<string>::iterator lIt=line.begin();
+			auto lIt=line.begin();
 			string iface = *lIt++;
 			string destination = addresstostring(*lIt++);
 			string gateway = addresstostring(*lIt++);
@@ -363,7 +453,7 @@ static string sockaddrtostring(struct sockaddr* address)
 string GetNetmask(const string& ifname)
 {
 	int ret;
-	struct ifreq req;
+	struct ifreq req{};
 
 	memset( &req, 0, sizeof(struct ifreq) );
 	sprintf( req.ifr_name, "%s",ifname.c_str() );
@@ -381,7 +471,7 @@ string GetNetmask(const string& ifname)
 string GetAddress(const string& ifname)
 {
 		int ret;
-		struct ifreq req;
+		struct ifreq req{};
 
 		memset( &req, 0, sizeof( struct ifreq ) );
 		sprintf( req.ifr_name, "%s", ifname.c_str() );
@@ -398,18 +488,330 @@ string GetAddress(const string& ifname)
 
 bool RestartInterface(const string &ifname)
 {
-	const string upcmd("/sbin/ifup ");
-	const string downcmd("/sbin/ifdown ");
+	const string upcmd("/sbin/ip link set " + ifname + " up");
+	const string downcmd("/sbin/ip link set " + ifname + " down");
 
 	bool tmp, ret;
-	tie(ret, ignore) = Process::Exec( downcmd + ifname );
-	tie(tmp, ignore) = Process::Exec( upcmd + ifname );
+	tie(ret, ignore) = Process::Exec( downcmd );
+	tie(tmp, ignore) = Process::Exec( upcmd );
 	ret = ret && tmp;
 
 	tie(tmp, ignore) = Process::Exec( "/usr/share/opi-access/opi-access.sh" );
 	ret = ret && tmp;
 
 	return ret;
+}
+
+
+RaspbianNetworkConfig::RaspbianNetworkConfig(const string &path): NetworkConfig(), path(std::move(path))
+{
+	this->Parse();
+}
+
+void RaspbianNetworkConfig::SetDHCP(const string &iface)
+{
+	if( ! this->cfg.isMember(iface) || !this->cfg[iface].isObject() )
+	{
+		throw std::runtime_error(string("Unknown interface ")+iface);
+	}
+
+	if( this->cfg[iface]["addressing"].asString() == "static" )
+	{
+		this->cfg[iface]["addressing"]="dhcp";
+
+		if( this->cfg[iface].isMember("options") )
+		{
+			this->cfg[iface].removeMember("options");
+		}
+	}
+	this->Dump();
+}
+
+void RaspbianNetworkConfig::SetStatic(const string &iface, const string &ip,
+									  const string &nm, const string &gw,
+									  const list<string>& dnss)
+{
+
+	if( ! this->cfg.isMember(iface) || !this->cfg[iface].isObject() )
+	{
+		throw std::runtime_error(string("Unknown interface ")+iface);
+	}
+	string adr = this->cfg[iface]["addressing"].asString();
+	if( adr == "dhcp" || adr =="static" )
+	{
+		this->cfg[iface]["addressing"]="static";
+
+		if( this->cfg[iface].isMember("options") )
+		{
+			this->cfg[iface].removeMember("options");
+		}
+
+		this->cfg[iface]["options"]["address"].append(ip);
+		this->cfg[iface]["options"]["netmask"].append(nm);
+		this->cfg[iface]["options"]["gateway"].append(gw);
+
+		for(const auto& dns: dnss)
+		{
+			this->cfg[iface]["options"]["dns"].append(dns);
+		}
+
+	}
+
+}
+
+void RaspbianNetworkConfig::WriteStaticEntry(stringstream &ss, const string &member)
+{
+	Json::Value item = this->cfg[member];
+
+	if( !item.isMember("options") || !item["options"].isObject() )
+	{
+		throw std::runtime_error("Malformed network entry in dhcpcd config");
+	}
+
+	ss << "\n# Static configuration for " << member <<"\n";
+	ss << "interface "<<member<<"\n";
+
+	Json::Value::Members mems = item["options"].getMemberNames();
+	for( const auto& mem: mems)
+	{
+
+		if( mem == "netmask" )
+		{
+			// Processed with address
+			continue;
+		}
+		else if( mem == "address" )
+		{
+			if( ! item["options"].isMember("netmask") )
+			{
+				throw std::runtime_error("Missing netmask in network configuration");
+			}
+			IPv4Network addr(item["options"]["address"][0].asString());
+			IPv4Network nm(item["options"]["netmask"][0].asString());
+			ss << "static ip_address=" << addr.asString() << "/" << std::to_string(nm.asNetwork())<<"\n";
+		}
+		else if( mem == "gateway")
+		{
+			bool first = true;
+			ss << "static routers=";
+			for( const auto& router: item["options"]["gateway"])
+			{
+				ss << (first?"":" ") << router.asString();
+				first=false;
+			}
+			ss << "\n";
+		}
+		else if( mem == "dns")
+		{
+			bool first = true;
+			ss << "static domain_name_servers=";
+			for( const auto& dns: item["options"]["dns"])
+			{
+				ss << (first?"":" ") << dns.asString();
+				first = false;
+			}
+			ss << "\n";
+		}
+		else
+		{
+			// Unknown parameter just copy back
+			ss << "static " << mem << "="<< item["options"][mem][0].asString()  <<"\n";
+		}
+	}
+
+}
+
+
+void RaspbianNetworkConfig::WriteConfig()
+{
+	stringstream ss;
+
+	ss << "# This is an autogenerated file.\n"
+	   << "# Any structure and all comments will be lost upon update\n\n";
+
+	// Start with all "unknown" options
+	if( this->cfg.isMember("other") && this->cfg["other"].isArray() )
+	{
+		for( const auto& line: cfg["other"])
+		{
+			ss << line.asString() << "\n";
+		}
+	}
+
+	Json::Value::Members mems = this->cfg.getMemberNames();
+	for( const auto& mem: mems)
+	{
+		if( mem == "other" )
+		{
+			// Skip already processed section
+			continue;
+		}
+
+		if( this->cfg[mem]["addressing"].asString() != "static" )
+		{
+			// Skip all none static mappings
+			continue;
+		}
+
+		this->WriteStaticEntry(ss, mem);
+
+	}
+
+	File::Write(this->path, ss.str(), 0644);
+
+	cout << "Written config " << this->path << " [\n"<< ss.str()<< "]"<< endl;
+
+}
+
+void RaspbianNetworkConfig::Dump()
+{
+	cout << this->cfg.toStyledString()<<endl;
+}
+
+
+/*
+ * Translate dhcpcd options to frontend expected key/value pairs
+ */
+void RaspbianNetworkConfig::ProcessOption(const string &iface, const string &key, const string &value)
+{
+
+	if( key == "ip_address" )
+	{
+		list<string> addr = String::Split(value,"/",2);
+		if( addr.size() == 2 )
+		{
+			this->cfg[iface]["options"]["address"].append(addr.front());
+
+			IPv4Network net(std::stoi(addr.back()));
+			this->cfg[iface]["options"]["netmask"].append( net.asString() );
+		}
+		else
+		{
+			throw std::runtime_error("Failed to parse ipv4 address");
+		}
+	}
+	else if( key == "routers" )
+	{
+		this->cfg[iface]["options"]["gateway"].append(value);
+	}
+	else if( key == "domain_name_servers")
+	{
+		this->cfg[iface]["options"]["dns"]= Json::arrayValue;
+		list<string> dnss = String::Split(value, " ");
+		for( const auto& dns: dnss)
+		{
+			cout << "Add dns!"<<endl;
+			this->cfg[iface]["options"]["dns"].append(dns);
+		}
+	}
+	else
+	{
+		this->cfg[iface]["options"][key].append( value );
+	}
+
+}
+
+void RaspbianNetworkConfig::Parse()
+{
+	if( ! File::FileExists(this->path) )
+	{
+		throw std::runtime_error(string("Config file not found: ")+this->path);
+	}
+	this->cfg["other"]=Json::Value(Json::arrayValue);
+	try {
+		list<string> lines = File::GetContent(this->path);
+
+		string cif; // Current interface
+		for(auto& line :lines)
+		{
+			line = String::Trimmed(line, " \t");
+			if( line == "" || line[0] == '#')
+			{
+				continue;
+			}
+
+			list<string> words = String::Split(line, " ",2);
+
+			if( words.front() == "interface" )
+			{
+				cif = words.back();
+			}
+			else if( words.front() == "static" )
+			{
+				this->cfg[cif]["addressing"] = "static";
+				list<string> option = String::Split( words.back(), "=", 2);
+				this->ProcessOption(cif, option.front(), option.back() );
+				//this->cfg[cif]["options"][option.front()]=option.back();
+			}
+			else
+			{
+				this->cfg["other"].append(line);
+			}
+
+			for(auto& word: words)
+			{
+				cout << ":" << word;
+			}
+			cout << "\n";
+		}
+
+	}
+	catch ( std::runtime_error& err)
+	{
+		cout << "Caught exception: "<< err.what()<<endl;
+
+	}
+
+}
+
+list<string> GetInterfaces()
+{
+	list<string> ifpaths = File::Glob("/sys/class/net/*");
+
+	list<string> ifs;
+	ifs.resize(ifpaths.size());
+
+	transform(ifpaths.begin(), ifpaths.end(), ifs.begin(), File::GetFileName );
+
+	return ifs;
+}
+
+NetworkConfig::NetworkConfig()
+{
+	// Get all network devices on system and add to config
+
+	list<string> ifs = NetUtils::GetInterfaces();
+
+	for(const auto& iface: ifs)
+	{
+		this->cfg[iface] = Json::Value();
+		if( iface == "lo" )
+		{
+			this->cfg[iface]["addressing"]="loopback";
+		}
+		else
+		{
+			// We start of by assuming all ifs are dynamically configured
+			this->cfg[iface]["addressing"]="dhcp";
+		}
+
+	}
+
+}
+
+Json::Value NetworkConfig::GetInterface(const string &iface)
+{
+	if( ! this->cfg.isMember( iface ) )
+	{
+		throw std::runtime_error("Interface not found");
+	}
+	return this->cfg[iface];
+
+}
+
+Json::Value NetworkConfig::GetInterfaces()
+{
+	return this->cfg;
 }
 
 } // End namespace

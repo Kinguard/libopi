@@ -14,11 +14,14 @@ set( testapp_src
 	TestMailAliasFile.cpp
 	TestNetworkConfig.cpp
 	TestNotification.cpp
+	TestRaspbianNetworkConfig.cpp
 	TestResolverConfig.cpp
 	TestSmtpClient.cpp
 	TestSysInfo.cpp
 	TestSysConfig.cpp
 	)
+
+configure_file("dhcpcd.conf" "dhcpcd.conf" COPYONLY)
 
 include_directories(
 	"${PROJECT_SOURCE_DIR}"

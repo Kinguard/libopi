@@ -14,37 +14,113 @@ namespace NetUtils
 
 using namespace std;
 
+using Ipv4Address = std::array<uint8_t, 4>;
+
+class IPv4Network
+{
+public:
+	IPv4Network() = default;
+
+	/**
+	 * @brief Network create object from a network spec ie x.x.x.x/net
+	 * @param net
+	 */
+	IPv4Network(uint8_t net);
+
+	IPv4Network(const string& addr);
+
+	IPv4Network(const Ipv4Address& addr);
+
+	uint8_t asNetwork();
+
+	Ipv4Address asAddress();
+
+	std::string asString();
+
+	virtual ~IPv4Network() = default;
+private:
+	Ipv4Address address = {0,0,0,0};
+};
+
 class NetworkConfig
 {
 public:
-	NetworkConfig(const string& path = "/etc/network/interfaces");
 
+	NetworkConfig();
 
-	Json::Value GetInterfaces();
-	Json::Value GetInterface(const string& iface);
+	virtual Json::Value GetInterface(const string& iface);
+	virtual Json::Value GetInterfaces();
 
-	void SetInterface(const string &iface, const Json::Value& v);
-	void SetDHCP( const string& iface);
+// We really dont want to allow this since it most likely
+// will overwrite housekeeping info specific to device.
+#if 0
+	virtual void SetInterface(const string &iface, const Json::Value& v) = 0;
+#endif
+	virtual void SetDHCP( const string& iface) = 0;
+	virtual void SetStatic(const string& iface,
+					const string& ip,
+					const string& nm,
+					const string& gw = "",
+					const list<string>& dnss = {}) = 0;
+
+	virtual void WriteConfig() = 0;
+
+	virtual ~NetworkConfig() = default;
+protected:
+	Json::Value cfg;
+};
+
+class DebianNetworkConfig: public NetworkConfig
+{
+public:
+	DebianNetworkConfig(string  path = "/etc/network/interfaces");
+
+	void SetDHCP( const string& iface) override;
 	void SetStatic(const string& iface,
 					const string& ip,
 					const string& nm,
-					const string& gw = "");
+					const string& gw = "",
+				   const list<string>& dnss = {}) override;
 	void Dump();
 
-	void WriteConfig();
+	void WriteConfig() override;
 
-	virtual ~NetworkConfig();
+	virtual ~DebianNetworkConfig() = default;
 private:
 	string path;
+	list<string> dnslist;
 
 	void parse();
-	Json::Value cfg;
 };
+
+class RaspbianNetworkConfig: public NetworkConfig
+{
+public:
+	RaspbianNetworkConfig(const string& path = "/etc/dhcpcd.conf");
+
+	void SetDHCP(const string &iface) override;
+	void SetStatic(const string &iface,
+				   const string &ip,
+				   const string &nm,
+				   const string &gw,
+				   const list<string>& dnss = {}) override;
+	void WriteConfig() override;
+
+	void Dump();
+
+	virtual ~RaspbianNetworkConfig() = default;
+private:
+	void WriteStaticEntry(stringstream& ss, const string& member);
+	void ProcessOption(const string& iface, const string& key, const string& value);
+	void Parse();
+	string path = "";
+};
+
 
 class ResolverConfig
 {
 public:
-	ResolverConfig( const string& path = "/etc/resolv.conf");
+	ResolverConfig( string  path = "/etc/resolv.conf");
 
 	virtual ~ResolverConfig();
 
@@ -68,8 +144,19 @@ private:
 	void parse();
 };
 
+
+// Convenience routines
+
+/**
+ * @brief GetInterfaces return a list of network devices found in system
+ * @return list with interfaces
+ */
+list<string> GetInterfaces();
+
 string GetAddress(const string& ifname);
+
 string GetNetmask(const string& ifname);
+
 string GetDefaultRoute();
 
 bool RestartInterface(const string& ifname);
