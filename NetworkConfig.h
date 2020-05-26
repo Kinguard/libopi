@@ -70,6 +70,19 @@ protected:
 	Json::Value cfg;
 };
 
+class NullConfig: public NetworkConfig
+{
+public:
+	NullConfig() = default;
+
+	virtual ~NullConfig() = default;
+
+	// NetworkConfig interface
+	void SetDHCP(const string &iface) override;
+	void SetStatic(const string &iface, const string &ip, const string &nm, const string &gw, const list<string> &dnss) override;
+	void WriteConfig() override;
+};
+
 class DebianNetworkConfig: public NetworkConfig
 {
 public:

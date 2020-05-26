@@ -7,9 +7,10 @@
 
 #include "NetworkConfig.h"
 
+#include <libutils/Logger.h>
 #include <libutils/String.h>
-#include <libutils/FileUtils.h>
 #include <libutils/Process.h>
+#include <libutils/FileUtils.h>
 
 namespace OPI
 {
@@ -109,6 +110,7 @@ DebianNetworkConfig::DebianNetworkConfig(string path): NetworkConfig(), path(std
 {
 	if( ! File::FileExists( this->path ) )
 	{
+		logg << Logger::Error << "Netwoek configfile " << path << " not found"<<lend;
 		throw std::runtime_error("Network configfile not found");
 	}
 	this->parse();
@@ -118,6 +120,7 @@ void DebianNetworkConfig::SetDHCP(const string &iface)
 {
 	if( ! this->cfg.isMember( iface ) )
 	{
+		logg << Logger::Error << "Interface "<< iface<< " not found" << lend;
 		throw std::runtime_error("Interface not found");
 	}
 	Json::Value v;
@@ -132,6 +135,7 @@ void DebianNetworkConfig::SetStatic(const string &iface, const string &ip, const
 {
 	if( ! this->cfg.isMember( iface ) )
 	{
+		logg << Logger::Error << "Interface "<< iface<< " not found" << lend;
 		throw std::runtime_error("Interface not found");
 	}
 	Json::Value v;
@@ -512,6 +516,7 @@ void RaspbianNetworkConfig::SetDHCP(const string &iface)
 {
 	if( ! this->cfg.isMember(iface) || !this->cfg[iface].isObject() )
 	{
+		logg << Logger::Error << "Interface "<< iface<< " not found" << lend;
 		throw std::runtime_error(string("Unknown interface ")+iface);
 	}
 
@@ -533,6 +538,7 @@ void RaspbianNetworkConfig::SetStatic(const string &iface, const string &ip,
 
 	if( ! this->cfg.isMember(iface) || !this->cfg[iface].isObject() )
 	{
+		logg << Logger::Error << "Interface "<< iface<< " not found" << lend;
 		throw std::runtime_error(string("Unknown interface ")+iface);
 	}
 	string adr = this->cfg[iface]["addressing"].asString();
@@ -564,6 +570,7 @@ void RaspbianNetworkConfig::WriteStaticEntry(stringstream &ss, const string &mem
 
 	if( !item.isMember("options") || !item["options"].isObject() )
 	{
+		logg << Logger::Error << "Malformed network entry in dhcpcd config" << lend;
 		throw std::runtime_error("Malformed network entry in dhcpcd config");
 	}
 
@@ -583,6 +590,7 @@ void RaspbianNetworkConfig::WriteStaticEntry(stringstream &ss, const string &mem
 		{
 			if( ! item["options"].isMember("netmask") )
 			{
+				logg << Logger::Error << "Missing netmask in network configuration" << lend;
 				throw std::runtime_error("Missing netmask in network configuration");
 			}
 			IPv4Network addr(item["options"]["address"][0].asString());
@@ -711,6 +719,7 @@ void RaspbianNetworkConfig::Parse()
 {
 	if( ! File::FileExists(this->path) )
 	{
+		logg << Logger::Error << "Config file "<< this->path << " not found" << lend;
 		throw std::runtime_error(string("Config file not found: ")+this->path);
 	}
 	this->cfg["other"]=Json::Value(Json::arrayValue);
@@ -737,7 +746,6 @@ void RaspbianNetworkConfig::Parse()
 				this->cfg[cif]["addressing"] = "static";
 				list<string> option = String::Split( words.back(), "=", 2);
 				this->ProcessOption(cif, option.front(), option.back() );
-				//this->cfg[cif]["options"][option.front()]=option.back();
 			}
 			else
 			{
@@ -748,7 +756,7 @@ void RaspbianNetworkConfig::Parse()
 	}
 	catch ( std::runtime_error& err)
 	{
-		cout << "Caught exception: "<< err.what()<<endl;
+		logg << Logger::Notice << "Caught exception: "<< err.what()<<lend;
 
 	}
 
@@ -793,6 +801,7 @@ Json::Value NetworkConfig::GetInterface(const string &iface)
 {
 	if( ! this->cfg.isMember( iface ) )
 	{
+		logg << Logger::Error << "Interface " << iface << " not found" << lend;
 		throw std::runtime_error("Interface not found");
 	}
 	return this->cfg[iface];
@@ -802,6 +811,28 @@ Json::Value NetworkConfig::GetInterface(const string &iface)
 Json::Value NetworkConfig::GetInterfaces()
 {
 	return this->cfg;
+}
+
+void NullConfig::SetDHCP(const string &iface)
+{
+	(void) iface;
+
+	logg << Logger::Notice << "Set DHCP config for " << iface << " called on nullconfig" << lend;
+
+}
+
+void NullConfig::SetStatic(const string &iface, const string &ip, const string &nm, const string &gw, const list<string> &dnss)
+{
+	(void) ip;
+	(void) nm;
+	(void) gw;
+	(void) dnss;
+	logg << Logger::Notice << "Set static config for " << iface << " called on nullconfig" << lend;
+}
+
+void NullConfig::WriteConfig()
+{
+	logg << Logger::Notice << "Write config called on nullconfig" << lend;
 }
 
 } // End namespace
