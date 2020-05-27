@@ -72,3 +72,45 @@ void TestJsonHelper::TestCallback()
 	CPPUNIT_ASSERT(!tc.Verify(CHK_A, v));
 	CPPUNIT_ASSERT(called);
 }
+
+void TestJsonHelper::TestConverters()
+{
+
+	{ // From/To JsonObject
+		Json::Value v;
+		v["a"]="b";
+		v["c"]="d";
+
+		map<string,string> ret = FromJsonObject(v);
+
+		CPPUNIT_ASSERT_EQUAL(string("b"), ret["a"]);
+		CPPUNIT_ASSERT_EQUAL(string("d"), ret["c"]);
+
+		Json::Value b = ToJsonObject(ret);
+		CPPUNIT_ASSERT(b.isMember("a"));
+		CPPUNIT_ASSERT(b.isMember("c"));
+		CPPUNIT_ASSERT_EQUAL(string("b"), b["a"].asString());
+		CPPUNIT_ASSERT_EQUAL(string("d"), b["c"].asString());
+
+	}
+
+
+	{ // From/To JsonArray
+
+		Json::Value jarr(Json::arrayValue);
+		jarr.append("A");
+		jarr.append("B");
+
+		list<string> carr = FromJsonArray(jarr);
+		CPPUNIT_ASSERT_EQUAL(2, (int)carr.size() );
+		CPPUNIT_ASSERT_EQUAL(string("A"), carr.front() );
+		CPPUNIT_ASSERT_EQUAL(string("B"), carr.back() );
+
+		Json::Value fc = ToJsonArray(carr);
+		CPPUNIT_ASSERT_EQUAL(2, (int)fc.size() );
+		CPPUNIT_ASSERT_EQUAL(string("A"), fc[0].asString() );
+		CPPUNIT_ASSERT_EQUAL(string("B"), fc[1].asString() );
+
+	}
+
+}

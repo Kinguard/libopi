@@ -3,6 +3,9 @@
 
 #include <json/json.h>
 
+#include <map>
+#include <list>
+#include <string>
 #include <vector>
 #include <functional>
 
@@ -42,6 +45,14 @@ private:
 	void *data;
 };
 
+
+list<string> FromJsonArray(const Json::Value& jsonlist);
+
+Json::Value ToJsonArray(const list<string>& list);
+
+map<string,string> FromJsonObject(const Json::Value& jsonobj);
+
+Json::Value ToJsonObject(const map<string,string>& objmap);
 
 } // End namespace JsonHelper
 
