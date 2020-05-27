@@ -12,6 +12,8 @@
 #include <libutils/Process.h>
 #include <libutils/FileUtils.h>
 
+#include "JsonHelper.h"
+
 namespace OPI
 {
 
@@ -176,6 +178,12 @@ void DebianNetworkConfig::WriteConfig()
 		Json::Value::Members opts = ifc["options"].getMemberNames();
 		for( const auto& opt: opts )
 		{
+			// Cludge, dont write dns-option to config
+			if( opt == "dns")
+			{
+				continue;
+			}
+
 			ss << "\t"<<opt;
 			for( const auto& optval: ifc["options"][opt])
 			{
@@ -204,6 +212,12 @@ void DebianNetworkConfig::WriteConfig()
 
 void DebianNetworkConfig::parse()
 {
+
+	// Read dns servers
+	NetUtils::ResolverConfig rc;
+	this->dnslist = rc.getNameservers();
+
+
 	list<string> lines = File::GetContent( this->path );
 	list<string> autoifs;
 
@@ -231,6 +245,9 @@ void DebianNetworkConfig::parse()
 				this->cfg[cif]["addressing"] = words.back();
 				// Asume no auto for the time being
 				this->cfg[cif]["auto"]=false;
+
+				// Cludge to get dns-servers to UI, add to all ifaces
+				this->cfg[cif]["options"]["dns"] = JsonHelper::ToJsonArray(this->dnslist);
 			}
 			else
 			{
@@ -250,10 +267,6 @@ void DebianNetworkConfig::parse()
 	{
 		this->cfg[ifs]["auto"]=true;
 	}
-
-	// Read dns servers
-	NetUtils::ResolverConfig rc;
-	this->dnslist = rc.getNameservers();
 
 }
 
