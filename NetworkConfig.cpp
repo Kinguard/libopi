@@ -210,6 +210,22 @@ void DebianNetworkConfig::WriteConfig()
 }
 
 
+bool DebianNetworkConfig::RestartInterface(const string &interface)
+{
+	const string upcmd("/sbin/ifup ");
+	const string downcmd("/sbin/ifdown ");
+
+	bool tmp, ret;
+	tie(ret, ignore) = Process::Exec( downcmd + interface );
+	tie(tmp, ignore) = Process::Exec( upcmd + interface );
+	ret = ret && tmp;
+
+	tmp = NetworkConfig::RestartInterface(interface);
+
+	return ret && tmp;
+}
+
+
 void DebianNetworkConfig::parse()
 {
 
@@ -503,23 +519,6 @@ string GetAddress(const string& ifname)
 		return sockaddrtostring(&req.ifr_addr);
 }
 
-bool RestartInterface(const string &ifname)
-{
-	const string upcmd("/sbin/ip link set " + ifname + " up");
-	const string downcmd("/sbin/ip link set " + ifname + " down");
-
-	bool tmp, ret;
-	tie(ret, ignore) = Process::Exec( downcmd );
-	tie(tmp, ignore) = Process::Exec( upcmd );
-	ret = ret && tmp;
-
-	tie(tmp, ignore) = Process::Exec( "/usr/share/opi-access/opi-access.sh" );
-	ret = ret && tmp;
-
-	return ret;
-}
-
-
 RaspbianNetworkConfig::RaspbianNetworkConfig(const string &path): NetworkConfig(), path(std::move(path))
 {
 	this->Parse();
@@ -681,6 +680,21 @@ void RaspbianNetworkConfig::WriteConfig()
 
 }
 
+bool RaspbianNetworkConfig::RestartInterface(const string &interface)
+{
+	const string upcmd("/sbin/ip link set " + interface + " up");
+	const string downcmd("/sbin/ip link set " + interface + " down");
+
+	bool tmp, ret;
+	tie(ret, ignore) = Process::Exec( downcmd );
+	tie(tmp, ignore) = Process::Exec( upcmd );
+	ret = ret && tmp;
+
+	tmp = NetworkConfig::RestartInterface(interface);
+
+	return ret && tmp;
+}
+
 void RaspbianNetworkConfig::Dump()
 {
 	cout << this->cfg.toStyledString()<<endl;
@@ -826,6 +840,16 @@ Json::Value NetworkConfig::GetInterfaces()
 	return this->cfg;
 }
 
+bool NetworkConfig::RestartInterface(const string &interface)
+{
+	(void) interface;
+	bool tmp;
+
+	tie(tmp, ignore) = Process::Exec( "/usr/share/opi-access/opi-access.sh" );
+
+	return tmp;
+}
+
 void NullConfig::SetDHCP(const string &iface)
 {
 	(void) iface;
@@ -846,6 +870,13 @@ void NullConfig::SetStatic(const string &iface, const string &ip, const string &
 void NullConfig::WriteConfig()
 {
 	logg << Logger::Notice << "Write config called on nullconfig" << lend;
+}
+
+bool NullConfig::RestartInterface(const string &interface)
+{
+	logg << Logger::Notice << "Trying to restart " << interface << " on nulldevice" << lend;
+
+	return false;
 }
 
 } // End namespace

@@ -65,6 +65,8 @@ public:
 
 	virtual void WriteConfig() = 0;
 
+	virtual bool RestartInterface(const string& interface);
+
 	virtual ~NetworkConfig() = default;
 protected:
 	Json::Value cfg;
@@ -81,6 +83,7 @@ public:
 	void SetDHCP(const string &iface) override;
 	void SetStatic(const string &iface, const string &ip, const string &nm, const string &gw, const list<string> &dnss) override;
 	void WriteConfig() override;
+	bool RestartInterface(const string &interface) override;
 };
 
 class DebianNetworkConfig: public NetworkConfig
@@ -97,6 +100,8 @@ public:
 	void Dump();
 
 	void WriteConfig() override;
+
+	bool RestartInterface(const string &interface) override;
 
 	virtual ~DebianNetworkConfig() = default;
 private:
@@ -118,6 +123,8 @@ public:
 				   const string &gw,
 				   const list<string>& dnss = {}) override;
 	void WriteConfig() override;
+
+	bool RestartInterface(const string &interface) override;
 
 	void Dump();
 
@@ -171,8 +178,6 @@ string GetAddress(const string& ifname);
 string GetNetmask(const string& ifname);
 
 string GetDefaultRoute();
-
-bool RestartInterface(const string& ifname);
 
 }
 
