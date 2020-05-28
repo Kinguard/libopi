@@ -145,6 +145,7 @@ void DebianNetworkConfig::SetStatic(const string &iface, const string &ip, const
 	v["auto"]=true;
 	v["options"]["address"].append(ip);
 	v["options"]["netmask"].append(nm);
+	v["options"]["dns"] = JsonHelper::ToJsonArray(dnss);
 	if( gw != "" )
 	{
 		v["options"]["gateway"].append(gw);
