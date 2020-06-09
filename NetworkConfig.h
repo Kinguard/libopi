@@ -14,7 +14,35 @@ namespace NetUtils
 
 using namespace std;
 
+// Ipv4Address [0] first value of address i.e. [192].168.1.1
 using Ipv4Address = std::array<uint8_t, 4>;
+// Ipv6Address [0] first value of address i.e. [ff00]:fe0:fed::0
+using Ipv6Address = std::array<uint16_t, 8>;
+
+// TODO: Ipv4/6 classes should most likely have a common base-class
+// and more generalized common functions.
+
+class IPv6Network
+{
+public:
+	IPv6Network() = default;
+
+	IPv6Network(const Ipv6Address& addr);
+
+	IPv6Network(const string& addr);
+
+	IPv6Network(uint8_t net);
+
+	uint8_t asNetwork();
+
+	Ipv6Address asAddress();
+
+	std::string asString();
+
+	virtual ~IPv6Network() = default;
+private:
+	Ipv6Address address = {0};
+};
 
 class IPv4Network
 {
@@ -39,7 +67,7 @@ public:
 
 	virtual ~IPv4Network() = default;
 private:
-	Ipv4Address address = {0,0,0,0};
+	Ipv4Address address = {0};
 };
 
 class NetworkConfig

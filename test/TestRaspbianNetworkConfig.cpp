@@ -6,8 +6,10 @@
 #include <fstream>
 #include <unistd.h>
 
-#include <libutils/FileUtils.h>
+#include <iomanip>
 
+#include <libutils/FileUtils.h>
+#include <libutils/String.h>
 CPPUNIT_TEST_SUITE_REGISTRATION ( TestRaspbianNetworkConfig );
 
 #define IFFILE "./dhcpcd.conf"
@@ -32,7 +34,7 @@ void TestRaspbianNetworkConfig::tearDown()
 void TestRaspbianNetworkConfig::Test()
 {
 
-	CPPUNIT_ASSERT_NO_THROW(NetUtils::RaspbianNetworkConfig(IFFILE_COPY));
+	CPPUNIT_ASSERT_NO_THROW( NetUtils::RaspbianNetworkConfig(IFFILE_COPY) );
 	CPPUNIT_ASSERT_THROW(NetUtils::RaspbianNetworkConfig(IFFILE_COPY "NoNo"), std::runtime_error);
 
 	{
@@ -51,6 +53,62 @@ void TestRaspbianNetworkConfig::Test()
 		CPPUNIT_ASSERT_EQUAL( string("192.168.3.1"), ifs["eth1"]["options"]["address"][(uint)0].asString() );
 
 	}
+
+}
+
+static void testequal(const string& addr)
+{
+	CPPUNIT_ASSERT_EQUAL(string(addr), NetUtils::IPv6Network(addr).asString() );
+}
+
+
+static void testequal(const string& expected, const string& given)
+{
+	CPPUNIT_ASSERT_EQUAL(expected, NetUtils::IPv6Network(given).asString() );
+}
+
+
+void TestRaspbianNetworkConfig::TestIPV6()
+{
+
+	CPPUNIT_ASSERT_NO_THROW(NetUtils::IPv6Network("1:2:3:4:5:6:7:8"));
+	CPPUNIT_ASSERT_NO_THROW(NetUtils::IPv6Network("1:2:3:4:5:6:7::"));
+	CPPUNIT_ASSERT_NO_THROW(NetUtils::IPv6Network("1:2:3:4:5:6::"));
+	CPPUNIT_ASSERT_NO_THROW(NetUtils::IPv6Network("1:2:3:4:5::"));
+	CPPUNIT_ASSERT_NO_THROW(NetUtils::IPv6Network("1:2:3:4::"));
+	CPPUNIT_ASSERT_NO_THROW(NetUtils::IPv6Network("1:2:3::"));
+	CPPUNIT_ASSERT_NO_THROW(NetUtils::IPv6Network("1:2::"));
+	CPPUNIT_ASSERT_NO_THROW(NetUtils::IPv6Network("1::"));
+	CPPUNIT_ASSERT_NO_THROW(NetUtils::IPv6Network("::"));
+	CPPUNIT_ASSERT_NO_THROW(NetUtils::IPv6Network("::2:3:4:5:6:7:8"));
+	CPPUNIT_ASSERT_NO_THROW(NetUtils::IPv6Network("::3:4:5:6:7:8"));
+	CPPUNIT_ASSERT_THROW(NetUtils::IPv6Network("1:2:3:4:5:6:7:8:9"),std::runtime_error);
+	CPPUNIT_ASSERT_THROW(NetUtils::IPv6Network("1:2:3:4:5:6:7"),std::runtime_error);
+	CPPUNIT_ASSERT_THROW(NetUtils::IPv6Network(""),std::runtime_error);
+
+	testequal("1:2:3:4:5:6:7:8");
+	testequal("1::4:5:6:7:8");
+	testequal("1:2:0:4:5:6:7:8");
+	testequal("ffe0::1");
+	testequal("::1");
+
+	testequal("1::4:5:0:0:8",	"1:0:0:4:5:0:0:8");
+	testequal("1:2:3:4::",		"1:2:3:4:0:0:0:0");
+	testequal("::5:6:7:8",		"0:0:0:0:5:6:7:8");
+	testequal("ffff:fff:ff:f::1","ffff:0fff:00ff:000f:0:0:0:1");
+
+
+	CPPUNIT_ASSERT_EQUAL(string("f000::"), NetUtils::IPv6Network(4).asString() );
+	CPPUNIT_ASSERT_EQUAL(string("ff00::"), NetUtils::IPv6Network(8).asString() );
+	CPPUNIT_ASSERT_EQUAL(string("fff0::"), NetUtils::IPv6Network(12).asString() );
+	CPPUNIT_ASSERT_EQUAL(string("ffff::"), NetUtils::IPv6Network(16).asString() );
+	CPPUNIT_ASSERT_EQUAL(string("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"), NetUtils::IPv6Network(128).asString() );
+
+	for(int i = 0; i < 128; i++)
+	{
+		CPPUNIT_ASSERT_EQUAL((uint8_t)i, NetUtils::IPv6Network(i).asNetwork() );
+	}
+
 
 }
 

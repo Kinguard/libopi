@@ -23,7 +23,7 @@ namespace NetUtils
 using namespace Utils;
 
 
-constexpr const int NETWIDTH=32;
+constexpr const int IPV4_NETWIDTH=32;
 
 static uint32_t toval(Ipv4Address& addr)
 {
@@ -32,7 +32,7 @@ static uint32_t toval(Ipv4Address& addr)
 
 constexpr static uint32_t toval(uint8_t net)
 {
-	return (((uint64_t)1 << net) -1) << (NETWIDTH-net);
+	return (((uint64_t)1 << net) -1) << (IPV4_NETWIDTH-net);
 }
 
 static Ipv4Address toaddress(uint8_t netk)
@@ -878,6 +878,145 @@ bool NullConfig::RestartInterface(const string &interface)
 	logg << Logger::Notice << "Trying to restart " << interface << " on nulldevice" << lend;
 
 	return false;
+}
+
+static constexpr int HexVal = 16;
+static constexpr int Ip6Len = 8;
+
+
+IPv6Network::IPv6Network(const Ipv6Address &addr): address(addr)
+{
+
+}
+
+IPv6Network::IPv6Network(const string &addr)
+{
+	string::size_type pos = addr.find("::");
+
+	if( pos != string::npos )
+	{
+		// This seems to be a "folded" address
+
+		string front = addr.substr(0,pos);
+		string back = addr.substr(pos+2);
+
+		list<string> fvals = String::Split(front, ":");
+		int i=0;
+		for(const auto& val: fvals)
+		{
+			this->address[i++] = std::stoi(val, nullptr, HexVal);
+		}
+
+		list<string> bvals = String::Split(back, ":");
+		i=Ip6Len-1;
+		for( auto iT = bvals.rbegin(); iT != bvals.rend(); iT++)
+		{
+			this->address[i--] = std::stoi( (*iT), nullptr, HexVal );
+		}
+
+	}
+	else
+	{
+		// Seems to be an full unfolded address
+		list<string> fvals = String::Split(addr, ":");
+		if( fvals.size() != Ip6Len )
+		{
+			logg << Logger::Error << "Malformed IPv6 address!" << lend;
+			throw std::runtime_error("Malformed IPv6 address");
+		}
+		int i=0;
+		for(const auto& val: fvals)
+		{
+			this->address[i++] = std::stoi(val, nullptr, HexVal);
+		}
+	}
+}
+
+IPv6Network::IPv6Network(uint8_t net)
+{
+	for(int i = 0; i<net; i++ )
+	{
+		this->address[i/16] |= 1 << (15-i%16);
+	}
+}
+
+uint8_t IPv6Network::asNetwork()
+{
+	// Count all 1-bits from left to right
+	uint8_t ret = 0;
+	bool one = true;
+	for( int i = 0; (i< Ip6Len) && one; i++)
+	{
+		for( int j = 15; (j>=0) && one; j-- )
+		{
+			one = ( this->address[i] & (1<<j) );
+			if( one  )
+			{
+				ret++;
+			}
+		}
+	}
+
+	return ret;
+}
+
+Ipv6Address IPv6Network::asAddress()
+{
+	return this->address;
+}
+
+string IPv6Network::asString()
+{
+	stringstream ss;
+	uint8_t statc = 0, longest = 0;
+	int8_t at =-1, fold_start = -1, fold_end = -1;
+
+	// Count zeros to see if we could fold this
+	for( int i =0; i < Ip6Len; i++ )
+	{
+		if( this->address[i] == 0 )
+		{
+			statc++;
+			if( statc > longest )
+			{
+				longest = statc;
+				at = i;
+			}
+		}
+		else
+		{
+			statc=0;
+		}
+	}
+
+	// Calculate fold if found
+	if( longest > 1 )
+	{
+		fold_start = at+1-longest;
+		fold_end = at;
+	}
+
+	bool firstval = true, firstfold = true;
+	for( int i = 0; i < Ip6Len; i++ )
+	{
+		if( i >= fold_start && i <= fold_end)
+		{
+			if( firstfold )
+			{
+				ss << "::";
+				firstfold = false;
+				firstval = true;
+			}
+		}
+		else
+		{
+			ss << (firstval?"":":");
+			firstval = false;
+			ss << hex << this->address[i] ;
+		}
+	}
+
+	return ss.str();
 }
 
 } // End namespace
