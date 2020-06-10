@@ -1019,5 +1019,19 @@ string IPv6Network::asString()
 	return ss.str();
 }
 
+#include <arpa/inet.h>
+
+bool IsIPv4address(const string &addr)
+{
+		struct in_addr ip4;
+		return inet_pton(AF_INET, addr.c_str(), &ip4) == 1;
+}
+
+bool IsIPv6address(const string &addr)
+{
+	struct in6_addr ip6;
+	return inet_pton(AF_INET6, addr.c_str(), &ip6) == 1;
+}
+
 } // End namespace
 } // End namespace

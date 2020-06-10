@@ -3,8 +3,12 @@
 
 #include <json/json.h>
 
+#include <memory>
 #include <string>
 #include <list>
+
+//TODO: This should most likely be refactored to use/interoperate
+// with in_addr in6_addr and utilize inet_pton and inet_ntop
 
 namespace OPI
 {
@@ -19,10 +23,15 @@ using Ipv4Address = std::array<uint8_t, 4>;
 // Ipv6Address [0] first value of address i.e. [ff00]:fe0:fed::0
 using Ipv6Address = std::array<uint16_t, 8>;
 
-// TODO: Ipv4/6 classes should most likely have a common base-class
-// and more generalized common functions.
+class IPNetwork
+{
+public:
+	virtual std::string asString() = 0;
+};
 
-class IPv6Network
+typedef shared_ptr<IPNetwork> IPNetworkPtr;
+
+class IPv6Network: public IPNetwork
 {
 public:
 	IPv6Network() = default;
@@ -37,14 +46,14 @@ public:
 
 	Ipv6Address asAddress();
 
-	std::string asString();
+	std::string asString() override;
 
 	virtual ~IPv6Network() = default;
 private:
 	Ipv6Address address = {0};
 };
 
-class IPv4Network
+class IPv4Network: public IPNetwork
 {
 public:
 	IPv4Network() = default;
@@ -63,7 +72,7 @@ public:
 
 	Ipv4Address asAddress();
 
-	std::string asString();
+	std::string asString() override;
 
 	virtual ~IPv4Network() = default;
 private:
@@ -206,6 +215,11 @@ string GetAddress(const string& ifname);
 string GetNetmask(const string& ifname);
 
 string GetDefaultRoute();
+
+bool IsIPv4address(const string& addr);
+
+bool IsIPv6address(const string& addr);
+
 
 }
 

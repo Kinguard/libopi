@@ -112,6 +112,15 @@ void TestRaspbianNetworkConfig::TestIPV6()
 
 }
 
+void TestRaspbianNetworkConfig::TestIPCheck()
+{
+	CPPUNIT_ASSERT( NetUtils::IsIPv4address("192.168.1.1"));
+	CPPUNIT_ASSERT( !NetUtils::IsIPv4address("192.168.1.1.1"));
+
+	CPPUNIT_ASSERT( NetUtils::IsIPv6address("::1"));
+	CPPUNIT_ASSERT( !NetUtils::IsIPv6address(":::1"));
+}
+
 void TestRaspbianNetworkConfig::TestReload()
 {
 
