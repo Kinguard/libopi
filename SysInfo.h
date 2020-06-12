@@ -69,8 +69,8 @@ public:
 		"OlimexA20",
 		"Armada",
 		"PC",
-		"RPi 3",
-		"RPi 4",
+		"RPi3",
+		"RPi4",
 		"Unknown"
 	};
 
