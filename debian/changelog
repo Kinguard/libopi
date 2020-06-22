@@ -1,3 +1,24 @@
+libopi (1.6.60~test2) vili; urgency=medium
+
+  * Add default section to sysinfo config file
+  * Misc cleanups and tidying
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 08 May 2020 08:47:01 +0200
+
+libopi (1.6.60~test1) vili; urgency=medium
+
+  * Change dep on libcurl to use openssl version to make it easier
+    to temporarily allow sha1 checksums on certs
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 03 Feb 2020 15:59:58 +0100
+
+libopi (1.6.59) vili; urgency=medium
+
+  * HttpClient: Only set ca if certfile exists
+  * SysConfig: Change loglevel on missing key on read
+
+ -- Tor Krill <tor@openproducts.se>  Tue, 12 Nov 2019 09:59:52 +0100
+
 libopi (1.6.58) vili; urgency=medium
 
   * Add some more verbose errormsg in DiskHelper class

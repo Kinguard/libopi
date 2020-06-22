@@ -21,7 +21,7 @@ void MailConfig::ReadConfig()
 	// Read domains since it could be that we have domains without users(??)
 	list<string> dm = File::GetContent( this->domainfile);
 
-	for( string line: dm)
+	for( const string& line: dm)
 	{
 		if( this->config.find( line ) == this->config.end() )
 		{
@@ -51,7 +51,7 @@ void MailConfig::DeleteDomain(const string &domain)
 list<string> MailConfig::GetDomains()
 {
 	list<string> domains;
-	for(auto dom: this->config)
+	for(const auto& dom: this->config)
 	{
 		domains.push_back(dom.first);
 	}
@@ -64,7 +64,7 @@ void MailConfig::WriteConfig()
 
 	stringstream domains;
 
-	for(auto entries: this->config )
+	for(const auto& entries: this->config )
 	{
 		domains << entries.first << endl;
 	}
@@ -134,9 +134,9 @@ void MailMapFile::WriteConfig()
 {
 	stringstream aliases;
 
-	for(auto entries: this->config )
+	for(const auto& entries: this->config )
 	{
-		for(auto users: entries.second)
+		for(const auto& users: entries.second)
 		{
 			aliases << users.first<<"@"<<entries.first<<"\t"<<users.second<<"/mail/"<<endl;
 		}
@@ -261,7 +261,7 @@ void MailAliasFile::ReadConfig()
 			string users =parts.back();
 
 			list<string> userparts = String::Split(users,",");
-			for( auto user: userparts)
+			for( const auto& user: userparts)
 			{
 				this->config[email].push_back(user);
 			}
@@ -277,11 +277,11 @@ void MailAliasFile::WriteConfig()
 {
 	stringstream aliases;
 
-	for(auto entries: this->config )
+	for(const auto& entries: this->config )
 	{
 		aliases << entries.first << "\t";
 		bool first = true;
-		for(auto user: entries.second)
+		for(const auto& user: entries.second)
 		{
 			if( ! first )
 			{
@@ -311,7 +311,7 @@ list<string> MailAliasFile::GetUsers(const string &alias)
 list<string> MailAliasFile::GetAliases()
 {
 	list<string> ret;
-	for( auto alias: this->config )
+	for( const auto& alias: this->config )
 	{
 		ret.push_back( alias.first );
 	}
@@ -363,10 +363,10 @@ void MailAliasFile::RemoveUser(const string &alias, const string &user)
 
 void MailAliasFile::Dump()
 {
-	for( auto alias: this->config )
+	for( const auto& alias: this->config )
 	{
 		cout << alias.first << ":";
-		for( auto user: alias.second )
+		for( const auto& user: alias.second )
 		{
 			cout  << " "<< user;
 		}

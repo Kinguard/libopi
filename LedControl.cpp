@@ -105,7 +105,7 @@ void Led::dump()
 	cout << "Name  : "<< this->name << endl;
 	cout << "Color : "<< this->color << endl;
 	cout << "Ns    : "<< this->ns << endl;
-	for( auto trig: this->triggers )
+	for( const auto& trig: this->triggers )
 	{
 		cout << trig << " ";
 	}
@@ -154,7 +154,7 @@ LedControl::LedControl(const string basepath): basepath(basepath)
 list<string> LedControl::LedNames()
 {
 	list<string> l;
-	for( auto led: this->leds )
+	for( const auto& led: this->leds )
 	{
 		l.push_back( led.first );
 	}

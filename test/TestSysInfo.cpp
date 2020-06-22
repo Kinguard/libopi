@@ -4,7 +4,11 @@
 
 #include <iostream>
 
+#include <libutils/FileUtils.h>
+#include <libutils/Logger.h>
+
 using namespace std;
+using namespace Utils;
 
 CPPUNIT_TEST_SUITE_REGISTRATION ( TestSysInfo );
 
@@ -101,7 +105,7 @@ void TestSysInfo::TestNetworkDevice()
 void TestSysInfo::TestSerialNumber()
 {
 
-    printf("\nSERIAL: %s\n",OPI::sysinfo.SerialNumber().c_str());
+	logg << Logger::Debug << "\nSERIAL: " << OPI::sysinfo.SerialNumber() << lend;
 
     switch( OPI::sysinfo.Type() )
     {
@@ -123,5 +127,34 @@ void TestSysInfo::TestSerialNumber()
 
 void TestSysInfo::TestBackupRootPath()
 {
-    CPPUNIT_ASSERT_EQUAL( string("/mnt/backup/"),OPI::sysinfo.BackupRootPath() );
+	CPPUNIT_ASSERT_EQUAL( string("/mnt/backup/"),OPI::sysinfo.BackupRootPath() );
+}
+
+#define DEVICEDBPATH	"/etc/opi/devicedb.json"
+
+// Currently no actual tests implemented. Only dump some selected values for development
+void TestSysInfo::TestDeviceDB()
+{
+	if( ! File::FileExists( DEVICEDBPATH) )
+	{
+		logg << Logger::Debug << "No devicedb found skipping test" << lend;
+		return;
+	}
+	cout << endl;
+	cout << "Typ     :" << OPI::sysinfo.SysTypeText[OPI::sysinfo.Type() ]  << endl;
+	cout << "Password:" << OPI::sysinfo.PasswordDevice()  << endl;
+
+}
+
+void TestSysInfo::TestOSInfo()
+{
+
+	CPPUNIT_ASSERT( OPI::sysinfo.OS() != OPI::SysInfo::OSUnknown );
+	CPPUNIT_ASSERT( OPI::sysinfo.OS() != OPI::SysInfo::OSUndefined );
+
+	CPPUNIT_ASSERT( OPI::sysinfo.OSVersion() != "Undefined" );
+
+	OPI::SysInfo::OSType os = OPI::sysinfo.OS();
+	logg << Logger::Debug << "OS: " <<  os << " : " << OPI::sysinfo.OSTypeText[os]  << lend;
+	logg << Logger::Debug << "OS version " << OPI::sysinfo.OSVersion() << lend;
 }

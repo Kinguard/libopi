@@ -363,7 +363,7 @@ Json::Value SysConfig::GetKey(const Json::Value &db, const string &scope, const 
 	}
 	else
 	{
-		logg << Logger::Error << "ConfigDB: No such key [" << key << "] or scope [" << scope << "] in database" << lend;
+		logg << Logger::Debug << "ConfigDB: No such key [" << key << "] or scope [" << scope << "] in database" << lend;
 	}
 	throw runtime_error("ConfigDB: key or scope not found");
 }

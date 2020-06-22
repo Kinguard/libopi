@@ -60,13 +60,13 @@ void TestNetworkConfig::tearDown()
 
 void TestNetworkConfig::Test()
 {
-	CPPUNIT_ASSERT_THROW( NetUtils::NetworkConfig(IFFILE), std::runtime_error );
+	CPPUNIT_ASSERT_THROW( NetUtils::DebianNetworkConfig(IFFILE), std::runtime_error );
 
-	CPPUNIT_ASSERT_NO_THROW( NetworkConfig(IFFILE ".1") );
-	CPPUNIT_ASSERT_NO_THROW( NetworkConfig(IFFILE ".2") );
+	CPPUNIT_ASSERT_NO_THROW( DebianNetworkConfig(IFFILE ".1") );
+	CPPUNIT_ASSERT_NO_THROW( DebianNetworkConfig(IFFILE ".2") );
 
 	{
-		NetworkConfig nc(IFFILE ".1");
+		DebianNetworkConfig nc(IFFILE ".1");
 		//nc.Dump();
 		nc.WriteConfig();
 
@@ -74,7 +74,8 @@ void TestNetworkConfig::Test()
 
 		Json::Value ifs = nc.GetInterfaces();
 
-		CPPUNIT_ASSERT_EQUAL( (unsigned int)3, ifs.size() );
+		// File contains three interfaces but additional interfaces might exist on system
+		CPPUNIT_ASSERT( ifs.size() >= 3 );
 
 		CPPUNIT_ASSERT( ifs.isMember("lo") );
 		CPPUNIT_ASSERT( ifs.isMember("eth0") );
@@ -90,7 +91,7 @@ void TestNetworkConfig::Test()
 
 
 	{
-		NetworkConfig nc(IFFILE ".2");
+		DebianNetworkConfig nc(IFFILE ".2");
 		//nc.Dump();
 		nc.WriteConfig();
 	}
@@ -100,7 +101,7 @@ void TestNetworkConfig::TestReload()
 {
 
 	{
-		NetworkConfig nc(IFFILE ".1");
+		DebianNetworkConfig nc(IFFILE ".1");
 		Json::Value ifs = nc.GetInterfaces();
 		CPPUNIT_ASSERT_EQUAL(string("static"), ifs["eth1"]["addressing"].asString() );
 		nc.SetDHCP("eth1");
@@ -108,7 +109,7 @@ void TestNetworkConfig::TestReload()
 	}
 
 	{
-		NetworkConfig nc(IFFILE ".1");
+		DebianNetworkConfig nc(IFFILE ".1");
 		Json::Value ifs = nc.GetInterfaces();
 		CPPUNIT_ASSERT_EQUAL(string("dhcp"), ifs["eth1"]["addressing"].asString() );
 		nc.SetStatic("eth1", "10.0.0.1", "1.2.3.4", "1.1.1.1");
@@ -117,7 +118,7 @@ void TestNetworkConfig::TestReload()
 
 
 	{
-		NetworkConfig nc(IFFILE ".1");
+		DebianNetworkConfig nc(IFFILE ".1");
 		Json::Value ifs = nc.GetInterfaces();
 		CPPUNIT_ASSERT_EQUAL(string("static"), ifs["eth1"]["addressing"].asString() );
 		CPPUNIT_ASSERT_EQUAL(string("10.0.0.1"), ifs["eth1"]["options"]["address"][(uint)0].asString() );

@@ -12,6 +12,11 @@ bool DeviceExists( const string& device);
 
 size_t DeviceSize( const string& devicename);
 
+/**
+ * @brief IsMounted check if device is mounted
+ * @param device - physical devicepath
+ * @return  mountpoint if mounted otherwise empty string
+ */
 string IsMounted( const string& device);
 
 void PartitionDevice(const string& device);

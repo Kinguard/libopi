@@ -5,7 +5,11 @@
 #include <libutils/Logger.h>
 
 int main(int argc, char** argv){
-	Utils::logg.SetLevel(Utils::Logger::Debug);
+	(void) argc;
+	(void) argv;
+
+	//Utils::logg.SetLevel(Utils::Logger::Debug);
+	Utils::logg.SetLevel(Utils::Logger::Notice);
 
 	// Get the top level suite from the registry
 	CppUnit::Test *suite = CppUnit::TestFactoryRegistry::getRegistry().makeTest();

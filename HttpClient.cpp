@@ -2,6 +2,8 @@
 #include "SysConfig.h"
 #include "Config.h"
 
+#include <libutils/FileUtils.h>
+
 namespace OPI
 {
 
@@ -16,11 +18,20 @@ HttpClient::HttpClient(const string& host, bool verifyca): host(host),port(0), t
 	try
 	{
 		this->defaultca = SysConfig().GetKeyAsString("hostinfo", "cafile");
+
+		string rpca = Utils::File::RealPath(this->defaultca);
+		if( ! Utils::File::FileExists(rpca) )
+		{
+			// Config points at none existant file, reset ca
+			this->defaultca = "";
+		}
+
 	}
 	catch (std::exception& err)
 	{
 		(void) err;
 		// Is could ok to not have this, http client should not fail if we miss sysconfig
+		this->defaultca = "";
 	}
 }
 
@@ -128,7 +139,7 @@ string HttpClient::MakeFormData(map<string, string> data)
 {
 	stringstream postdata;
 	bool first = true;
-	for(auto arg: data )
+	for(const auto& arg: data )
 	{
 		if (!first)
 		{
@@ -169,7 +180,7 @@ void HttpClient::setheaders()
 	if( this->headers.size() > 0 )
 	{
 		this->slist = NULL;
-		for(auto h: this->headers )
+		for(const auto& h: this->headers )
 		{
 			string header = h.first+ ":" + h.second;
 			this->slist = curl_slist_append( this->slist, header.c_str() );
