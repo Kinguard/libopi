@@ -4,7 +4,7 @@
 #include "SysInfo.h"
 #include "SysConfig.h"
 #include "NetworkConfig.h"
-
+#include "HttpStatusCodes.h"
 #include <libutils/Logger.h>
 #include <libutils/FileUtils.h>
 
@@ -17,7 +17,7 @@ namespace OPI
 {
 
 using namespace CryptoHelper;
-
+using namespace HTTP;
 DnsServer::DnsServer(const string &host): HttpClient(host)
 {
 }
@@ -57,7 +57,7 @@ bool DnsServer::RegisterPublicKey(const string &unit_id, const string &key, cons
 	Json::Value retobj = Json::objectValue;
 	this->reader.parse(body, retobj);
 
-	return this->result_code == 200;
+	return this->result_code == Status::Ok;
 }
 
 bool DnsServer::UpdateDynDNS(const string &unit_id, const string &name)
@@ -112,7 +112,7 @@ bool DnsServer::UpdateDynDNS(const string &unit_id, const string &name)
 	Json::Value retobj = Json::objectValue;
 	this->reader.parse(body, retobj);
 
-	return this->result_code == 200;
+	return this->result_code == Status::Ok;
 }
 
 DnsServer::~DnsServer()
@@ -125,11 +125,11 @@ bool DnsServer::Auth(const string &unit_id)
 	try
 	{
 		string challenge;
-		int resultcode;
+		int resultcode = 0;
 
 		tie(resultcode,challenge) = this->GetChallenge( unit_id);
 
-		if( resultcode != 200 )
+		if( resultcode != Status::Ok )
 		{
 			logg << Logger::Error << "Unknown reply of server "<<resultcode<< lend;
 			return false;
@@ -152,13 +152,13 @@ bool DnsServer::Auth(const string &unit_id)
 		Json::Value rep;
 		tie(resultcode, rep) = this->SendSignedChallenge( unit_id, signedchallenge );
 
-		if( resultcode != 200 && resultcode != 403 )
+		if( resultcode != Status::Ok && resultcode != Status::Forbidden )
 		{
 			logg << Logger::Error << "Unexpected reply from server "<< resultcode <<lend;
 			return false;
 		}
 
-		if( resultcode == 403 )
+		if( resultcode == Status::Forbidden )
 		{
 			logg << Logger::Debug << "Failed to auth with dns"<<lend;
 			logg << "Reply:"<< rep.toStyledString()<<lend;

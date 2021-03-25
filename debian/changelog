@@ -1,3 +1,9 @@
+libopi (1.6.60~test11) vili; urgency=medium
+
+  * Add HTTP Status code header
+
+ -- Tor Krill <tor@openproducts.se>  Thu, 25 Mar 2021 11:40:18 +0100
+
 libopi (1.6.60~test10) vili; urgency=medium
 
   * Remove spaces from systype text #581

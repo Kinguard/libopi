@@ -17,7 +17,7 @@ pkg_check_modules ( BLKID REQUIRED blkid>=2.20.0 )
 
 set (VERSION_MAJOR 1)
 set (VERSION_MINOR 6)
-set (VERSION_PATCH 58)
+set (VERSION_PATCH 60)
 set (VERSION "${VERSION_MAJOR}.${VERSION_MINOR}")
 set (VERSION_FULL "${VERSION}.${VERSION_PATCH}")
 set (APP_NAME "lib${PROJECT_NAME}")
@@ -49,6 +49,7 @@ set( headers
 	FetchmailConfig.h
 	HostsConfig.h
 	HttpClient.h
+	HttpStatusCodes.h
 	JsonHelper.h
 	LedControl.h
 	Luks.h
