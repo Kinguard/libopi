@@ -3,7 +3,7 @@ project( opi )
 cmake_minimum_required(VERSION 2.6)
 
 include( FindPkgConfig )
-pkg_check_modules ( LIBUTILS REQUIRED libutils>=1.5.1 )
+pkg_check_modules ( LIBUTILS REQUIRED libutils>=1.5.22 )
 pkg_check_modules ( LIBUDEV REQUIRED libudev )
 pkg_check_modules ( LIBCRYPTSETUP REQUIRED libcryptsetup )
 pkg_check_modules ( LIBPARTED REQUIRED libparted>=2.3 )
@@ -91,7 +91,7 @@ set( src
 	ExtCert.cpp
 	)
 
-add_definitions( -std=c++11 -Wall )
+add_definitions( -Wall )
 
 add_library( ${PROJECT_NAME}_static STATIC ${src} )
 add_library( ${PROJECT_NAME} SHARED ${src} )

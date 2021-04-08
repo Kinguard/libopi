@@ -75,3 +75,9 @@ void TestDiskHelper::TestIsMounted()
 
 	}
 }
+
+void TestDiskHelper::TestStorageDevices()
+{
+	auto disks = OPI::DiskHelper::StorageDevices();
+	CPPUNIT_ASSERT(disks.size() > 0 );
+}

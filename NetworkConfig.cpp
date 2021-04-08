@@ -4,12 +4,14 @@
 #include <sstream>
 
 #include <cstdlib>
+#include <utility>
 
 #include "NetworkConfig.h"
 
 #include <libutils/Logger.h>
 #include <libutils/String.h>
 #include <libutils/Process.h>
+#include <libutils/NetUtils.h>
 #include <libutils/FileUtils.h>
 
 #include "JsonHelper.h"
@@ -112,7 +114,7 @@ DebianNetworkConfig::DebianNetworkConfig(string path): NetworkConfig(), path(std
 {
 	if( ! File::FileExists( this->path ) )
 	{
-		logg << Logger::Error << "Netwoek configfile " << path << " not found"<<lend;
+		logg << Logger::Error << "Network configfile " << path << " not found"<<lend;
 		throw std::runtime_error("Network configfile not found");
 	}
 	this->parse();
@@ -194,7 +196,7 @@ void DebianNetworkConfig::WriteConfig()
 		}
 		ss<< endl;
 	}
-	File::Write( this->path, ss.str(), 0644 );
+	File::Write( this->path, ss.str(), File::UserRW | File::GroupRead | File::OtherRead );
 
 
 	// Only write dns-server config if servers present
@@ -216,7 +218,7 @@ bool DebianNetworkConfig::RestartInterface(const string &interface)
 	const string upcmd("/sbin/ifup ");
 	const string downcmd("/sbin/ifdown ");
 
-	bool tmp, ret;
+	bool tmp = false, ret = false;
 	tie(ret, ignore) = Process::Exec( downcmd + interface );
 	tie(tmp, ignore) = Process::Exec( upcmd + interface );
 	ret = ret && tmp;
@@ -342,9 +344,9 @@ void ResolverConfig::WriteConfig()
 		ss << "nameserver "<< ns<<endl;
 	}
 
-	try {
-		File::Write( this->path, ss.str(), 0644 );
-
+	try
+	{
+		File::Write( this->path, ss.str(), File::UserRW | File::GroupRead | File::OtherRead );
 	}
 	catch (ErrnoException& err)
 	{
@@ -434,12 +436,13 @@ static string addresstostring(const string& address){
 
 string GetDefaultRoute()
 {
+	constexpr uint8_t ROUTECOLS = 11;
 	string defgateway;
 	list<string> fil = File::GetContent("/proc/net/route");
 	fil.pop_front();
 	for( const auto& row: fil){
 		list<string> line= String::Split( row, "\t");
-		if(line.size()==11){
+		if(line.size() == ROUTECOLS){
 			auto lIt=line.begin();
 			string iface = *lIt++;
 			string destination = addresstostring(*lIt++);
@@ -454,73 +457,37 @@ string GetDefaultRoute()
 	}
 	return defgateway;
 }
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <arpa/inet.h>
-#include <net/if.h>
-
-static string sockaddrtostring(struct sockaddr* address)
-{
-	string ret;
-	switch( address->sa_family ){
-	case AF_UNIX :
-		throw runtime_error("Currently unsupported network class AF_UNIX");
-		break;
-	case AF_INET:
-	{
-		struct sockaddr_in *addr = ( struct sockaddr_in* ) address;
-		return inet_ntoa( addr->sin_addr );
-		break;
-	}
-	case AF_INET6:
-		throw runtime_error("Currently unsupported network class AF_INET6");
-		break;
-	case AF_UNSPEC:
-		throw runtime_error("Currently unsupported network class AF_UNSPEC");
-		break;
-	default:
-		throw runtime_error("Unknown network class");
-	}
-	return ret;
-}
 
 string GetNetmask(const string& ifname)
 {
-	int ret;
-	struct ifreq req{};
-
-	memset( &req, 0, sizeof(struct ifreq) );
-	sprintf( req.ifr_name, "%s",ifname.c_str() );
-
-	int sock = socket( AF_INET,SOCK_DGRAM, 0 );
-
-	if( ( ret = ioctl( sock, SIOCGIFNETMASK, &req ) ) < 0 )
+	try
 	{
+		struct sockaddr addr = Utils::Net::GetNetmask(ifname);
+		return Utils::Net::SockAddrToString(&addr);
+	}
+	catch (Utils::ErrnoException& err)
+	{
+		(void) err;
 		return "";
 	}
-
-	return sockaddrtostring( &req.ifr_netmask );
 }
 
 string GetAddress(const string& ifname)
 {
-		int ret;
-		struct ifreq req{};
-
-		memset( &req, 0, sizeof( struct ifreq ) );
-		sprintf( req.ifr_name, "%s", ifname.c_str() );
-
-		int sock = socket( AF_INET,SOCK_DGRAM, 0 );
-
-		if( ( ret = ioctl( sock, SIOCGIFADDR, &req ) ) < 0 )
+		try
 		{
-				return "";
-		}
+			struct sockaddr addr = Utils::Net::GetIfAddr(ifname);
 
-		return sockaddrtostring(&req.ifr_addr);
+			return Utils::Net::SockAddrToString( &addr );
+		}
+		catch (Utils::ErrnoException& err)
+		{
+			(void) err;
+			return "";
+		}
 }
 
-RaspbianNetworkConfig::RaspbianNetworkConfig(const string &path): NetworkConfig(), path(std::move(path))
+RaspbianNetworkConfig::RaspbianNetworkConfig(string path): NetworkConfig(), path(std::move(path))
 {
 	this->Parse();
 }
@@ -674,11 +641,9 @@ void RaspbianNetworkConfig::WriteConfig()
 		}
 
 		this->WriteStaticEntry(ss, mem);
-
 	}
 
-	File::Write(this->path, ss.str(), 0644);
-
+	File::Write(this->path, ss.str(), File::UserRW | File::GroupRead | File::OtherRead);
 }
 
 bool RaspbianNetworkConfig::RestartInterface(const string &interface)
@@ -686,7 +651,7 @@ bool RaspbianNetworkConfig::RestartInterface(const string &interface)
 	const string upcmd("/sbin/ip link set " + interface + " up");
 	const string downcmd("/sbin/ip link set " + interface + " down");
 
-	bool tmp, ret;
+	bool tmp = false, ret = false;
 	tie(ret, ignore) = Process::Exec( downcmd );
 	tie(tmp, ignore) = Process::Exec( upcmd );
 	ret = ret && tmp;
@@ -792,21 +757,14 @@ void RaspbianNetworkConfig::Parse()
 
 list<string> GetInterfaces()
 {
-	list<string> ifpaths = File::Glob("/sys/class/net/*");
-
-	list<string> ifs;
-	ifs.resize(ifpaths.size());
-
-	transform(ifpaths.begin(), ifpaths.end(), ifs.begin(), File::GetFileName );
-
-	return ifs;
+	return Utils::Net::GetInterfaces();
 }
 
 NetworkConfig::NetworkConfig()
 {
 	// Get all network devices on system and add to config
 
-	list<string> ifs = NetUtils::GetInterfaces();
+	list<string> ifs = Utils::Net::GetInterfaces();
 
 	for(const auto& iface: ifs)
 	{
@@ -844,7 +802,7 @@ Json::Value NetworkConfig::GetInterfaces()
 bool NetworkConfig::RestartInterface(const string &interface)
 {
 	(void) interface;
-	bool tmp;
+	bool tmp = false;
 
 	tie(tmp, ignore) = Process::Exec( "/usr/share/opi-access/opi-access.sh" );
 
@@ -1023,13 +981,13 @@ string IPv6Network::asString()
 
 bool IsIPv4address(const string &addr)
 {
-		struct in_addr ip4;
+		struct in_addr ip4 = {};
 		return inet_pton(AF_INET, addr.c_str(), &ip4) == 1;
 }
 
 bool IsIPv6address(const string &addr)
 {
-	struct in6_addr ip6;
+	struct in6_addr ip6 = {};
 	return inet_pton(AF_INET6, addr.c_str(), &ip6) == 1;
 }
 

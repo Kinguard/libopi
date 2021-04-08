@@ -151,7 +151,7 @@ private:
 class RaspbianNetworkConfig: public NetworkConfig
 {
 public:
-	RaspbianNetworkConfig(const string& path = "/etc/dhcpcd.conf");
+	RaspbianNetworkConfig(string  path = "/etc/dhcpcd.conf");
 
 	void SetDHCP(const string &iface) override;
 	void SetStatic(const string &iface,
@@ -206,8 +206,12 @@ private:
 
 /**
  * @brief GetInterfaces return a list of network devices found in system
+ *
+ * @deprecated Please use alternative in Utils::NetUtils
+ *
  * @return list with interfaces
  */
+[[deprecated]]
 list<string> GetInterfaces();
 
 string GetAddress(const string& ifname);

@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include <json/json.h>
+
 using namespace std;
 
 namespace OPI {
@@ -28,6 +30,8 @@ void Mount(const string& device, const string& mountpoint, bool noatime=true, bo
 void Umount(const string& device);
 
 void SyncPaths(const string& src, const string& dst);
+
+Json::Value StorageDevices();
 
 } // End NS
 

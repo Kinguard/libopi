@@ -16,6 +16,8 @@
 #include <map>
 #include <string>
 
+#include "DiskHelper.h"
+
 using namespace std;
 
 namespace OPI {
@@ -24,7 +26,7 @@ namespace DiskHelper {
 
 static bool do_stat(const std::string& path,mode_t mode )
 {
-	struct stat st;
+	struct stat st = {};
 	if(stat(path.c_str(),&st)){
 		if( errno == ENOENT ){
 				return false;
@@ -55,7 +57,7 @@ void PartitionDevice(const string& device)
 	PedConstraint* constraint = ped_constraint_any( dev );
 	PedGeometry* geom = ped_constraint_solve_max( constraint );
 
-	PedPartition* part = ped_partition_new( disk, PED_PARTITION_NORMAL, NULL, geom->start, geom->end );
+	PedPartition* part = ped_partition_new( disk, PED_PARTITION_NORMAL, nullptr, geom->start, geom->end );
 
 	ped_geometry_destroy( geom );
 
@@ -107,7 +109,7 @@ void FormatPartition(const string& device, const string& label )
 {
 	string cmd="/sbin/mkfs -text4 -q -L"+label + " " + device;
 
-	bool res;
+	bool res = false;
 	string errmsg;
 	tie(res, errmsg) = Utils::Process::Exec(cmd);
 
@@ -142,7 +144,7 @@ void Mount(const string& device, const string& mountpoint, bool noatime, bool di
 
 	ss << device << " " << mountpoint;
 
-	bool res;
+	bool res = false;
 	string errmsg;
 	tie(res, errmsg) = Utils::Process::Exec(ss.str());
 
@@ -157,7 +159,7 @@ void Umount(const string& device)
 	// TODO: Perhaps kill processes locking device using fuser
 	string cmd = "/bin/umount "+device;
 
-	bool res;
+	bool res = false;
 	string errmsg;
 	tie(res, errmsg) = Utils::Process::Exec( cmd );
 
@@ -227,7 +229,7 @@ void SyncPaths(const string &src, const string &dst)
 {
 	string cmd = "/usr/bin/rsync -a "+src+" "+dst;
 
-	bool res;
+	bool res(false);
 	tie(res, std::ignore) = Utils::Process::Exec( cmd );
 
 	if( !res )
@@ -235,6 +237,68 @@ void SyncPaths(const string &src, const string &dst)
 		throw Utils::ErrnoException("Failed sync "+src+" with "+dst );
 	}
 
+}
+
+static string getDiskName(const string& syspath)
+{
+
+	if( Utils::File::FileExists( syspath+"/device/model") )
+	{
+		return Utils::String::Trimmed(Utils::File::GetContentAsString(syspath+"/device/model"), " ");
+	}
+	else if( Utils::File::FileExists( syspath+"/device/name") )
+	{
+		return Utils::String::Trimmed(Utils::File::GetContentAsString(syspath+"/device/name"), " ");
+	}
+	return "N/A";
+}
+
+Json::Value StorageDevices()
+{
+	constexpr uint32_t BLOCKSIZE = 512;
+	Json::Value ret;
+	list<string> devs = Utils::File::Glob("/sys/class/block/*");
+
+	for( auto& syspath: devs )
+	{
+		string dev = Utils::File::GetFileName(syspath);
+
+		try
+		{
+			if( Utils::File::FileExists("/sys/class/block/"s + dev +"/partition") )
+			{
+				continue;
+			}
+			ret[dev]["syspath"]= syspath;
+			ret[dev]["devpath"] = "/dev/"s + dev;
+			ret[dev]["isphysical"] = Utils::File::LinkExists(syspath+"/device");
+
+			if( ret[dev]["isphysical"].asBool() )
+			{
+				ret[dev]["model"] = getDiskName(syspath);
+			}
+			else
+			{
+				ret[dev]["model"] = "Virtual device";
+			}
+
+			uint64_t blocks = std::stol(Utils::File::GetContentAsString(syspath+"/size"));
+			ret[dev]["blocks"] = Json::UInt64(blocks);
+			ret[dev]["size"] = Json::UInt64(blocks * BLOCKSIZE);
+
+			ret[dev]["removable"] = std::stoi(Utils::File::GetContentAsString(syspath+"/removable")) > 0;
+			ret[dev]["readonly"] = std::stoi(Utils::File::GetContentAsString(syspath+"/ro")) > 0;
+
+		}
+		catch (std::exception& err)
+		{
+			cout << "Caught exception: " << err.what() << endl;
+
+		}
+
+	}
+
+	return ret;
 }
 
 } // End NS
