@@ -722,10 +722,7 @@ bool Secop::AppHasACL(const string &appid, const string &acl)
 	return ret;
 }
 
-Secop::~Secop()
-{
-
-}
+Secop::~Secop() = default;
 
 Json::Value Secop::DoCall(Json::Value& cmd)
 {

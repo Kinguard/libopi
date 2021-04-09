@@ -1,4 +1,6 @@
 
+#include <utility>
+
 #include "JsonHelper.h"
 
 namespace OPI {
@@ -7,7 +9,7 @@ namespace JsonHelper {
 
 
 TypeChecker::TypeChecker(const vector<OPI::JsonHelper::TypeChecker::Check> &checks, ErrCallback err, void *data):
-	checks(checks), errcallback(err), data(data)
+	checks(checks), errcallback(std::move(err)), data(data)
 {
 
 }
@@ -50,10 +52,7 @@ bool TypeChecker::Verify(int what, const Json::Value &val)
 	return true;
 }
 
-TypeChecker::~TypeChecker()
-{
-
-}
+TypeChecker::~TypeChecker() = default;
 
 list<string> FromJsonArray(const Json::Value &jsonlist)
 {

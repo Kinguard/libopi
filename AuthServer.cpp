@@ -1,16 +1,18 @@
 #include "AuthServer.h"
 #include "Secop.h"
 #include <stdexcept>
+#include <utility>
 
 #include <libutils/FileUtils.h>
+#include <libutils/HttpStatusCodes.h>
 
 using namespace std;
-
+using namespace Utils::HTTP;
 namespace OPI
 {
 
 
-AuthServer::AuthServer(const string &unit_id, const AuthCFG &cfg): HttpClient( cfg.authserver ), unit_id(unit_id), acfg(cfg)
+AuthServer::AuthServer(string unit_id, const AuthCFG &cfg): HttpClient( cfg.authserver ), unit_id(std::move(unit_id)), acfg(cfg)
 {
 
 }
@@ -71,24 +73,24 @@ tuple<int, Json::Value> AuthServer::Login(bool usetempkeys)
 	catch (std::runtime_error& err)
 	{
 		ret["desc"]=string("Failed to retrieve keys: ")+err.what();
-		return tuple<int, Json::Value>(503, ret);
+		return tuple<int, Json::Value>(Status::ServiceUnavailable, ret);
 	}
 
 	if( ! c )
 	{
 		ret["desc"]="Failed to get retrieve keys";
-		return tuple<int, Json::Value>(503, ret);
+		return tuple<int, Json::Value>(Status::ServiceUnavailable, ret);
 	}
 
 	string challenge;
-	int resultcode;
+	int resultcode = 0;
 	tie(resultcode,challenge) = this->GetChallenge();
 
-	if( resultcode != 200 )
+	if( resultcode != Status::Ok )
 	{
 		ret["desc"] = "Unknown reply from server";
 		ret["value"] = resultcode;
-		return tuple<int, Json::Value>(500, ret);
+		return tuple<int, Json::Value>(Status::InternalServerError, ret);
 	}
 
 	string signedchallenge = CryptoHelper::Base64Encode( c->SignMessage( challenge ) );
@@ -96,7 +98,7 @@ tuple<int, Json::Value> AuthServer::Login(bool usetempkeys)
 	Json::Value rep;
 	tie(resultcode, rep) = this->SendSignedChallenge( signedchallenge );
 
-	if( resultcode != 200 )
+	if( resultcode != Status::Ok )
 	{
 		ret["desc"] = "Unexpected reply from server";
 		ret["value"] = resultcode;
@@ -107,11 +109,11 @@ tuple<int, Json::Value> AuthServer::Login(bool usetempkeys)
 	if( rep.isMember("token") && rep["token"].isString() )
 	{
 		ret["token"] = rep["token"].asString();
-		return tuple<int, Json::Value>(200, ret);
+		return tuple<int, Json::Value>(Status::Ok, ret);
 	}
 
 	ret["desc"] = "Malformed reply from server";
-	return tuple<int, Json::Value>(500, ret);
+	return tuple<int, Json::Value>(Status::InternalServerError, ret);
 }
 
 tuple<int, Json::Value> AuthServer::SendSecret(const string &secret, const string &pubkey)
@@ -274,8 +276,6 @@ RSAWrapperPtr AuthServer::GetKeysFromFile(const string &pubpath, const string &p
 	return c;
 }
 
-AuthServer::~AuthServer()
-{
-}
+AuthServer::~AuthServer() = default;
 
 } // End NS

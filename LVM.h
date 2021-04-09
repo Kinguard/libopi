@@ -36,8 +36,8 @@ public:
 
 	list<PhysicalVolumePtr> ListPhysicalVolumes();
 
-	void AddPhysicalVolume(PhysicalVolumePtr pv);
-	void RemovePhysicalVolume(PhysicalVolumePtr pv);
+	void AddPhysicalVolume(const PhysicalVolumePtr& pv);
+	void RemovePhysicalVolume(const PhysicalVolumePtr& pv);
 
 	/**
 	 * @brief GetLogicalVolumes of VG
@@ -64,11 +64,11 @@ public:
 	 * @brief RemoveLogicalVolume
 	 * @param vol Logical volume to remove from volume group
 	 */
-	void RemoveLogicalVolume( LogicalVolumePtr vol);
+	void RemoveLogicalVolume( const LogicalVolumePtr& vol);
 
 	virtual ~VolumeGroup();
 private:
-	VolumeGroup(const string& name, LVM* lvm);
+	VolumeGroup(string  name, LVM* lvm);
 
 	string name;
 	LVM* lvm;
@@ -85,7 +85,7 @@ public:
 
 	~LogicalVolume();
 private:
-	LogicalVolume(const string& name,VolumeGroup *volume );
+	LogicalVolume(string  name,VolumeGroup *volume );
 	string name;
 	VolumeGroup* volume;
 	friend class VolumeGroup;
@@ -94,7 +94,7 @@ private:
 class PhysicalVolume
 {
 public:
-	PhysicalVolume(const string& path, const string& volumegroup="");
+	PhysicalVolume(string  path, const string& volumegroup="");
 
 	bool inUse();
 	string VolumeGroup();
@@ -115,7 +115,7 @@ public:
 	list<PhysicalVolumePtr> ListUnusedPhysicalVolumes();
 	list<PhysicalVolumePtr> ListPhysicalVolumes();
 	PhysicalVolumePtr CreatePhysicalVolume(const string& devpath, uint64_t size=0);
-	void RemovePhysicalVolume( PhysicalVolumePtr pv);
+	void RemovePhysicalVolume( const PhysicalVolumePtr& pv);
 
 	list<VolumeGroupPtr> ListVolumeGroups();
 	VolumeGroupPtr GetVolumeGroup(const string& name);
@@ -123,7 +123,7 @@ public:
 	/* create new volumegroup, if pvs empty use all avaliable pvs */
 	VolumeGroupPtr CreateVolumeGroup(const string& name, list<PhysicalVolumePtr> pvs = {});
 
-	void RemoveVolumeGroup( VolumeGroupPtr vg);
+	void RemoveVolumeGroup( const VolumeGroupPtr& vg);
 
 	virtual ~LVM();
 protected:

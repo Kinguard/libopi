@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <tuple>
+#include <utility>
 
 #include <ext/stdio_filebuf.h>
 #include <libutils/Exceptions.h>
@@ -19,12 +20,11 @@ namespace OPI
 {
 
 
-BackupInterface::~BackupInterface()
-{}
+BackupInterface::~BackupInterface() = default;
 
 BackupHelper::BackupHelper(const string& pwd, BackupInterfacePtr iface):
 	localmounted(false), remotemounted(false), cfgcreated(false),
-	iface(iface), pwd(pwd)
+	iface(std::move(iface)), pwd(pwd)
 {
 
 }
@@ -151,14 +151,11 @@ string BackupHelper::GetConfigFile()
 	return this->tmpfilename;
 }
 
-OPIBackup::OPIBackup()
-{
-
-}
+OPIBackup::OPIBackup() = default;
 
 static bool trymount(const string& path, bool local)
 {
-	bool result;
+	bool result = false;
 
 	stringstream ss;
 
@@ -180,7 +177,7 @@ bool OPIBackup::MountLocal(const string &configpath)
 {
 	if( ! Utils::File::DirExists( LOCALMOUNT ) )
 	{
-		Utils::File::MkDir( LOCALMOUNT, 0700);
+		Utils::File::MkDir( LOCALMOUNT, Utils::File::UserRWX);
 	}
 
 	return trymount( configpath, true);
@@ -190,7 +187,7 @@ bool OPIBackup::MountRemote(const string &configpath)
 {
 	if( ! Utils::File::DirExists( REMOTEMOUNT ) )
 	{
-		Utils::File::MkDir( REMOTEMOUNT, 0700);
+		Utils::File::MkDir( REMOTEMOUNT, Utils::File::UserRWX);
 	}
 
 	return trymount( configpath, false);
@@ -233,7 +230,7 @@ list<string> OPIBackup::GetRemoteBackups()
 
 static bool doumount(bool local)
 {
-	bool result;
+	bool result = false;
 
 	stringstream ss;
 
@@ -264,7 +261,7 @@ void OPIBackup::UmountRemote()
 
 bool OPIBackup::RestoreBackup(const string &pathtobackup)
 {
-	bool result;
+	bool result = false;
 
 	stringstream ss;
 
@@ -275,9 +272,6 @@ bool OPIBackup::RestoreBackup(const string &pathtobackup)
 	return result;
 }
 
-OPIBackup::~OPIBackup()
-{
-
-}
+OPIBackup::~OPIBackup() = default;
 
 }

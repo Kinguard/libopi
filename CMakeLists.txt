@@ -49,7 +49,6 @@ set( headers
 	FetchmailConfig.h
 	HostsConfig.h
 	HttpClient.h
-	HttpStatusCodes.h
 	JsonHelper.h
 	LedControl.h
 	Luks.h

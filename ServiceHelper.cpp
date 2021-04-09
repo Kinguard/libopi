@@ -1,8 +1,6 @@
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
-
-#include <stdlib.h>
 
 #include <libutils/FileUtils.h>
 #include <libutils/Process.h>

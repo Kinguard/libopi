@@ -28,11 +28,11 @@ public:
 protected:
 	void CurlPre();
 	void CurlSetHeaders(const map<string, string> &headers);
-	std::string DoGet(std::string path, map<string, string> data);
-	std::string DoPost(std::string path, map<string, string> data);
+	std::string DoGet(const std::string& path, const map<string, string>& data);
+	std::string DoPost(const std::string& path, const map<string, string>& data);
 	string CurlPerform();
 
-	string MakeFormData(map<string,string> data);
+	string MakeFormData(const map<string,string>& data);
 	string EscapeString(const string& arg);
 
 	static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp);

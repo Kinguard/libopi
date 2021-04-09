@@ -4,6 +4,8 @@
 
 #include <libutils/FileUtils.h>
 
+#include <utility>
+
 namespace OPI
 {
 
@@ -88,7 +90,7 @@ void HttpClient::CurlSetHeaders(const map<string, string>& headers)
 	this->headers = headers;
 }
 
-string HttpClient::DoGet(string path, map<string, string> data)
+string HttpClient::DoGet(const string& path, const map<string, string>& data)
 {
 	this->CurlPre();
 
@@ -98,7 +100,7 @@ string HttpClient::DoGet(string path, map<string, string> data)
 	return this->CurlPerform();
 }
 
-string HttpClient::DoPost(string path, map<string, string> data)
+string HttpClient::DoPost(const string& path, const map<string, string>& data)
 {
 	this->CurlPre();
 
@@ -135,7 +137,7 @@ string HttpClient::CurlPerform()
 	return this->body.str();
 }
 
-string HttpClient::MakeFormData(map<string, string> data)
+string HttpClient::MakeFormData(const map<string, string>& data)
 {
 	stringstream postdata;
 	bool first = true;
@@ -179,7 +181,7 @@ void HttpClient::setheaders()
 {
 	if( this->headers.size() > 0 )
 	{
-		this->slist = NULL;
+		this->slist = nullptr;
 		for(const auto& h: this->headers )
 		{
 			string header = h.first+ ":" + h.second;

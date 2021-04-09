@@ -6,7 +6,7 @@
 #include <algorithm>
 #include "AuthServer.h"
 #include "CryptoHelper.h"
-#include "HttpStatusCodes.h"
+#include <libutils/HttpStatusCodes.h>
 
 CPPUNIT_TEST_SUITE_REGISTRATION ( TestAuthServer );
 

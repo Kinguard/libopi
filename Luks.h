@@ -20,7 +20,7 @@ public:
 	void Format(const string& password);
 	bool Open(const string& name, const string& password, bool discard = true );
 	bool Active(const string& name);
-	void Close(const string name="");
+	void Close(const string& name="");
 
 	virtual ~Luks();
 private:

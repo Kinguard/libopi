@@ -1,3 +1,20 @@
+libopi (1.6.60~test13) vili; urgency=medium
+
+   * Update deps on libutils
+   * Use C++14 by default
+   * Add get StorageDevices to DiskHelper
+   * Refactor NetworkConfig to use Utils::Net better
+   * Added SysInfo::fixedStorage to determin if we should query user on disks
+   * Improved sysdetection in Sysinfo to detect RPi4 better
+
+ -- Tor Krill <tor@openproducts.se>  Thu, 08 Apr 2021 15:46:28 +0200
+
+libopi (1.6.60~test12) vili; urgency=medium
+
+  * RPi4 adaptations
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 26 Mar 2021 15:29:50 +0100
+
 libopi (1.6.60~test11) vili; urgency=medium
 
   * Add HTTP Status code header

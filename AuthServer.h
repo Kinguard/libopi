@@ -35,7 +35,7 @@ public:
 		string privkeypath;
 	};
 
-	AuthServer(const string& unit_id, const struct AuthCFG& cfg = {"https://auth.openproducts.com/", TMP_PUB, TMP_PRIV} );
+	AuthServer(string  unit_id, const struct AuthCFG& cfg = {"https://auth.openproducts.com/", TMP_PUB, TMP_PRIV} );
 
 	tuple<int,string> GetChallenge();
 

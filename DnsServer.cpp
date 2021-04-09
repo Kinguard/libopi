@@ -4,9 +4,9 @@
 #include "SysInfo.h"
 #include "SysConfig.h"
 #include "NetworkConfig.h"
-#include "HttpStatusCodes.h"
 #include <libutils/Logger.h>
 #include <libutils/FileUtils.h>
+#include <libutils/HttpStatusCodes.h>
 
 #include <iterator>
 #include <algorithm>
@@ -17,7 +17,8 @@ namespace OPI
 {
 
 using namespace CryptoHelper;
-using namespace HTTP;
+using namespace Utils::HTTP;
+
 DnsServer::DnsServer(const string &host): HttpClient(host)
 {
 }

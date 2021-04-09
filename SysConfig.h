@@ -33,7 +33,7 @@ class SysConfig
 public:
 	SysConfig();
 	SysConfig(bool writeable);
-	SysConfig(const string& path, bool writeable = false);
+	SysConfig(string  path, bool writeable = false);
 
 	void Writeable(bool writeable);
 	bool IsWriteable();

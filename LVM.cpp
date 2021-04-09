@@ -7,22 +7,20 @@
 
 #include <algorithm>
 #include <sstream>
+#include <utility>
 
 using namespace Utils;
 
 namespace OPI
 {
 
-LVM::LVM()
-{
-
-}
+LVM::LVM() = default;
 
 list<PhysicalVolumePtr> LVM::ListUnusedPhysicalVolumes()
 {
 	list<PhysicalVolumePtr> pvs = this->ListPhysicalVolumes();
 
-	auto last = remove_if(pvs.begin(), pvs.end(), [](const PhysicalVolumePtr item){ return item->inUse(); }  );
+	auto last = remove_if(pvs.begin(), pvs.end(), [](const PhysicalVolumePtr& item){ return item->inUse(); }  );
 
 	return list<PhysicalVolumePtr>(pvs.begin(), last);
 }
@@ -30,7 +28,7 @@ list<PhysicalVolumePtr> LVM::ListUnusedPhysicalVolumes()
 list<PhysicalVolumePtr> LVM::ListPhysicalVolumes()
 {
 	list<PhysicalVolumePtr> res;
-	bool result;
+	bool result = false;
 	string ret;
 
 	tie(result, ret) = Process::Exec("/sbin/pvs --reportformat json");
@@ -65,7 +63,7 @@ list<PhysicalVolumePtr> LVM::ListPhysicalVolumes()
 
 PhysicalVolumePtr LVM::CreatePhysicalVolume(const string &devpath, uint64_t size)
 {
-	bool result;
+	bool result = false;
 	stringstream cmd;
 
 	cmd << "/sbin/pvcreate -y " << devpath;
@@ -85,10 +83,10 @@ PhysicalVolumePtr LVM::CreatePhysicalVolume(const string &devpath, uint64_t size
 	return  PhysicalVolumePtr(new PhysicalVolume(devpath));
 }
 
-void LVM::RemovePhysicalVolume(PhysicalVolumePtr pv)
+void LVM::RemovePhysicalVolume(const PhysicalVolumePtr& pv)
 {
 	stringstream cmd;
-	bool result;
+	bool result = false;
 
 	cmd << "/sbin/pvremove -y " << pv->Path();
 
@@ -103,7 +101,7 @@ void LVM::RemovePhysicalVolume(PhysicalVolumePtr pv)
 list<VolumeGroupPtr> LVM::ListVolumeGroups()
 {
 	list<VolumeGroupPtr> res;
-	bool result;
+	bool result = false;
 	string ret;
 
 	tie(result, ret) = Process::Exec("/sbin/vgs --reportformat json");
@@ -141,7 +139,7 @@ VolumeGroupPtr LVM::GetVolumeGroup(const string &name)
 {
 	auto vgs = this->ListVolumeGroups();
 
-	auto it=find_if(vgs.begin(), vgs.end(), [name](VolumeGroupPtr vg)
+	auto it=find_if(vgs.begin(), vgs.end(), [name](const VolumeGroupPtr& vg)
 	{
 		return vg->Name() == name;
 	});
@@ -170,7 +168,7 @@ VolumeGroupPtr LVM::CreateVolumeGroup(const string &name, list<PhysicalVolumePtr
 	bool result;
 
 	cmd << "/sbin/vgcreate -y " << name << " ";
-	for(auto pv:pvs)
+	for(const auto& pv:pvs)
 	{
 		cmd << " " << pv->Path();
 	}
@@ -187,7 +185,7 @@ VolumeGroupPtr LVM::CreateVolumeGroup(const string &name, list<PhysicalVolumePtr
 	return vg;
 }
 
-void LVM::RemoveVolumeGroup(VolumeGroupPtr vg)
+void LVM::RemoveVolumeGroup(const VolumeGroupPtr& vg)
 {
 	stringstream cmd;
 	bool result;
@@ -202,13 +200,10 @@ void LVM::RemoveVolumeGroup(VolumeGroupPtr vg)
 	}
 }
 
-LVM::~LVM()
-{
+LVM::~LVM() = default;
 
-}
-
-PhysicalVolume::PhysicalVolume(const string &path, const string &volumegroup)
-	:path(path), volumegroup(volumegroup)
+PhysicalVolume::PhysicalVolume(string path, const string &volumegroup)
+	:path(std::move(path)), volumegroup(volumegroup)
 {
 
 }
@@ -228,10 +223,7 @@ string PhysicalVolume::Path()
 	return this->path;
 }
 
-PhysicalVolume::~PhysicalVolume()
-{
-
-}
+PhysicalVolume::~PhysicalVolume() = default;
 
 /*
  *
@@ -239,8 +231,8 @@ PhysicalVolume::~PhysicalVolume()
  *
  */
 
-VolumeGroup::VolumeGroup(const string &name, LVM *lvm)
-	:name(name), lvm(lvm)
+VolumeGroup::VolumeGroup(string name, LVM *lvm)
+	:name(std::move(name)), lvm(lvm)
 {
 
 }
@@ -254,7 +246,7 @@ list<PhysicalVolumePtr> VolumeGroup::ListPhysicalVolumes()
 {
 	auto pvs = this->lvm->ListPhysicalVolumes();
 	auto last = remove_if(pvs.begin(),pvs.end(),
-						  [this](const PhysicalVolumePtr pv)
+						  [this](const PhysicalVolumePtr& pv)
 							{
 								return pv->VolumeGroup()!=this->name;
 							}
@@ -263,7 +255,7 @@ list<PhysicalVolumePtr> VolumeGroup::ListPhysicalVolumes()
 	return list<PhysicalVolumePtr>(pvs.begin(), last);
 }
 
-void VolumeGroup::AddPhysicalVolume(PhysicalVolumePtr pv)
+void VolumeGroup::AddPhysicalVolume(const PhysicalVolumePtr& pv)
 {
 	stringstream cmd;
 	bool result;
@@ -278,7 +270,7 @@ void VolumeGroup::AddPhysicalVolume(PhysicalVolumePtr pv)
 	}
 }
 
-void VolumeGroup::RemovePhysicalVolume(PhysicalVolumePtr pv)
+void VolumeGroup::RemovePhysicalVolume(const PhysicalVolumePtr& pv)
 {
 	stringstream cmd;
 	bool result;
@@ -373,7 +365,7 @@ LogicalVolumePtr VolumeGroup::GetLogicalVolume(const string &name)
 	return nullptr;
 }
 
-void VolumeGroup::RemoveLogicalVolume(LogicalVolumePtr vol)
+void VolumeGroup::RemoveLogicalVolume(const LogicalVolumePtr& vol)
 {
 	stringstream cmd;
 	bool result;
@@ -388,10 +380,7 @@ void VolumeGroup::RemoveLogicalVolume(LogicalVolumePtr vol)
 	}
 }
 
-VolumeGroup::~VolumeGroup()
-{
-
-}
+VolumeGroup::~VolumeGroup() = default;
 
 /*
  * Logical volume implementation
@@ -407,13 +396,10 @@ string LogicalVolume::VolumeName()
 	return this->volume->Name();
 }
 
-LogicalVolume::~LogicalVolume()
-{
+LogicalVolume::~LogicalVolume() = default;
 
-}
-
-LogicalVolume::LogicalVolume(const string &name, VolumeGroup *volume)
-	:name(name), volume(volume)
+LogicalVolume::LogicalVolume(string name, VolumeGroup *volume)
+	:name(std::move(name)), volume(volume)
 {
 
 }

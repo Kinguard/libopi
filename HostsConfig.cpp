@@ -204,7 +204,7 @@ void HostsConfig::WriteBack()
 		ss << "\n";
 	}
 
-	File::SafeWrite(this->path, ss.str(), 0644);
+	File::SafeWrite(this->path, ss.str(), File::UserRW | File::GroupRead | File::OtherRead);
 }
 
 void HostsConfig::parse()
