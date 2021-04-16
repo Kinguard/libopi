@@ -31,6 +31,18 @@ void Umount(const string& device);
 
 void SyncPaths(const string& src, const string& dst);
 
+/**
+ * @brief StorageDevice retrieve storage device pointed out by devname
+ * @param devname name of device as listed under /sys/class/block
+ * @param ignorepartition if true return null if this is a partition
+ * @return Json object with device information
+ */
+Json::Value StorageDevice(const string& devname, bool ignorepartition = false);
+
+/**
+ * @brief StorageDevices retrieve all known storage devices on system
+ * @return Json array with device information
+ */
 Json::Value StorageDevices();
 
 } // End NS

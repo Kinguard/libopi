@@ -42,7 +42,7 @@ void TestDiskHelper::TestIsMounted()
 	map<string,string> tab;
 	// Reverse table mountpath, device
 	map<string,string> rtab;
-	for( auto line: lines)
+	for( const auto& line: lines)
 	{
 		list<string> words = Utils::String::Split(line);
 		if( words.size() > 2 )
@@ -79,5 +79,12 @@ void TestDiskHelper::TestIsMounted()
 void TestDiskHelper::TestStorageDevices()
 {
 	auto disks = OPI::DiskHelper::StorageDevices();
+
+#if 0
+	for(const auto& disk: disks.getMemberNames())
+	{
+		cout << "\nDisk:" << disk << ":" << disks[disk].toStyledString() << endl;
+	}
+#endif
 	CPPUNIT_ASSERT(disks.size() > 0 );
 }

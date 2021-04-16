@@ -255,7 +255,6 @@ static string getDiskName(const string& syspath)
 
 Json::Value StorageDevices()
 {
-	constexpr uint32_t BLOCKSIZE = 512;
 	Json::Value ret;
 	list<string> devs = Utils::File::Glob("/sys/class/block/*");
 
@@ -263,38 +262,90 @@ Json::Value StorageDevices()
 	{
 		string dev = Utils::File::GetFileName(syspath);
 
-		try
+		Json::Value disk = StorageDevice(dev, true);
+		if( ! disk.isNull() )
 		{
-			if( Utils::File::FileExists("/sys/class/block/"s + dev +"/partition") )
-			{
-				continue;
-			}
-			ret[dev]["syspath"]= syspath;
-			ret[dev]["devpath"] = "/dev/"s + dev;
-			ret[dev]["isphysical"] = Utils::File::LinkExists(syspath+"/device");
+			ret[dev] = disk;
+		}
 
-			if( ret[dev]["isphysical"].asBool() )
+	}
+
+	return ret;
+}
+
+Json::Value StorageDevice(const string &devname, bool ignorepartition)
+{
+	constexpr uint32_t BLOCKSIZE = 512;
+	string syspath = "/sys/class/block/"s + devname;
+	Json::Value ret;
+	try
+	{
+		ret["partition"] = Utils::File::FileExists("/sys/class/block/"s + devname +"/partition");
+
+		if( ret["partition"].asBool() && ignorepartition )
+		{
+			return Json::nullValue;
+		}
+
+		if( !ret["partition"].asBool() )
+		{
+			ret["partitions"] = Json::arrayValue;
+			list<string> parts = Utils::File::Glob("/sys/class/block/"s+devname+"?*");
+			for(const auto& part: parts)
 			{
-				ret[dev]["model"] = getDiskName(syspath);
+				//cout << "Partition: " << Utils::File::GetFileName(part) << endl;
+				ret["partitions"].append(DiskHelper::StorageDevice(Utils::File::GetFileName(part)));
+			}
+		}
+
+
+		ret["devnmane"] = devname;
+		ret["syspath"]= syspath;
+		ret["devpath"] = "/dev/"s + devname;
+		ret["isphysical"] = Utils::File::LinkExists(syspath+"/device");
+
+		if( ret["isphysical"].asBool() )
+		{
+			ret["model"] = getDiskName(syspath);
+		}
+		else
+		{
+			if( ret["partition"].asBool() )
+			{
+				ret["model"] = "Partition";
 			}
 			else
 			{
-				ret[dev]["model"] = "Virtual device";
+				ret["model"] = "Virtual device";
 			}
-
-			uint64_t blocks = std::stol(Utils::File::GetContentAsString(syspath+"/size"));
-			ret[dev]["blocks"] = Json::UInt64(blocks);
-			ret[dev]["size"] = Json::UInt64(blocks * BLOCKSIZE);
-
-			ret[dev]["removable"] = std::stoi(Utils::File::GetContentAsString(syspath+"/removable")) > 0;
-			ret[dev]["readonly"] = std::stoi(Utils::File::GetContentAsString(syspath+"/ro")) > 0;
-
 		}
-		catch (std::exception& err)
+
+		uint64_t blocks = std::stol(Utils::File::GetContentAsString(syspath+"/size"));
+		ret["blocks"] = Json::UInt64(blocks);
+		ret["size"] = Json::UInt64(blocks * BLOCKSIZE);
+
+		if( ! ret["partition"].asBool() )
 		{
-			cout << "Caught exception: " << err.what() << endl;
-
+			ret["removable"] = std::stoi(Utils::File::GetContentAsString(syspath+"/removable")) > 0;
 		}
+		ret["readonly"] = std::stoi(Utils::File::GetContentAsString(syspath+"/ro")) > 0;
+
+		string mountpoint = DiskHelper::IsMounted(ret["devpath"].asString());
+		if(mountpoint != "")
+		{
+			ret["mountpoint"] = mountpoint;
+			ret["mounted"] = true;
+		}
+		else
+		{
+			ret["mounted"] = false;
+		}
+
+	}
+	catch (std::exception& err)
+	{
+		cout << "Caught exception: " << err.what() << endl;
+		return Json::nullValue;
 
 	}
 
