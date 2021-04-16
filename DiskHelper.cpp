@@ -299,7 +299,7 @@ Json::Value StorageDevice(const string &devname, bool ignorepartition)
 		}
 
 
-		ret["devnmane"] = devname;
+		ret["devname"] = devname;
 		ret["syspath"]= syspath;
 		ret["devpath"] = "/dev/"s + devname;
 		ret["isphysical"] = Utils::File::LinkExists(syspath+"/device");
