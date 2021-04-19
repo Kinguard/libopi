@@ -281,6 +281,19 @@ static string getLUKSPath(const string& devname)
 	return "";
 }
 
+static string getIDPath(const string& devname)
+{
+	list<string> devs = Utils::File::Glob("/dev/disk/by-path/*");
+	for( const auto& dev : devs)
+	{
+		if( Utils::File::RealPath(dev) == "/dev/"s + devname )
+		{
+			return dev;
+		}
+	}
+	return "";
+}
+
 
 static tuple<string,string> getDMType(const string& devname)
 {
@@ -355,16 +368,19 @@ Json::Value StorageDevice(const string &devname, bool ignorepartition)
 		if( ret["isphysical"].asBool() )
 		{
 			ret["model"] = getDiskName(syspath);
+			ret["devpath-by-path"] = getIDPath(devname);
 		}
 		else
 		{
 			if( ret["partition"].asBool() )
 			{
 				ret["model"] = "Partition";
+				ret["devpath-by-path"] = getIDPath(devname);
 			}
 			else
 			{
 				ret["model"] = "Virtual device";
+				ret["devpath-by-path"] = "";
 			}
 		}
 
