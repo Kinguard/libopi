@@ -15,6 +15,7 @@
 #include <sstream>
 #include <map>
 #include <string>
+#include <tuple>
 
 #include "DiskHelper.h"
 
@@ -253,6 +254,53 @@ static string getDiskName(const string& syspath)
 	return "N/A";
 }
 
+
+static string getLVMPath(const string& devname)
+{
+	list<string> devs = Utils::File::Glob("/dev/pool/*");
+	for( const auto& dev : devs)
+	{
+		if( Utils::File::RealPath(dev) == "/dev/"s + devname )
+		{
+			return dev;
+		}
+	}
+	return "";
+}
+
+static string getLUKSPath(const string& devname)
+{
+	list<string> devs = Utils::File::Glob("/dev/mapper/*");
+	for( const auto& dev : devs)
+	{
+		if( Utils::File::RealPath(dev) == "/dev/"s + devname )
+		{
+			return dev;
+		}
+	}
+	return "";
+}
+
+
+static tuple<string,string> getDMType(const string& devname)
+{
+	string uuid = Utils::File::GetContentAsString("/sys/class/block/"s + devname+"/dm/uuid");
+
+	constexpr int CRYPT_LEN=5;
+	constexpr int LVM_LEN=3;
+	if( uuid.compare(0,CRYPT_LEN,"CRYPT") == 0 )
+	{
+		return {"luks",getLUKSPath(devname)};
+	}
+	else if (uuid.compare(0,LVM_LEN,"LVM") == 0 )
+	{
+		return {"lvm", getLVMPath(devname)};
+	}
+
+	return {"unknown",""};
+}
+
+
 Json::Value StorageDevices()
 {
 	Json::Value ret;
@@ -280,7 +328,7 @@ Json::Value StorageDevice(const string &devname, bool ignorepartition)
 	Json::Value ret;
 	try
 	{
-		ret["partition"] = Utils::File::FileExists("/sys/class/block/"s + devname +"/partition");
+		ret["partition"] = Utils::File::FileExists( syspath +"/partition");
 
 		if( ret["partition"].asBool() && ignorepartition )
 		{
@@ -290,7 +338,7 @@ Json::Value StorageDevice(const string &devname, bool ignorepartition)
 		if( !ret["partition"].asBool() )
 		{
 			ret["partitions"] = Json::arrayValue;
-			list<string> parts = Utils::File::Glob("/sys/class/block/"s+devname+"?*");
+			list<string> parts = Utils::File::Glob( syspath+"?*");
 			for(const auto& part: parts)
 			{
 				//cout << "Partition: " << Utils::File::GetFileName(part) << endl;
@@ -318,6 +366,22 @@ Json::Value StorageDevice(const string &devname, bool ignorepartition)
 			{
 				ret["model"] = "Virtual device";
 			}
+		}
+
+		ret["dm"] = Utils::File::DirExists( syspath +"/dm");
+
+		if( ret["dm"].asBool() )
+		{
+			string type, path;
+			tie(type, path) = getDMType(devname);
+			ret["dm-type"] = type;
+			ret["dm-path"] = path;
+
+		}
+		else
+		{
+			ret["dm-type"] = "";
+			ret["dm-path"] = "";
 		}
 
 		uint64_t blocks = std::stol(Utils::File::GetContentAsString(syspath+"/size"));
