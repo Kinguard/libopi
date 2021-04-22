@@ -88,3 +88,17 @@ void TestDiskHelper::TestStorageDevices()
 #endif
 	CPPUNIT_ASSERT(disks.size() > 0 );
 }
+
+void TestDiskHelper::TestPartitionName()
+{
+	using namespace OPI::DiskHelper;
+	CPPUNIT_ASSERT_EQUAL( PartitionName("sda"), "sda1"s );
+	CPPUNIT_ASSERT_EQUAL( PartitionName("/dev/sda"), "/dev/sda1"s );
+	CPPUNIT_ASSERT_EQUAL( PartitionName("/sys/class/block/sda"), "/sys/class/block/sda1"s );
+	CPPUNIT_ASSERT_EQUAL( PartitionName("sda",2), "sda2"s );
+	CPPUNIT_ASSERT_EQUAL( PartitionName("nvme0n1"), "nvme0n1p1"s );
+	//Fail tests
+	//CPPUNIT_ASSERT_EQUAL( PartitionName("sda"), "sda2"s );
+	//CPPUNIT_ASSERT_EQUAL( PartitionName("sda"), "sda4"s );
+}
+

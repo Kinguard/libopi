@@ -432,5 +432,33 @@ Json::Value StorageDevice(const string &devname, bool ignorepartition)
 	return ret;
 }
 
+string PartitionName(const string &devicename, uint partno)
+{
+	stringstream ss;
+	ss << devicename;
+
+	string sut;
+
+	// Full path or device?
+	if( devicename.find('/') != string::npos )
+	{
+		sut = Utils::File::GetFileName(devicename);
+	}
+	else
+	{
+		sut = devicename;
+	}
+
+	if( sut.compare(0,2,"sd") == 0 )
+	{
+		ss<<partno;
+	}
+	else
+	{
+		ss << "p" << partno;
+	}
+	return ss.str();
+}
+
 } // End NS
 } // End NS

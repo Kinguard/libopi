@@ -25,6 +25,14 @@ void PartitionDevice(const string& device);
 
 void FormatPartition(const string& device, const string& label );
 
+/**
+ * @brief PartitionName try intelligently guess a partition name for device
+ * @param devicename "base" name of device or devicepath i.e. sda or /dev/sda
+ * @param partno partition number
+ * @return guessed partition name for partition partno on device
+ */
+string PartitionName(const string& devicename, uint partno=1);
+
 void Mount(const string& device, const string& mountpoint, bool noatime=true, bool discard=true, const string& filesystem = "ext4");
 
 void Umount(const string& device);
