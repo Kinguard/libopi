@@ -432,6 +432,21 @@ Json::Value StorageDevice(const string &devname, bool ignorepartition)
 	return ret;
 }
 
+static string parsedevlinks(string devicename, uint partno)
+{
+	vector<string> parts;
+	Utils::String::Split(devicename, parts, "/");
+	if( parts[2] == "by-id" || parts[2] == "by-path")
+	{
+		stringstream pnam;
+		pnam << devicename << "-part" << partno;
+		return pnam.str();
+	}
+
+	// Assume this is a partitioned device already so return orignal name
+	return devicename;
+}
+
 string PartitionName(const string &devicename, uint partno)
 {
 	stringstream ss;
@@ -442,6 +457,12 @@ string PartitionName(const string &devicename, uint partno)
 	// Full path or device?
 	if( devicename.find('/') != string::npos )
 	{
+
+		if( devicename.compare(0,13, "/dev/disk/by-") == 0)
+		{
+			return parsedevlinks(devicename, partno);
+		}
+
 		sut = Utils::File::GetFileName(devicename);
 	}
 	else

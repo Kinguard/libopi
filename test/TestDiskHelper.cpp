@@ -97,6 +97,18 @@ void TestDiskHelper::TestPartitionName()
 	CPPUNIT_ASSERT_EQUAL( PartitionName("/sys/class/block/sda"), "/sys/class/block/sda1"s );
 	CPPUNIT_ASSERT_EQUAL( PartitionName("sda",2), "sda2"s );
 	CPPUNIT_ASSERT_EQUAL( PartitionName("nvme0n1"), "nvme0n1p1"s );
+	CPPUNIT_ASSERT_EQUAL( PartitionName("/dev/disk/by-path/platform-f10a8000.sata-ata-1"), "/dev/disk/by-path/platform-f10a8000.sata-ata-1-part1"s );
+	CPPUNIT_ASSERT_EQUAL( PartitionName("/dev/disk/by-id/ata-KINGSTON_SUV400S37120G_50026B767300A676"),
+						  "/dev/disk/by-id/ata-KINGSTON_SUV400S37120G_50026B767300A676-part1"s );
+
+	CPPUNIT_ASSERT_EQUAL( PartitionName("/dev/disk/by-label/root"),
+						  "/dev/disk/by-label/root"s );
+
+	CPPUNIT_ASSERT_EQUAL( PartitionName("/dev/disk/by-uuid/73d88418-1a7c-4459-bb5c-27fdb291fa49"),
+						  "/dev/disk/by-uuid/73d88418-1a7c-4459-bb5c-27fdb291fa49"s );
+
+
+
 	//Fail tests
 	//CPPUNIT_ASSERT_EQUAL( PartitionName("sda"), "sda2"s );
 	//CPPUNIT_ASSERT_EQUAL( PartitionName("sda"), "sda4"s );
