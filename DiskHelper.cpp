@@ -195,6 +195,17 @@ size_t DeviceSize(const string &devicename)
 
 string IsMounted(const string &device)
 {
+	list<string> lines = DiskHelper::MountPoints(device);
+
+	if( lines.size() == 0 )
+	{
+		return "";
+	}
+	return lines.back();
+}
+
+list<string> MountPoints(const string &device)
+{
 	list<string> lines = Utils::File::GetContent( "/etc/mtab");
 
 	string rdev;
@@ -210,7 +221,7 @@ string IsMounted(const string &device)
 		rdev = Utils::File::RealPath(device);
 	}
 
-	map<string,string> tab;
+	map<string,list<string>> tab;
 	for( auto& line: lines)
 	{
 		list<string> words = Utils::String::Split(line);
@@ -219,12 +230,17 @@ string IsMounted(const string &device)
 			string device = words.front();
 			words.pop_front();
 			string mpoint = words.front();
-			tab[device] = mpoint;
+			tab[device].emplace_back( mpoint );
 		}
 	}
 
-	return tab.find(rdev)==tab.end()?"":tab[rdev];
+	if( tab.find(rdev) != tab.end() )
+	{
+		return tab[rdev];
+	}
+	return {};
 }
+
 
 void SyncPaths(const string &src, const string &dst)
 {

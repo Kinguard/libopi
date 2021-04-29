@@ -2,6 +2,7 @@
 #define DISKHELPER_H
 
 #include <string>
+#include <list>
 
 #include <json/json.h>
 
@@ -20,6 +21,8 @@ size_t DeviceSize( const string& devicename);
  * @return  mountpoint if mounted otherwise empty string
  */
 string IsMounted( const string& device);
+
+list<string> MountPoints( const string& device );
 
 void PartitionDevice(const string& device);
 

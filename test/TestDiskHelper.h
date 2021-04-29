@@ -8,6 +8,7 @@ class TestDiskHelper: public CppUnit::TestFixture
 	CPPUNIT_TEST_SUITE( TestDiskHelper );
 	CPPUNIT_TEST( Test );
 	CPPUNIT_TEST( TestIsMounted );
+	CPPUNIT_TEST( TestMountPoints );
 	CPPUNIT_TEST( TestStorageDevices );
 	CPPUNIT_TEST( TestPartitionName );
 	CPPUNIT_TEST_SUITE_END();
@@ -16,6 +17,7 @@ public:
 	void tearDown();
 	void Test();
 	void TestIsMounted();
+	void TestMountPoints();
 	void TestStorageDevices();
 	void TestPartitionName();
 };
