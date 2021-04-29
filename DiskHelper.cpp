@@ -426,10 +426,14 @@ Json::Value StorageDevice(const string &devname, bool ignorepartition)
 		}
 		ret["readonly"] = std::stoi(Utils::File::GetContentAsString(syspath+"/ro")) > 0;
 
-		string mountpoint = DiskHelper::IsMounted(ret["devpath"].asString());
-		if(mountpoint != "")
+		list<string> mountpoints = DiskHelper::MountPoints(ret["devpath"].asString());
+		ret["mountpoint"]=Json::arrayValue;
+		if(mountpoints.size() > 0)
 		{
-			ret["mountpoint"] = mountpoint;
+			for( const auto& mp : mountpoints)
+			{
+				ret["mountpoint"].append(mp);
+			}
 			ret["mounted"] = true;
 		}
 		else
