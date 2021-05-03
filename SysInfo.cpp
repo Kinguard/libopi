@@ -200,7 +200,7 @@ bool SysInfo::isRPI3()
 
 bool SysInfo::isRPI4()
 {
-	return sysinfo.Type() == SysInfo::TypeRPI3;
+	return sysinfo.Type() == SysInfo::TypeRPI4;
 }
 
 bool SysInfo::useLVM()
@@ -220,15 +220,29 @@ bool SysInfo::useLUKS()
 	return true;
 }
 
+bool SysInfo::fixedStorage()
+{
+	SysType t = sysinfo.Type();
+	// OPI and Keep has "fixed" storage and we should use that
+	if( t == SysInfo::TypeOpi || t == SysInfo::TypeArmada )
+	{
+		return true;
+	}
+
+	return false;
+}
+
 SysInfo::SysType SysInfo::TypeFromName(const string &devname)
 {
 	static const map<string, SysInfo::SysType> devtypemap =
 	{
-		{"opi",SysInfo::TypeOpi },
-		{"xu4",SysInfo::TypeXu4 },
+		{"opi"		,SysInfo::TypeOpi },
+		{"xu4"		,SysInfo::TypeXu4 },
 		{"olimexa20",SysInfo::TypeOlimexA20 },
-		{"armada",SysInfo::TypeArmada },
-		{"pc",SysInfo::TypePC },
+		{"armada"	,SysInfo::TypeArmada },
+		{"pc"		,SysInfo::TypePC },
+		{"rpi3"		,SysInfo::TypeRPI3},
+		{"rpi4"		,SysInfo::TypeRPI4}
 	};
     string dev = devname;
     transform(dev.begin(), dev.end(), dev.begin(), ::tolower);
@@ -329,7 +343,14 @@ void SysInfo::GuessType()
 				{
 					this->type = SysInfo::TypeArmada;
 				}
-				else if ( val.find("BCM2835") != string::npos )
+			}
+			else if( key == "Model")
+			{
+				if( val.find("Raspberry Pi 4") != string::npos )
+				{
+					this->type = SysInfo::TypeRPI4;
+				}
+				else if ( val.find("Raspberry Pi 3") != string::npos )
 				{
 					this->type = SysInfo::TypeRPI3;
 				}
@@ -411,6 +432,7 @@ void SysInfo::SetupPaths()
         this->backuprootpath = "/mnt/backup/";
         break;
 	case TypeRPI3:
+	case TypeRPI4:
 		this->storagedevicepath = "/dev";
 		this->storagedevice = "sda";
 		this->storagepartition = "1";

@@ -12,9 +12,7 @@ namespace OPI
 
 Notification notification;
 
-Notification::Notification()
-{
-}
+Notification::Notification() = default;
 
 void Notification::Notify(Notification::Notice notice, const string &info)
 {
@@ -145,10 +143,7 @@ void Notification::Notify(Notification::Notice notice, const string &info)
 }
 
 
-Notification::~Notification()
-{
-
-}
+Notification::~Notification() = default;
 
 }
 

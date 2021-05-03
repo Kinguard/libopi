@@ -28,7 +28,7 @@ include_directories(
 	"${PROJECT_SOURCE_DIR}"
 )
 
-add_definitions( -std=c++11 )
+add_definitions( -Wall )
 add_executable( testapp ${testapp_src} )
 
 target_link_libraries( testapp opi ${CPPUNIT_LDFLAGS} ${LIBUTILS_LDFLAGS} )

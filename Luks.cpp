@@ -40,7 +40,7 @@ bool Luks::isLuks(const string &device)
 		{
 			string rname = File::RealPath(device);
 
-			struct stat sbuf;
+			struct stat sbuf = {};
 			if( stat(rname.c_str(), &sbuf) != 0 )
 			{
 				udev_unref(udev);
@@ -81,19 +81,19 @@ bool Luks::isLuks(const string &device)
 
 void Luks::Format(const string &password)
 {
-	struct crypt_params_luks1 params;
+	struct crypt_params_luks1 params = {};
 
 	params.hash = "sha1";
 	params.data_alignment = 0;
-	params.data_device = NULL;
+	params.data_device = nullptr;
 
 	int r = crypt_format(
 				this->cryptdevice,
 				CRYPT_LUKS1,
 				"aes",
 				"xts-plain64",
-				NULL,
-				NULL,
+				nullptr,
+				nullptr,
 				256/8,
 				&params
 				);
@@ -106,7 +106,7 @@ void Luks::Format(const string &password)
 	r = crypt_keyslot_add_by_volume_key(
 				this->cryptdevice,
 				CRYPT_ANY_SLOT,
-				NULL,
+				nullptr,
 				0,
 				password.c_str(),
 				password.length()
@@ -124,7 +124,7 @@ bool Luks::Open(const string &name, const string &password, bool discard)
 	int r = crypt_load(
 				this->cryptdevice,
 				CRYPT_LUKS1,
-				NULL
+				nullptr
 				);
 
 	if( r < 0 )
@@ -158,7 +158,7 @@ bool Luks::Active(const string &name)
 	return info == CRYPT_ACTIVE || info == CRYPT_BUSY;
 }
 
-void Luks::Close(const string mname)
+void Luks::Close(const string& mname)
 {
 	string mappername;
 	if( mname != "" )

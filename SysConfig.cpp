@@ -28,6 +28,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <utility>
 #include <vector>
 #include <ext/stdio_filebuf.h>
 #include <fstream>
@@ -46,7 +47,7 @@ SysConfig::SysConfig(bool writeable): path(SYSCONFIGDBPATH),fd(0), writeable(wri
 
 }
 
-SysConfig::SysConfig(const string &path, bool writeable): path(path), fd(0), writeable(writeable)
+SysConfig::SysConfig(string path, bool writeable): path(std::move(path)), fd(0), writeable(writeable)
 {
 
 }
@@ -420,7 +421,7 @@ void SysConfig::CloseDB()
 Json::Value SysConfig::ReadDB()
 {
 	Json::Value val;
-	struct stat st;
+	struct stat st = {};
 
 	if(fstat(this->fd,&st))
 	{
@@ -439,7 +440,7 @@ Json::Value SysConfig::ReadDB()
 
 
 	size_t read_total = 0;
-	ssize_t bytes_read;
+	ssize_t bytes_read = 0;
 	do
 	{
 		bytes_read = read(fd, &data[read_total], st.st_size - read_total);

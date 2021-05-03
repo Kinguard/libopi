@@ -13,8 +13,8 @@ namespace OPI
 
 FetchmailConfig::FetchmailConfig(const string &cfgpath):
 	configfile(cfgpath),
-	host("^poll\\s+(\\S+)\\s+with proto"),
-	user("\\s+user\\s+(\\S+)\\s+there with password\\s+(.+)\\s+is\\s+(\\S+)\\s+here\\s+(ssl|)"),
+	host(R"(^poll\s+(\S+)\s+with proto)"),
+	user(R"(\s+user\s+(\S+)\s+there with password\s+(.+)\s+is\s+(\S+)\s+here\s+(ssl|))"),
 	cfgfile(cfgpath+".lnk")
 {
 	this->ReadConfig();
@@ -184,14 +184,11 @@ void FetchmailConfig::WriteConfig()
 			out	<< " smtpaddress localdomain\n";
 		}
 	}
-	this->cfgfile.Sync(true, 0600);
-	File::Write( this->configfile, out.str(), 0600);
+	this->cfgfile.Sync(true, File::UserRW);
+	File::Write( this->configfile, out.str(), File::UserRW);
 }
 
-FetchmailConfig::~FetchmailConfig()
-{
-
-}
+FetchmailConfig::~FetchmailConfig() = default;
 
 bool FetchmailConfig::_hasuser(const string &host, const string &identity)
 {

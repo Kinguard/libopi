@@ -6,7 +6,7 @@
 #include "DnsHelper.h"
 
 #include <iostream>
-#include <string.h>
+#include <cstring>
 #include <iterator>
 
 using namespace std;
@@ -50,9 +50,7 @@ void DnsHelper::dump()
 	this->dumprrs(this->additional);
 }
 
-DnsHelper::~DnsHelper()
-{
-}
+DnsHelper::~DnsHelper() = default;
 
 void DnsHelper::reset()
 {
@@ -195,7 +193,7 @@ RRDataPtr DnsHelper::parserrdata(rr &r)
 		break;
 	case ns_t_a:
 		{
-			struct in_addr add;
+			struct in_addr add = {};
 			add.s_addr = this->u32_parse();
 
 			ret = RRDataPtr( new AData( string(inet_ntoa(add)) ) );

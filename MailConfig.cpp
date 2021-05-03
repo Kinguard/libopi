@@ -3,12 +3,13 @@
 
 #include <stdexcept>
 #include <algorithm>
+#include <utility>
 
 namespace OPI
 {
 
-MailConfig::MailConfig(const string &aliasfile, const string &domainfile)
-	: MailMapFile(aliasfile), domainfile(domainfile)
+MailConfig::MailConfig(const string &aliasfile, string domainfile)
+	: MailMapFile(aliasfile), domainfile(std::move(domainfile))
 {
 	this->ReadConfig();
 }
@@ -71,20 +72,17 @@ void MailConfig::WriteConfig()
 
 	if( this->domainfile != "" )
 	{
-		File::Write(this->domainfile, domains.str(), 0640 );
+		File::Write(this->domainfile, domains.str(), File::UserRW | File::GroupRead );
 	}
 }
 
-MailConfig::~MailConfig()
-{
-
-}
+MailConfig::~MailConfig() = default;
 
 /*
  * Implementation of mailmapfile
  */
 
-MailMapFile::MailMapFile(const string &aliasfile): aliasesfile(aliasfile)
+MailMapFile::MailMapFile(string aliasfile): aliasesfile(std::move(aliasfile))
 {
 
 }
@@ -144,7 +142,7 @@ void MailMapFile::WriteConfig()
 
 	if( this->aliasesfile != "" )
 	{
-		File::Write(this->aliasesfile, aliases.str(), 0640 );
+		File::Write(this->aliasesfile, aliases.str(), File::UserRW | File::GroupRead );
 	}
 }
 
@@ -213,9 +211,9 @@ list<tuple<string, string> > MailMapFile::GetAddresses(const string &domain)
 	}
 
 	list<tuple<string, string> > adresses;
-	for(auto address: this->config[domain] )
+	for(const auto& address: this->config[domain] )
 	{
-		adresses.push_back( make_tuple(address.first, address.second));
+		adresses.emplace_back(address.first, address.second);
 	}
 
 	return adresses;
@@ -226,13 +224,10 @@ tuple<string, string> MailMapFile::GetAddress(const string &domain, const string
 	return make_tuple(address,this->config[domain][address]);
 }
 
-MailMapFile::~MailMapFile()
-{
-
-}
+MailMapFile::~MailMapFile() = default;
 
 
-MailAliasFile::MailAliasFile(const string &file): filename(file)
+MailAliasFile::MailAliasFile(string file): filename(std::move(file))
 {
 	this->ReadConfig();
 }
@@ -295,7 +290,7 @@ void MailAliasFile::WriteConfig()
 
 	if( this->filename != "" )
 	{
-		File::Write(this->filename, aliases.str(), 0640 );
+		File::Write(this->filename, aliases.str(), File::UserRW | File::GroupRead );
 	}
 }
 
@@ -374,9 +369,6 @@ void MailAliasFile::Dump()
 	}
 }
 
-MailAliasFile::~MailAliasFile()
-{
-
-}
+MailAliasFile::~MailAliasFile() = default;
 
 } //End namespace

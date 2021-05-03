@@ -15,6 +15,9 @@
 #include <sstream>
 #include <map>
 #include <string>
+#include <tuple>
+
+#include "DiskHelper.h"
 
 using namespace std;
 
@@ -24,7 +27,7 @@ namespace DiskHelper {
 
 static bool do_stat(const std::string& path,mode_t mode )
 {
-	struct stat st;
+	struct stat st = {};
 	if(stat(path.c_str(),&st)){
 		if( errno == ENOENT ){
 				return false;
@@ -55,7 +58,7 @@ void PartitionDevice(const string& device)
 	PedConstraint* constraint = ped_constraint_any( dev );
 	PedGeometry* geom = ped_constraint_solve_max( constraint );
 
-	PedPartition* part = ped_partition_new( disk, PED_PARTITION_NORMAL, NULL, geom->start, geom->end );
+	PedPartition* part = ped_partition_new( disk, PED_PARTITION_NORMAL, nullptr, geom->start, geom->end );
 
 	ped_geometry_destroy( geom );
 
@@ -107,7 +110,7 @@ void FormatPartition(const string& device, const string& label )
 {
 	string cmd="/sbin/mkfs -text4 -q -L"+label + " " + device;
 
-	bool res;
+	bool res = false;
 	string errmsg;
 	tie(res, errmsg) = Utils::Process::Exec(cmd);
 
@@ -142,7 +145,7 @@ void Mount(const string& device, const string& mountpoint, bool noatime, bool di
 
 	ss << device << " " << mountpoint;
 
-	bool res;
+	bool res = false;
 	string errmsg;
 	tie(res, errmsg) = Utils::Process::Exec(ss.str());
 
@@ -157,7 +160,7 @@ void Umount(const string& device)
 	// TODO: Perhaps kill processes locking device using fuser
 	string cmd = "/bin/umount "+device;
 
-	bool res;
+	bool res = false;
 	string errmsg;
 	tie(res, errmsg) = Utils::Process::Exec( cmd );
 
@@ -192,6 +195,17 @@ size_t DeviceSize(const string &devicename)
 
 string IsMounted(const string &device)
 {
+	list<string> lines = DiskHelper::MountPoints(device);
+
+	if( lines.size() == 0 )
+	{
+		return "";
+	}
+	return lines.back();
+}
+
+list<string> MountPoints(const string &device)
+{
 	list<string> lines = Utils::File::GetContent( "/etc/mtab");
 
 	string rdev;
@@ -207,7 +221,7 @@ string IsMounted(const string &device)
 		rdev = Utils::File::RealPath(device);
 	}
 
-	map<string,string> tab;
+	map<string,list<string>> tab;
 	for( auto& line: lines)
 	{
 		list<string> words = Utils::String::Split(line);
@@ -216,18 +230,23 @@ string IsMounted(const string &device)
 			string device = words.front();
 			words.pop_front();
 			string mpoint = words.front();
-			tab[device] = mpoint;
+			tab[device].emplace_back( mpoint );
 		}
 	}
 
-	return tab.find(rdev)==tab.end()?"":tab[rdev];
+	if( tab.find(rdev) != tab.end() )
+	{
+		return tab[rdev];
+	}
+	return {};
 }
+
 
 void SyncPaths(const string &src, const string &dst)
 {
 	string cmd = "/usr/bin/rsync -a "+src+" "+dst;
 
-	bool res;
+	bool res(false);
 	tie(res, std::ignore) = Utils::Process::Exec( cmd );
 
 	if( !res )
@@ -235,6 +254,251 @@ void SyncPaths(const string &src, const string &dst)
 		throw Utils::ErrnoException("Failed sync "+src+" with "+dst );
 	}
 
+}
+
+static string getDiskName(const string& syspath)
+{
+
+	if( Utils::File::FileExists( syspath+"/device/model") )
+	{
+		return Utils::String::Trimmed(Utils::File::GetContentAsString(syspath+"/device/model"), " ");
+	}
+	else if( Utils::File::FileExists( syspath+"/device/name") )
+	{
+		return Utils::String::Trimmed(Utils::File::GetContentAsString(syspath+"/device/name"), " ");
+	}
+	return "N/A";
+}
+
+
+static string getLVMPath(const string& devname)
+{
+	list<string> devs = Utils::File::Glob("/dev/pool/*");
+	for( const auto& dev : devs)
+	{
+		if( Utils::File::RealPath(dev) == "/dev/"s + devname )
+		{
+			return dev;
+		}
+	}
+	return "";
+}
+
+static string getLUKSPath(const string& devname)
+{
+	list<string> devs = Utils::File::Glob("/dev/mapper/*");
+	for( const auto& dev : devs)
+	{
+		if( Utils::File::RealPath(dev) == "/dev/"s + devname )
+		{
+			return dev;
+		}
+	}
+	return "";
+}
+
+static string getIDPath(const string& devname)
+{
+	list<string> devs = Utils::File::Glob("/dev/disk/by-path/*");
+	for( const auto& dev : devs)
+	{
+		if( Utils::File::RealPath(dev) == "/dev/"s + devname )
+		{
+			return dev;
+		}
+	}
+	return "";
+}
+
+
+static tuple<string,string> getDMType(const string& devname)
+{
+	string uuid = Utils::File::GetContentAsString("/sys/class/block/"s + devname+"/dm/uuid");
+
+	constexpr int CRYPT_LEN=5;
+	constexpr int LVM_LEN=3;
+	if( uuid.compare(0,CRYPT_LEN,"CRYPT") == 0 )
+	{
+		return {"luks",getLUKSPath(devname)};
+	}
+	else if (uuid.compare(0,LVM_LEN,"LVM") == 0 )
+	{
+		return {"lvm", getLVMPath(devname)};
+	}
+
+	return {"unknown",""};
+}
+
+
+Json::Value StorageDevices()
+{
+	Json::Value ret;
+	list<string> devs = Utils::File::Glob("/sys/class/block/*");
+
+	for( auto& syspath: devs )
+	{
+		string dev = Utils::File::GetFileName(syspath);
+
+		Json::Value disk = StorageDevice(dev, true);
+		if( ! disk.isNull() )
+		{
+			ret[dev] = disk;
+		}
+
+	}
+
+	return ret;
+}
+
+Json::Value StorageDevice(const string &devname, bool ignorepartition)
+{
+	constexpr uint32_t BLOCKSIZE = 512;
+	string syspath = "/sys/class/block/"s + devname;
+	Json::Value ret;
+	try
+	{
+		ret["partition"] = Utils::File::FileExists( syspath +"/partition");
+
+		if( ret["partition"].asBool() && ignorepartition )
+		{
+			return Json::nullValue;
+		}
+
+		if( !ret["partition"].asBool() )
+		{
+			ret["partitions"] = Json::arrayValue;
+			list<string> parts = Utils::File::Glob( syspath+"?*");
+			for(const auto& part: parts)
+			{
+				//cout << "Partition: " << Utils::File::GetFileName(part) << endl;
+				ret["partitions"].append(DiskHelper::StorageDevice(Utils::File::GetFileName(part)));
+			}
+		}
+
+
+		ret["devname"] = devname;
+		ret["syspath"]= syspath;
+		ret["devpath"] = "/dev/"s + devname;
+		ret["isphysical"] = Utils::File::LinkExists(syspath+"/device");
+
+		if( ret["isphysical"].asBool() )
+		{
+			ret["model"] = getDiskName(syspath);
+			ret["devpath-by-path"] = getIDPath(devname);
+		}
+		else
+		{
+			if( ret["partition"].asBool() )
+			{
+				ret["model"] = "Partition";
+				ret["devpath-by-path"] = getIDPath(devname);
+			}
+			else
+			{
+				ret["model"] = "Virtual device";
+				ret["devpath-by-path"] = "";
+			}
+		}
+
+		ret["dm"] = Utils::File::DirExists( syspath +"/dm");
+
+		if( ret["dm"].asBool() )
+		{
+			string type, path;
+			tie(type, path) = getDMType(devname);
+			ret["dm-type"] = type;
+			ret["dm-path"] = path;
+
+		}
+		else
+		{
+			ret["dm-type"] = "";
+			ret["dm-path"] = "";
+		}
+
+		uint64_t blocks = std::stol(Utils::File::GetContentAsString(syspath+"/size"));
+		ret["blocks"] = Json::UInt64(blocks);
+		ret["size"] = Json::UInt64(blocks * BLOCKSIZE);
+
+		if( ! ret["partition"].asBool() )
+		{
+			ret["removable"] = std::stoi(Utils::File::GetContentAsString(syspath+"/removable")) > 0;
+		}
+		ret["readonly"] = std::stoi(Utils::File::GetContentAsString(syspath+"/ro")) > 0;
+
+		list<string> mountpoints = DiskHelper::MountPoints(ret["devpath"].asString());
+		ret["mountpoint"]=Json::arrayValue;
+		if(mountpoints.size() > 0)
+		{
+			for( const auto& mp : mountpoints)
+			{
+				ret["mountpoint"].append(mp);
+			}
+			ret["mounted"] = true;
+		}
+		else
+		{
+			ret["mounted"] = false;
+		}
+
+	}
+	catch (std::exception& err)
+	{
+		cout << "Caught exception: " << err.what() << endl;
+		return Json::nullValue;
+
+	}
+
+	return ret;
+}
+
+static string parsedevlinks(string devicename, uint partno)
+{
+	vector<string> parts;
+	Utils::String::Split(devicename, parts, "/");
+	if( parts[2] == "by-id" || parts[2] == "by-path")
+	{
+		stringstream pnam;
+		pnam << devicename << "-part" << partno;
+		return pnam.str();
+	}
+
+	// Assume this is a partitioned device already so return orignal name
+	return devicename;
+}
+
+string PartitionName(const string &devicename, uint partno)
+{
+	stringstream ss;
+	ss << devicename;
+
+	string sut;
+
+	// Full path or device?
+	if( devicename.find('/') != string::npos )
+	{
+
+		if( devicename.compare(0,13, "/dev/disk/by-") == 0)
+		{
+			return parsedevlinks(devicename, partno);
+		}
+
+		sut = Utils::File::GetFileName(devicename);
+	}
+	else
+	{
+		sut = devicename;
+	}
+
+	if( sut.compare(0,2,"sd") == 0 )
+	{
+		ss<<partno;
+	}
+	else
+	{
+		ss << "p" << partno;
+	}
+	return ss.str();
 }
 
 } // End NS

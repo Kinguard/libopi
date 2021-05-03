@@ -1,3 +1,79 @@
+libopi (1.6.60~test13) vili; urgency=medium
+
+   * Update deps on libutils
+   * Use C++14 by default
+   * Add get StorageDevices to DiskHelper
+   * Refactor NetworkConfig to use Utils::Net better
+   * Added SysInfo::fixedStorage to determin if we should query user on disks
+   * Improved sysdetection in Sysinfo to detect RPi4 better
+
+ -- Tor Krill <tor@openproducts.se>  Thu, 08 Apr 2021 15:46:28 +0200
+
+libopi (1.6.60~test12) vili; urgency=medium
+
+  * RPi4 adaptations
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 26 Mar 2021 15:29:50 +0100
+
+libopi (1.6.60~test11) vili; urgency=medium
+
+  * Add HTTP Status code header
+
+ -- Tor Krill <tor@openproducts.se>  Thu, 25 Mar 2021 11:40:18 +0100
+
+libopi (1.6.60~test10) vili; urgency=medium
+
+  * Remove spaces from systype text #581
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 12 Jun 2020 14:04:48 +0200
+
+libopi (1.6.60~test9) vili; urgency=medium
+
+  * Update Networkconfig with common base class for network
+  * Add new HostsConfig class
+
+ -- Tor Krill <tor@openproducts.se>  Wed, 10 Jun 2020 14:55:50 +0200
+
+libopi (1.6.60~test8) vili; urgency=medium
+
+  * Makes sure dns get set in config when updating Debian config
+    to static config
+
+ -- Tor Krill <tor@openproducts.se>  Thu, 28 May 2020 13:39:25 +0200
+
+libopi (1.6.60~test7) vili; urgency=medium
+
+  * Move restart network into driver code
+
+ -- Tor Krill <tor@openproducts.se>  Thu, 28 May 2020 09:12:52 +0200
+
+libopi (1.6.60~test6) vili; urgency=medium
+
+  * Add dns config to all interfaces on debian network config
+
+ -- Tor Krill <tor@openproducts.se>  Wed, 27 May 2020 14:16:05 +0200
+
+libopi (1.6.60~test5) vili; urgency=medium
+
+  * Add simple json helpers to convert between json and stl cont
+
+ -- Tor Krill <tor@openproducts.se>  Wed, 27 May 2020 09:35:27 +0200
+
+libopi (1.6.60~test4) vili; urgency=medium
+
+  * Added nullconfig class to network config
+  * Added logging to network config
+
+ -- Tor Krill <tor@openproducts.se>  Tue, 26 May 2020 14:15:43 +0200
+
+libopi (1.6.60~test3) vili; urgency=medium
+
+  * Added Raspbian network config
+  * Added os-detection to sysinfo
+  * Misc cleanups and linting
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 25 May 2020 16:10:52 +0200
+
 libopi (1.6.60~test2) vili; urgency=medium
 
   * Add default section to sysinfo config file

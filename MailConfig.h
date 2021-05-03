@@ -41,7 +41,7 @@ public:
 	 * @brief MailAliasFile constructs a new MailAliasFile object
 	 * @param file, which file to operate at
 	 */
-	MailAliasFile(const string& file);
+	MailAliasFile(string  file);
 
 	/**
 	 * @brief ReadConfig  re-reads config from file
@@ -97,7 +97,7 @@ protected:
 class MailMapFile
 {
 public:
-	MailMapFile(const string& aliasfile);
+	MailMapFile(string  aliasfile);
 
 	virtual void ReadConfig();
 	virtual void WriteConfig();
@@ -170,7 +170,7 @@ class MailConfig: public MailMapFile
 {
 public:
 	MailConfig(const string& aliasfile=MCFG("vmailbox"),
-			   const string& domainfile=MCFG("vdomains"));
+			   string  domainfile=MCFG("vdomains"));
 
 	virtual void ReadConfig();
 	virtual void WriteConfig();

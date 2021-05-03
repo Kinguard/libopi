@@ -7,6 +7,7 @@
 #include <libutils/FileUtils.h>
 #include <libutils/ConfigFile.h>
 #include <libutils/Process.h>
+#include <libutils/HttpStatusCodes.h>
 
 #include <resolv.h>
 
@@ -29,6 +30,7 @@ static string getport(const string &host);
 #define CFGOPT(scope, key) (SCFG.GetKeyAsString(scope, key))
 #define IS_OP	(SCFG.HasKey("dns", "provider") && SCFG.GetKeyAsString("dns", "provider") == "OpenProducts")
 
+using namespace Utils::HTTP;
 
 // MCFG accesses a config option in mail scope prefixed with storageareapath
 
@@ -135,10 +137,7 @@ void SmtpClientConfig::dump()
 #endif
 }
 
-SmtpClientConfig::~SmtpClientConfig()
-{
-
-}
+SmtpClientConfig::~SmtpClientConfig() = default;
 
 void SmtpClientConfig::_parsesasl()
 {
@@ -175,7 +174,7 @@ void SmtpClientConfig::_writesasal()
 		out << line.first <<"\t"<<line.second.user<<":"<<line.second.pass<<endl;
 	}
 	//cout << endl << "--------------"<<endl << out.str()<<endl;
-	File::Write(this->path, out.str(), 0600 );
+	File::Write(this->path, out.str(), File::UserRW );
 
 	Process::Exec( "/usr/sbin/postmap "+ this->path );
 }
@@ -409,10 +408,7 @@ OPCustomConf SmtpConfig::GetOPCustomConfig()
 	return this->customconf;
 }
 
-SmtpConfig::~SmtpConfig()
-{
-
-}
+SmtpConfig::~SmtpConfig() = default;
 
 void SmtpConfig::getConfig()
 {
@@ -486,7 +482,7 @@ bool SmtpConfig::checkMX(const string& name)
 
 	tie(resultcode, ret) = auth.CheckMXPointer(name);
 
-	return resultcode == 200;
+	return resultcode == Status::Ok;
 }
 
 void SmtpConfig::setMX(bool mxmode)
@@ -503,14 +499,14 @@ void SmtpConfig::setMX(bool mxmode)
 
 	tie(resultcode, ret) = s.Login();
 
-	if( resultcode != 200 )
+	if( resultcode != Status::Ok )
 	{
 		throw runtime_error("Unable to authenticate with backend server");
 	}
 	string token = ret["token"].asString();
 
 	tie(resultcode, ret) = s.UpdateMXPointer(mxmode, token);
-	if( resultcode != 200 )
+	if( resultcode != Status::Ok )
 	{
 		throw runtime_error("Unable to update MX settings");
 	}

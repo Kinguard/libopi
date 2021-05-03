@@ -6,15 +6,13 @@
 namespace OPI
 {
 
-ExtCert::ExtCert()
-{
-}
+ExtCert::ExtCert() = default;
 
 tuple<int, string> ExtCert::GetExternalCertificates(bool force)
 {
     string opts,msg;
-    bool res;
-    int retval;
+	bool res = false;
+	int retval = 0;
 
     if (Utils::File::FileExists(this->certhandler))
     {
@@ -47,9 +45,6 @@ tuple<int, string> ExtCert::GetExternalCertificates(bool force)
     return tuple<int,string>(retval,msg);
 }
 
-ExtCert::~ExtCert()
-{
-
-}
+ExtCert::~ExtCert() = default;
 
 } // End NS

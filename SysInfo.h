@@ -184,8 +184,24 @@ public:
 	static bool isRPI3();
 	static bool isRPI4();
 
+	/**
+	 * @brief useLVM
+	 * @return true if device uses LVM
+	 */
 	static bool useLVM();
+
+	/**
+	 * @brief useLUKS
+	 * @return true if device uses LUKS
+	 */
 	static bool useLUKS();
+
+	/**
+	 * @brief fixedStorage Tell us if storage device
+	 *        should be user selectable.
+	 * @return true if storage device is fixed
+	 */
+	static bool fixedStorage();
 
 	static SysType TypeFromName(const string& devname);
 

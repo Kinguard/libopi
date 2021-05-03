@@ -68,7 +68,7 @@ void Led::SetTrigger(const string &trigger)
 		throw runtime_error("No such trigger available");
 	}
 
-	File::Write(this->path+"/trigger", trigger, 0644);
+	File::Write(this->path+"/trigger", trigger, File::UserRW|File::GroupRead|File::OtherRead);
 
 	this->set_trigger = trigger;
 }
@@ -95,7 +95,7 @@ bool Led::Brightness()
 
 void Led::Brightness(bool bright)
 {
-	File::Write(this->path+"/brightness", to_string(bright), 0644);
+	File::Write(this->path+"/brightness", to_string(bright), File::UserRW|File::GroupRead|File::OtherRead);
 	this->brightness = bright;
 }
 
@@ -113,10 +113,7 @@ void Led::dump()
 	cout << "Trigger "<< this->set_trigger<<endl;
 }
 
-Led::~Led()
-{
-
-}
+Led::~Led() = default;
 
 void Led::parseTrigger()
 {
@@ -139,7 +136,7 @@ void Led::parseTrigger()
  * Implementation of LedControl
  */
 
-LedControl::LedControl(const string basepath): basepath(basepath)
+LedControl::LedControl(const string& basepath): basepath(basepath)
 {
 	list<string> ledpaths = File::Glob( this->basepath+"/*");
 	list<Led> llist;
@@ -186,9 +183,6 @@ void LedControl::Brightness(const string &name, bool bright)
 	this->leds[name]->Brightness( bright);
 }
 
-LedControl::~LedControl()
-{
-
-}
+LedControl::~LedControl() = default;
 
 } // End NS

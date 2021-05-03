@@ -53,7 +53,7 @@ typedef shared_ptr<Led> LedPtr;
 class LedControl
 {
 public:
-	LedControl(const string basepath = "/sys/class/leds");
+	LedControl(const string& basepath = "/sys/class/leds");
 
 	list<string> LedNames();
 
