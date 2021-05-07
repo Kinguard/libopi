@@ -139,7 +139,14 @@ void TestNetworkConfig::TestReload()
 
 void TestNetworkConfig::TestDefaultRoute()
 {
+	//cout << "\n\nDefault route is: " << NetUtils::GetDefaultRoute() << "\n\n"  << endl;
 	CPPUNIT_ASSERT( string("") != NetUtils::GetDefaultRoute() );
+}
+
+void TestNetworkConfig::TestDefaultDevice()
+{
+	//cout << "\n\nDefault device is: " << NetUtils::GetDefaultDevice() << "\n\n"  << endl;
+	CPPUNIT_ASSERT( ""s != NetUtils::GetDefaultDevice() );
 }
 
 void TestNetworkConfig::TestNetmask()

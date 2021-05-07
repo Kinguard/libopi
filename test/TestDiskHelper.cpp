@@ -102,17 +102,17 @@ void TestDiskHelper::TestMountPoints()
 	list<string> disks = File::Glob("/dev/disk/by-path/*");
 	for( auto& disk: disks)
 	{
-		cout << "Found disk: " << disk << " " << File::RealPath(disk) << endl;
+		//cout << "Found disk: " << disk << " " << File::RealPath(disk) << endl;
 
 		if( tab.find(File::RealPath(disk)) != tab.end() )
 		{
-			cout << "Disk: " << disk << " is mounted" << endl;
+			//cout << "Disk: " << disk << " is mounted" << endl;
 			CPPUNIT_ASSERT( OPI::DiskHelper::MountPoints(disk).back() != "" );
 			CPPUNIT_ASSERT( OPI::DiskHelper::MountPoints(File::RealPath(disk)).back() != "" );
 		}
 		else
 		{
-			cout << "Disk: " << disk << " is NOT mounted" << endl;
+			//cout << "Disk: " << disk << " is NOT mounted" << endl;
 			CPPUNIT_ASSERT( OPI::DiskHelper::MountPoints(disk).size() == 0 );
 			CPPUNIT_ASSERT( OPI::DiskHelper::MountPoints(File::RealPath(disk)).size() == 0 );
 		}

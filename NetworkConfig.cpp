@@ -434,10 +434,10 @@ static string addresstostring(const string& address){
 }
 
 
-string GetDefaultRoute()
+static tuple<string,string> getDefaults()
 {
 	constexpr uint8_t ROUTECOLS = 11;
-	string defgateway;
+	string defgateway, definterface;
 	list<string> fil = File::GetContent("/proc/net/route");
 	fil.pop_front();
 	for( const auto& row: fil){
@@ -451,11 +451,30 @@ string GetDefaultRoute()
 			if( destination == "0.0.0.0" )
 			{
 				defgateway = gateway;
+				definterface = iface;
 			}
 
 		}
 	}
-	return defgateway;
+	return {defgateway, definterface};
+}
+
+
+string GetDefaultDevice()
+{
+	string device;
+	tie(std::ignore, device) = getDefaults();
+
+	return device;
+}
+
+
+string GetDefaultRoute()
+{
+	string gw;
+	tie(gw, std::ignore) = getDefaults();
+
+	return gw;
 }
 
 string GetNetmask(const string& ifname)
