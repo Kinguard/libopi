@@ -19,6 +19,7 @@
 */
 
 #include "SysInfo.h"
+#include "NetworkConfig.h"
 #include "Config.h"
 
 #include <map>
@@ -384,6 +385,14 @@ void SysInfo::GuessType()
 void SysInfo::SetupPaths()
 {
 	// Setup system defaults
+
+	// Setup sensible default values first.
+	this->networkdevice = NetUtils::GetDefaultDevice();
+	this->passworddevicepath = "Undefined";
+	this->serialnbrdevice = "Undefined";
+	this->backuprootpath = "/mnt/backup/";
+
+	// Override with possible hardcoded values
 	switch( this->type )
 	{
 	case TypeOpi:
@@ -393,52 +402,14 @@ void SysInfo::SetupPaths()
 		this->passworddevicepath = "/dev/sda1";
 		this->networkdevice = "eth0";
         this->serialnbrdevice = "/sys/bus/i2c/devices/0-0050/eeprom";
-        this->backuprootpath = "/mnt/backup/";
         break;
-	case TypeXu4:
-		this->storagedevicepath = "/dev/disk/by-path";
-		this->storagedevice = "platform-xhci-hcd.2.auto-usb-0:1.1:1.0-scsi-0:0:0:0";
-		this->storagepartition = "-part1";
-		this->passworddevicepath = "/dev/disk/by-path/platform-12110000.usb-usb-0:1:1.0-scsi-0:0:0:0-part1";
-		this->networkdevice = "eth0";
-        this->serialnbrdevice = "Undefined";
-        this->backuprootpath = "/mnt/backup/";
-        break;
-	case TypePC:
-		this->storagedevicepath = "/dev";
-		this->storagedevice = "sdg";
-		this->storagepartition = "1";
-		this->passworddevicepath = "Undefined";
-		this->networkdevice = "eth0";
-        this->serialnbrdevice = "Undefined";
-        this->backuprootpath = "/mnt/backup/";
-        break;
-	case TypeArmada:
+	case TypeArmada: // Keep
 		this->storagedevicepath = "/dev/disk/by-path";
 		this->storagedevice = "platform-f10a8000.sata-ata-2";
 		this->storagepartition = "-part1";
 		this->passworddevicepath = "/dev/disk/by-path/platform-f10f8000.usb3-usb-0:1:1.0-scsi-0:0:0:0-part1";
 		this->networkdevice = "eth0";
-        this->serialnbrdevice = "/sys/bus/i2c/devices/0-0057/eeprom";
-        this->backuprootpath = "/mnt/backup/";
-        break;
-    case TypeOlimexA20:
-		this->storagedevicepath = "/dev";
-		this->storagedevice = "sda";
-		this->storagepartition = "1";
-		this->passworddevicepath = "/dev/sdb1";
-		this->networkdevice = "eth0";
-        this->serialnbrdevice = "Undefined";
-        this->backuprootpath = "/mnt/backup/";
-        break;
-	case TypeRPI3:
-	case TypeRPI4:
-		this->storagedevicepath = "/dev";
-		this->storagedevice = "sda";
-		this->storagepartition = "1";
-		this->passworddevicepath = "/undefined";
-		this->networkdevice = "eth0";
-		this->serialnbrdevice = "Undefined";
+		this->serialnbrdevice = "/sys/bus/i2c/devices/0-0057/eeprom";
 		this->backuprootpath = "/mnt/backup/";
 		break;
 	default:
@@ -447,6 +418,7 @@ void SysInfo::SetupPaths()
 
 	if( File::FileExists(DEVICEDBPATH) )
 	{
+		// Possibly override all above with external config
 		this->ParseExtConfig();
 	}
 }

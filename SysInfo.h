@@ -128,24 +128,28 @@ public:
 	 * @brief StorageDevicePath Get complete path to storage device including partition
 	 * @return  path to storage device
 	 */
+	[[deprecated("Use KGP::StorageConfig")]]
 	string StorageDevicePath();
 
 	/**
 	 * @brief StorageDevice Get path to storage block device (/dev/sdg)
 	 * @return path to storage block device
 	 */
+	[[deprecated("Use KGP::StorageConfig")]]
 	string StorageDevice();
 
 	/**
 	 * @brief StorageDeviceBlock Get storage device (sdg, mmcblk0)
 	 * @return name of storage device
 	 */
+	[[deprecated("Use KGP::StorageConfig")]]
 	string StorageDeviceBlock();
 
 	/**
 	 * @brief StorageDevicePartition Get storage partition (1, -part1)
 	 * @return name of storage partition
 	 */
+	[[deprecated("Use KGP::StorageConfig")]]
 	string StorageDevicePartition();
 
 	/**
@@ -188,12 +192,14 @@ public:
 	 * @brief useLVM
 	 * @return true if device uses LVM
 	 */
+	[[deprecated("Use KGP::StorageConfig")]]
 	static bool useLVM();
 
 	/**
 	 * @brief useLUKS
 	 * @return true if device uses LUKS
 	 */
+	[[deprecated("Use KGP::StorageConfig")]]
 	static bool useLUKS();
 
 	/**
@@ -201,6 +207,7 @@ public:
 	 *        should be user selectable.
 	 * @return true if storage device is fixed
 	 */
+	[[deprecated("Use KGP::StorageConfig")]]
 	static bool fixedStorage();
 
 	static SysType TypeFromName(const string& devname);
