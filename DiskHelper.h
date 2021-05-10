@@ -56,6 +56,18 @@ Json::Value StorageDevice(const string& devname, bool ignorepartition = false);
  */
 Json::Value StorageDevices();
 
+/**
+ * @brief StatFs get storage info on mounted filesystem
+ *		  (Wrapper around statvfs(3))
+ * @param path string path to any location in mounted fs
+ * @return Json value with:
+ *		"block_size",	native size of a block
+ *		"fragment_size", filesystem fragment size
+ *		"blocks_total", filssystem size in fragments
+ *		"blocks_free", filesystem free in fragments
+ */
+Json::Value StatFs(const string& path);
+
 } // End NS
 
 } // End NS

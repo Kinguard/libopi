@@ -11,6 +11,7 @@ class TestDiskHelper: public CppUnit::TestFixture
 	CPPUNIT_TEST( TestMountPoints );
 	CPPUNIT_TEST( TestStorageDevices );
 	CPPUNIT_TEST( TestPartitionName );
+	CPPUNIT_TEST( TestFilesystemInfo );
 	CPPUNIT_TEST_SUITE_END();
 public:
 	void setUp();
@@ -20,6 +21,7 @@ public:
 	void TestMountPoints();
 	void TestStorageDevices();
 	void TestPartitionName();
+	void TestFilesystemInfo();
 };
 
 #endif /* TESTDISKHELPER_H_ */
