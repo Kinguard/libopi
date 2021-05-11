@@ -207,7 +207,6 @@ public:
 	 *        should be user selectable.
 	 * @return true if storage device is fixed
 	 */
-	[[deprecated("Use KGP::StorageConfig")]]
 	static bool fixedStorage();
 
 	static SysType TypeFromName(const string& devname);
