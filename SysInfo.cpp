@@ -118,7 +118,7 @@ string SysInfo::SerialNumber()
     vector<string> v_serial;
     string serial = "Undefined";
     list<string> allowed_patterns;
-    size_t found;
+	size_t found = 0;
 	int offset = 0, serial_size = 12;
 
     if (! File::FileExists(this->serialnbrdevice) )
@@ -172,6 +172,17 @@ string SysInfo::BackupRootPath()
 bool SysInfo::isArmada()
 {
 	return sysinfo.Type() == SysInfo::TypeArmada;
+}
+
+bool SysInfo::isKeep()
+{
+	//TODO: For now, need to revisit
+	return SysInfo::isArmada();
+}
+
+bool SysInfo::isOP()
+{
+	return SysInfo::isOpi() || SysInfo::isKeep();
 }
 
 bool SysInfo::isOpi()
