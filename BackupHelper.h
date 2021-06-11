@@ -21,7 +21,7 @@ public:
 	virtual list<string> GetRemoteBackups() = 0;
 	virtual void UmountLocal() = 0;
 	virtual void UmountRemote() = 0;
-	virtual bool RestoreBackup( const string& pathtobackup ) = 0;
+	virtual bool RestoreBackup( const string& pathtobackup, const string& destprefix ) = 0;
 	virtual  ~BackupInterface();
 };
 
@@ -32,13 +32,13 @@ class OPIBackup: public BackupInterface
 public:
 	OPIBackup();
 
-	virtual bool MountLocal(const string& configpath);
-	virtual bool MountRemote(const string& configpath);
-	virtual list<string> GetLocalBackups();
-	virtual list<string> GetRemoteBackups();
-	virtual void UmountLocal();
-	virtual void UmountRemote();
-	virtual bool RestoreBackup( const string& pathtobackup );
+	bool MountLocal(const string& configpath) override;
+	bool MountRemote(const string& configpath) override;
+	list<string> GetLocalBackups() override;
+	list<string> GetRemoteBackups() override;
+	void UmountLocal() override;
+	void UmountRemote() override;
+	bool RestoreBackup( const string& pathtobackup, const string& destprefix ) override;
 	virtual ~OPIBackup();
 };
 
@@ -46,7 +46,7 @@ public:
 class BackupHelper
 {
 public:
-	BackupHelper(const string& pwd, BackupInterfacePtr iface = BackupInterfacePtr( new OPIBackup ));
+	BackupHelper(string  pwd, BackupInterfacePtr iface = BackupInterfacePtr( new OPIBackup ));
 
 	void SetPassword(const string& pwd);
 
@@ -58,7 +58,7 @@ public:
 	void UmountLocal();
 	void UmountRemote();
 
-	bool RestoreBackup( const string& path);
+	bool RestoreBackup( const string& path, const string& destprefix = "");
 
 	void CreateConfig();
 

@@ -9,25 +9,26 @@ CPPUNIT_TEST_SUITE_REGISTRATION ( TestBackupHelper );
 class TestBackup: public OPI::BackupInterface
 {
 public:
-	TestBackup() {}
 
-	virtual bool MountLocal(const string &configpath)
+	bool MountLocal(const string &configpath) override
 	{
+		(void) configpath;
 		return true;
 	}
 
-	virtual bool MountRemote(const string &configpath)
+	bool MountRemote(const string &configpath) override
 	{
+		(void) configpath;
 		return true;
 	}
 
-	virtual list<string> GetLocalBackups()
+	list<string> GetLocalBackups() override
 	{
 		return {"a1","b1","c1"};
 	}
 
 
-	virtual list<string> GetRemoteBackups()
+	list<string> GetRemoteBackups() override
 	{
 #if 0
 		list<string> ret, res = Utils::File::Glob("/tmp/backup/*");
@@ -46,15 +47,15 @@ public:
 #endif
 	}
 
-	virtual void UmountLocal() {}
-	virtual void UmountRemote() {}
+	void UmountLocal() override {}
+	void UmountRemote() override {}
 
-	virtual bool RestoreBackup(const string &pathtobackup)
+	bool RestoreBackup(const string &pathtobackup, const string& prefix) override
 	{
+		(void) pathtobackup;
+		(void) prefix;
 		return true;
 	}
-
-	virtual ~TestBackup() {}
 };
 
 
@@ -98,7 +99,7 @@ void TestBackupHelper::Test()
 		CPPUNIT_ASSERT( bhp->GetLocalBackups().size() > 0 );
 		CPPUNIT_ASSERT( bhp->GetRemoteBackups().size() > 0 );
 
-		CPPUNIT_ASSERT( bhp->RestoreBackup( "bla bla") );
+		CPPUNIT_ASSERT( bhp->RestoreBackup( "bla bla", "") );
 	}
 
 }
