@@ -10,11 +10,11 @@
 #include <libutils/Process.h>
 #include <unistd.h>
 
-#define MOUNTCMD	"/usr/share/opi-backup/mount_fs.sh"
-#define UMOUNTCMD	"/usr/share/opi-backup/umount_fs.sh"
-#define RESTORECMD	"/usr/share/opi-backup/restore_backup.sh"
-#define LOCALMOUNT	"/tmp/localbackup"
-#define REMOTEMOUNT	"/tmp/remotebackup"
+static constexpr const char* MOUNTCMD	= "/usr/share/opi-backup/mount_fs.sh";
+static constexpr const char* UMOUNTCMD	= "/usr/share/opi-backup/umount_fs.sh";
+static constexpr const char* RESTORECMD	= "/usr/share/opi-backup/restore_backup.sh";
+static constexpr const char* LOCALMOUNT	= "/tmp/localbackup";
+static constexpr const char* REMOTEMOUNT= "/tmp/remotebackup";
 
 namespace OPI
 {
@@ -22,9 +22,9 @@ namespace OPI
 
 BackupInterface::~BackupInterface() = default;
 
-BackupHelper::BackupHelper(const string& pwd, BackupInterfacePtr iface):
+BackupHelper::BackupHelper(string  pwd, BackupInterfacePtr iface):
 	localmounted(false), remotemounted(false), cfgcreated(false),
-	iface(std::move(iface)), pwd(pwd)
+	iface(std::move(iface)), pwd(std::move(pwd)), tmpfilename()
 {
 
 }
@@ -88,9 +88,9 @@ void BackupHelper::UmountRemote()
 	this->remotemounted = false;
 }
 
-bool BackupHelper::RestoreBackup(const string &path)
+bool BackupHelper::RestoreBackup(const string &path, const string &destprefix)
 {
-	return this->iface->RestoreBackup( path );
+	return this->iface->RestoreBackup( path, destprefix );
 }
 
 BackupHelper::~BackupHelper()
@@ -198,11 +198,11 @@ static list<string> getbackups(bool local)
 	string bp;
 	if( local )
 	{
-		bp = LOCALMOUNT "/*";
+		bp = string(LOCALMOUNT) + "/*";
 	}
 	else
 	{
-		bp = REMOTEMOUNT "/*";
+		bp = string(REMOTEMOUNT) + "/*";
 	}
 
 	list<string> ret, res = Utils::File::Glob( bp );
@@ -259,13 +259,20 @@ void OPIBackup::UmountRemote()
 	doumount( false );
 }
 
-bool OPIBackup::RestoreBackup(const string &pathtobackup)
+bool OPIBackup::RestoreBackup(const string &pathtobackup, const string &destprefix)
 {
 	bool result = false;
 
 	stringstream ss;
 
-	ss << RESTORECMD << " \"" <<pathtobackup << "\"";
+	ss << RESTORECMD;
+
+	if( destprefix != "" )
+	{
+		ss << " -p " << destprefix;
+	}
+
+	ss << " \"" <<pathtobackup << "\"";
 
 	tie(result, std::ignore ) = Utils::Process::Exec( ss.str() );
 

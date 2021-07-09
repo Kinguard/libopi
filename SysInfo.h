@@ -128,24 +128,28 @@ public:
 	 * @brief StorageDevicePath Get complete path to storage device including partition
 	 * @return  path to storage device
 	 */
+	[[deprecated("Use KGP::StorageConfig")]]
 	string StorageDevicePath();
 
 	/**
 	 * @brief StorageDevice Get path to storage block device (/dev/sdg)
 	 * @return path to storage block device
 	 */
+	[[deprecated("Use KGP::StorageConfig")]]
 	string StorageDevice();
 
 	/**
 	 * @brief StorageDeviceBlock Get storage device (sdg, mmcblk0)
 	 * @return name of storage device
 	 */
+	[[deprecated("Use KGP::StorageConfig")]]
 	string StorageDeviceBlock();
 
 	/**
 	 * @brief StorageDevicePartition Get storage partition (1, -part1)
 	 * @return name of storage partition
 	 */
+	[[deprecated("Use KGP::StorageConfig")]]
 	string StorageDevicePartition();
 
 	/**
@@ -176,24 +180,72 @@ public:
 
 	virtual ~SysInfo() = default;
 
+	/**
+	 * @brief isArmada query if device is running on armada CPU
+	 * @return true if this is so
+	 */
 	static bool isArmada();
+
+	/**
+	 * @brief isKeep query if this is an OP Keep device
+	 * @return true if this is so
+	 */
+	static bool isKeep();
+
+	/**
+	 * @brief isOP query if this is an OpenProducts device
+	 * @return true if this is so
+	 */
+	static bool isOP();
+
+	/**
+	 * @brief isOpi query if device is an OPI
+	 * @return true if this is so
+	 */
 	static bool isOpi();
+
+	/**
+	 * @brief isXu4 query if device is an ODROID-XU4
+	 * @return true if this is so
+	 */
 	static bool isXu4();
+
+	/**
+	 * @brief isOlimexA20 query if device is an Olimex Allwinner A20
+	 * @return true if this is so
+	 */
 	static bool isOlimexA20();
+
+	/**
+	 * @brief isPC query if device is a PC (AMD64)
+	 * @return true if this is so
+	 */
 	static bool isPC();
+
+	/**
+	 * @brief isRPI3 query if device is an Raspberry PI3
+	 * @return true if this is so
+	 */
 	static bool isRPI3();
+
+	/**
+	 * @brief isRPI4 query if device is an Raspberry PI4
+	 * @return true if this is so
+	 */
 	static bool isRPI4();
 
 	/**
 	 * @brief useLVM
 	 * @return true if device uses LVM
 	 */
+	[[deprecated("Use KGP::StorageConfig")]]
 	static bool useLVM();
 
 	/**
 	 * @brief useLUKS
 	 * @return true if device uses LUKS
 	 */
+	[[deprecated("Use KGP::StorageConfig")]]
 	static bool useLUKS();
 
 	/**

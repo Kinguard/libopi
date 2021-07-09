@@ -218,6 +218,16 @@ string GetAddress(const string& ifname);
 
 string GetNetmask(const string& ifname);
 
+/**
+ * @brief GetDefaultDevice get device that is connected to the default route
+ * @return device name or ""
+ */
+string GetDefaultDevice();
+
+/**
+ * @brief GetDefaultRoute get IP address of default gw as string
+ * @return GW IP or ""
+ */
 string GetDefaultRoute();
 
 bool IsIPv4address(const string& addr);

@@ -102,17 +102,17 @@ void TestDiskHelper::TestMountPoints()
 	list<string> disks = File::Glob("/dev/disk/by-path/*");
 	for( auto& disk: disks)
 	{
-		cout << "Found disk: " << disk << " " << File::RealPath(disk) << endl;
+		//cout << "Found disk: " << disk << " " << File::RealPath(disk) << endl;
 
 		if( tab.find(File::RealPath(disk)) != tab.end() )
 		{
-			cout << "Disk: " << disk << " is mounted" << endl;
+			//cout << "Disk: " << disk << " is mounted" << endl;
 			CPPUNIT_ASSERT( OPI::DiskHelper::MountPoints(disk).back() != "" );
 			CPPUNIT_ASSERT( OPI::DiskHelper::MountPoints(File::RealPath(disk)).back() != "" );
 		}
 		else
 		{
-			cout << "Disk: " << disk << " is NOT mounted" << endl;
+			//cout << "Disk: " << disk << " is NOT mounted" << endl;
 			CPPUNIT_ASSERT( OPI::DiskHelper::MountPoints(disk).size() == 0 );
 			CPPUNIT_ASSERT( OPI::DiskHelper::MountPoints(File::RealPath(disk)).size() == 0 );
 		}
@@ -156,5 +156,25 @@ void TestDiskHelper::TestPartitionName()
 	//Fail tests
 	//CPPUNIT_ASSERT_EQUAL( PartitionName("sda"), "sda2"s );
 	//CPPUNIT_ASSERT_EQUAL( PartitionName("sda"), "sda4"s );
+}
+
+
+void TestDiskHelper::TestFilesystemInfo()
+{
+	Json::Value v = OPI::DiskHelper::StatFs("/");
+//	cout << v.toStyledString() << endl;
+
+	CPPUNIT_ASSERT_NO_THROW( v = OPI::DiskHelper::StatFs("/") );
+	CPPUNIT_ASSERT( v.isMember("block_size") );
+	CPPUNIT_ASSERT( v.isMember("fragment_size") );
+	CPPUNIT_ASSERT( v.isMember("blocks_total") );
+	CPPUNIT_ASSERT( v.isMember("blocks_free") );
+
+	CPPUNIT_ASSERT( v["block_size"].asUInt() > 0 );
+	CPPUNIT_ASSERT( v["fragment_size"].asUInt() > 0 );
+	CPPUNIT_ASSERT( v["blocks_total"].asUInt64() > 0 );
+	CPPUNIT_ASSERT( v["blocks_free"].asUInt64() > 0 );
+
+	CPPUNIT_ASSERT_THROW(OPI::DiskHelper::StatFs("DUMMYVALUE"), Utils::ErrnoException);
 }
 

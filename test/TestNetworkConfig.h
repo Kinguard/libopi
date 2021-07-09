@@ -11,6 +11,7 @@ class TestNetworkConfig: public CppUnit::TestFixture
 	CPPUNIT_TEST( TestNetmask );
 	CPPUNIT_TEST( TestAddress );
 	CPPUNIT_TEST( TestDefaultRoute );
+	CPPUNIT_TEST( TestDefaultDevice );
 	CPPUNIT_TEST_SUITE_END();
 public:
 	void setUp();
@@ -21,6 +22,7 @@ public:
 	void TestNetmask();
 	void TestAddress();
 	void TestDefaultRoute();
+	void TestDefaultDevice();
 };
 
 #endif /* TESTNETWORKCONFIG_H_ */

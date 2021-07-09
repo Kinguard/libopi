@@ -6,6 +6,7 @@
 
 #include <parted/parted.h>
 
+#include <sys/statvfs.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -499,6 +500,34 @@ string PartitionName(const string &devicename, uint partno)
 		ss << "p" << partno;
 	}
 	return ss.str();
+}
+
+/**
+ * @brief StatFs get storage info on mounted filesystem
+ *		  (Wrapper around statvfs(3))
+ * @param path string path to any location in mounted fs
+ * @return Json value with:
+ *		"block_size",	native size of a block
+ *		"fragment_tsize", filesystem fragment size
+ *		"blocks_total", filssystem size in fragments
+ *		"blocks_free", filesystem free in fragments
+ */
+Json::Value StatFs(const string &path)
+{
+	struct statvfs vf = {};
+
+	if( statvfs(path.c_str(), &vf)  < 0)
+	{
+		throw Utils::ErrnoException("Failed to stat filesystem: "s+path);
+	}
+
+	Json::Value ret;
+	ret["block_size"] = Json::UInt(vf.f_bsize);
+	ret["fragment_size"] = Json::UInt(vf.f_frsize);
+	ret["blocks_total"] = Json::UInt64(vf.f_blocks);
+	ret["blocks_free"] = Json::UInt64(vf.f_bavail);
+
+	return ret;
 }
 
 } // End NS
