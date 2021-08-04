@@ -6,6 +6,7 @@
 
 #include <parted/parted.h>
 
+#include <sys/sysmacros.h>
 #include <sys/statvfs.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -331,6 +332,36 @@ static tuple<string,string> getDMType(const string& devname)
 }
 
 
+static tuple<int,int> getDevice(const string& devname)
+{
+	int major=0, minor=0;
+	string id = Utils::File::GetContentAsString("/sys/class/block/"s + devname+"/dev");
+
+	list<string> ids = Utils::String::Split(id,":");
+	if( ids.size() == 2 )
+	{
+		major = std::stoi(ids.front());
+		minor = std::stoi(ids.back());
+	}
+	return make_tuple(major,minor);
+}
+
+static tuple<int,int> getRootDevice()
+{
+	struct stat sbuf{};
+	int major=0, minor=0;
+
+	if( stat("/", &sbuf) < 0 )
+	{
+		throw Utils::ErrnoException("Failed to stat /");
+	}
+
+	major = major(sbuf.st_dev);
+	minor = minor(sbuf.st_dev);
+
+	return make_tuple(major,minor);
+}
+
 Json::Value StorageDevices()
 {
 	Json::Value ret;
@@ -429,8 +460,25 @@ Json::Value StorageDevice(const string &devname, bool ignorepartition)
 
 		list<string> mountpoints = DiskHelper::MountPoints(ret["devpath"].asString());
 		ret["mountpoint"]=Json::arrayValue;
+
+		int major = 0;
+		int rootmajor = 0;
+		int minor = 0;
+		int rootminor = 0;
+
+		tie(major,minor) = getDevice(devname);
+		tie(rootmajor,rootminor) = getRootDevice();
+		ret["device"]["major"] = major;
+		ret["device"]["minor"] = minor;
+
+		if( major == rootmajor && minor == rootminor)
+		{
+			mountpoints.emplace_back("/");
+		}
+
 		if(mountpoints.size() > 0)
 		{
+			mountpoints.unique();
 			for( const auto& mp : mountpoints)
 			{
 				ret["mountpoint"].append(mp);
