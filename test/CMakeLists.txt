@@ -17,6 +17,7 @@ set( testapp_src
 	TestNotification.cpp
 	TestRaspbianNetworkConfig.cpp
 	TestResolverConfig.cpp
+	TestServiceHelper.cpp
 	TestSmtpClient.cpp
 	TestSysInfo.cpp
 	TestSysConfig.cpp

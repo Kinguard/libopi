@@ -1,10 +1,18 @@
 
 #include <cstdlib>
 #include <string>
+#include <map>
 
 #include <libutils/FileUtils.h>
 #include <libutils/Process.h>
 #include <libutils/String.h>
+
+/*
+ *
+ * TODO: Refactor and use d-bus api?
+ *
+ */
+
 
 using namespace std;
 using namespace Utils;
@@ -85,6 +93,31 @@ pid_t GetPid(const string& service)
 	}
 
 	return pid;
+}
+
+bool IsAvailable(const string &service)
+{
+	static const map<string, string> servicemap =
+	{
+		{"ssh", "openssh-server"},
+		{"dovecot", "dovecot-imapd"}
+	};
+
+	bool result = false;
+	string pkg;
+
+	if( servicemap.find(service) != servicemap.end() )
+	{
+		pkg = servicemap.at(service);
+	}
+	else
+	{
+		pkg = service;
+	}
+
+	tie(result, std::ignore) = Process::Exec("/usr/bin/dpkg-query -l " + pkg + " > /dev/null 2>&1 ");
+
+	return result;
 }
 
 } // End NS

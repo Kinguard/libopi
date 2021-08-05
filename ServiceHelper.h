@@ -23,6 +23,8 @@ bool IsRunning(const std::string& service);
 
 bool IsEnabled(const std::string& service);
 
+bool IsAvailable(const std::string& service);
+
 pid_t GetPid(const std::string& service);
 
 } // End NS
