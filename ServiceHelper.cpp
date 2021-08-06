@@ -1,10 +1,18 @@
 
 #include <cstdlib>
 #include <string>
+#include <map>
 
 #include <libutils/FileUtils.h>
 #include <libutils/Process.h>
 #include <libutils/String.h>
+
+/*
+ *
+ * TODO: Refactor and use d-bus api?
+ *
+ */
+
 
 using namespace std;
 using namespace Utils;
@@ -12,41 +20,67 @@ using namespace Utils;
 namespace OPI {
 namespace ServiceHelper {
 
-bool Start(const string& service)
+static bool sysop(const string& operation, const string& service)
 {
-	bool result;
+	bool result = false;
 
-	tie(result, std::ignore) = Process::Exec("/bin/systemctl -q start " + service + " &> /dev/null");
+	tie(result, std::ignore) = Process::Exec("/bin/systemctl -q " + operation +" "+ service + " &> /dev/null");
 
 	return result;
+}
+
+bool Start(const string& service)
+{
+	return sysop("start", service);
 }
 
 bool Stop(const string& service)
 {
-	bool result;
+	return sysop("stop", service);
+}
 
-	tie(result, std::ignore) = Process::Exec("/bin/systemctl -q stop " + service + " &> /dev/null");
+bool Enable(const string& service)
+{
+	return sysop("enable", service);
+}
 
-	return result;
+bool Disable(const string& service)
+{
+	return sysop("disable", service);
 }
 
 bool Reload(const string &service)
 {
-	bool result;
+	return sysop("reload", service);
+}
 
-	tie(result, std::ignore) = Process::Exec("/bin/systemctl -q reload " + service + " &> /dev/null");
+bool Restart(const string &service)
+{
+	return sysop("restart", service);
+}
 
-	return result;
+bool IsRunning(const string &service)
+{
+	return sysop("is-active", service);
+}
+
+bool IsEnabled(const string &service)
+{
+	return sysop("is-enabled", service);
 }
 
 /* TODO: is this used? Concider refactor to use systemctl show and parse output or remove */
-
 pid_t GetPid(const string& service)
 {
 	string pidfile;
 	pid_t pid=0;
 
-	pidfile="/var/run/"+service+".pid";
+	pidfile="/run/"+service+".pid";
+
+	if( ! File::FileExists( pidfile ) )
+	{
+		pidfile="/var/run/"+service+".pid";
+	}
 
 	if( File::FileExists( pidfile ) )
 	{
@@ -54,19 +88,34 @@ pid_t GetPid(const string& service)
 
 		if(File::DirExists("/proc/"+s_pid))
 		{
-			pid=atoi(s_pid.c_str());
+			pid = std::stoi(s_pid);
 		}
 	}
 
 	return pid;
 }
 
-
-bool IsRunning(const string &service)
+bool IsAvailable(const string &service)
 {
-	bool result;
+	static const map<string, string> servicemap =
+	{
+		{"ssh", "openssh-server"},
+		{"dovecot", "dovecot-imapd"}
+	};
 
-	tie(result, std::ignore) = Process::Exec("/bin/systemctl -q is-active " + service);
+	bool result = false;
+	string pkg;
+
+	if( servicemap.find(service) != servicemap.end() )
+	{
+		pkg = servicemap.at(service);
+	}
+	else
+	{
+		pkg = service;
+	}
+
+	tie(result, std::ignore) = Process::Exec("/usr/bin/dpkg-query -l " + pkg + " > /dev/null 2>&1 ");
 
 	return result;
 }
