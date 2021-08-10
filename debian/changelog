@@ -1,3 +1,120 @@
+libopi (1.6.60~test32) vili; urgency=medium
+
+  * Add ServiceHelper::IsAvailable to indicate service installed 
+
+ -- Tor Krill <tor@openproducts.se>  Thu, 05 Aug 2021 15:48:45 +0200
+
+libopi (1.6.60~test31) vili; urgency=medium
+
+  * Update servicehelper with Enable/Disable, Restart and IsEnabled
+
+ -- Tor Krill <tor@openproducts.se>  Thu, 05 Aug 2021 13:39:22 +0200
+
+libopi (1.6.60~test30) vili; urgency=medium
+
+  * Detect root mount via device numbers to resolve mounts with /dev/root
+
+ -- Tor Krill <tor@openproducts.se>  Wed, 04 Aug 2021 17:02:01 +0200
+
+libopi (1.6.60~test29) vili; urgency=medium
+
+  * Rebuild
+
+ -- Tor Krill <tor@openproducts.se>  Wed, 04 Aug 2021 09:26:30 +0200
+
+libopi (1.6.60~test28) vili; urgency=medium
+
+  * Add destprefix to restore backup
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 11 Jun 2021 13:50:54 +0200
+
+libopi (1.6.60~test27) vili; urgency=medium
+
+  * Add isKeep and isOP to sysinfo
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 04 Jun 2021 11:57:35 +0200
+
+libopi (1.6.60~test26) vili; urgency=medium
+
+  * Remove deprecation of SysInfo::fixedStorage, still needed
+
+ -- Tor Krill <tor@openproducts.se>  Tue, 11 May 2021 15:33:58 +0200
+
+libopi (1.6.60~test25) vili; urgency=medium
+
+  * Add StatFS to DiskHelper
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 10 May 2021 17:10:12 +0200
+
+libopi (1.6.60~test24) vili; urgency=medium
+
+  * Rework sysconfig to use default gw device as network device if
+    nothing else noted.
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 07 May 2021 11:52:38 +0200
+
+libopi (1.6.60~test23) vili; urgency=medium
+
+  * Add new GetDefaultDevice, device connected to def gw, to network config.
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 07 May 2021 11:16:03 +0200
+
+libopi (1.6.60~test22) vili; urgency=medium
+
+  * Use MountPoints when retrieving mounts
+
+ -- Tor Krill <tor@openproducts.se>  Thu, 29 Apr 2021 08:43:18 +0200
+
+libopi (1.6.60~test21) vili; urgency=medium
+
+  * Add DiskHelper::MountPoints
+
+ -- Tor Krill <tor@openproducts.se>  Thu, 29 Apr 2021 08:06:46 +0200
+
+libopi (1.6.60~test20) vili; urgency=medium
+
+  * Updated DiskHelper::PartitionName to handle /disk/by-xxx paths
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 26 Apr 2021 10:51:14 +0200
+
+libopi (1.6.60~test19) vili; urgency=medium
+
+  * Add PartitionName to DiskHelper that guesses partition names
+
+ -- Tor Krill <tor@openproducts.se>  Thu, 22 Apr 2021 09:00:25 +0200
+
+libopi (1.6.60~test18) vili; urgency=medium
+
+  * Add devpath-by-path attribute to diskhelper
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 19 Apr 2021 16:23:57 +0200
+
+libopi (1.6.60~test17) vili; urgency=medium
+
+  * Add device mapper detection to diskhelper
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 19 Apr 2021 14:04:41 +0200
+
+libopi (1.6.60~test16) vili; urgency=medium
+
+  * Fix typo in StorageDevice
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 16 Apr 2021 11:13:01 +0200
+
+libopi (1.6.60~test15) vili; urgency=medium
+
+  * Refactor DiskHelper::StorageDevice*
+  * Add partition and mount point information
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 16 Apr 2021 09:42:48 +0200
+
+libopi (1.6.60~test14) vili; urgency=medium
+
+  * Move HTTP status codes to libutils
+  * Misc cleanups and modernizaions
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 09 Apr 2021 11:24:17 +0200
+
 libopi (1.6.60~test13) vili; urgency=medium
 
    * Update deps on libutils

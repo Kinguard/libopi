@@ -59,14 +59,39 @@ bool Restart(const string &service)
 	return sysop("restart", service);
 }
 
+
 bool IsRunning(const string &service)
 {
-	return sysop("is-active", service);
+	bool result = false;
+	string rets;
+
+	tie(result, rets) = Process::Exec("/bin/systemctl is-active "+ service + " 2> /dev/null");
+
+	rets = Utils::String::Chomp(rets);
+
+	if( result && rets == "active")
+	{
+		return true;
+	}
+
+	return false;
 }
 
 bool IsEnabled(const string &service)
 {
-	return sysop("is-enabled", service);
+	bool result = false;
+	string rets;
+
+	tie(result, rets) = Process::Exec("/bin/systemctl is-enabled "+ service + " 2> /dev/null");
+
+	rets = Utils::String::Chomp(rets);
+
+	if( result && rets == "enabled")
+	{
+		return true;
+	}
+
+	return false;
 }
 
 /* TODO: is this used? Concider refactor to use systemctl show and parse output or remove */
