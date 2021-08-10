@@ -140,7 +140,7 @@ bool IsAvailable(const string &service)
 		pkg = service;
 	}
 
-	tie(result, std::ignore) = Process::Exec("/usr/bin/dpkg-query -l " + pkg + " > /dev/null 2>&1 ");
+	tie(result, std::ignore) = Process::Exec("/usr/bin/dpkg-query -s " + pkg + " > /dev/null 2>&1 ");
 
 	return result;
 }
