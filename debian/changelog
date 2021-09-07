@@ -1,3 +1,21 @@
+libopi (1.6.60) vili; urgency=medium
+
+  * Buster release
+
+ -- Tor Krill <tor@openproducts.se>  Tue, 07 Sep 2021 09:42:07 +0200
+
+libopi (1.6.60~test34) vili; urgency=medium
+
+  * ServiceHelper::IsAvailable check status instead of list
+
+ -- Tor Krill <tor@openproducts.se>  Tue, 10 Aug 2021 16:07:49 +0200
+
+libopi (1.6.60~test33) vili; urgency=medium
+
+  * Parse return text in ServiceHelper IsEnabled and IsRunning
+
+ -- Tor Krill <tor@openproducts.se>  Tue, 10 Aug 2021 14:48:18 +0200
+
 libopi (1.6.60~test32) vili; urgency=medium
 
   * Add ServiceHelper::IsAvailable to indicate service installed 
