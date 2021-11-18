@@ -1,3 +1,9 @@
+libopi (1.6.61~test3) vigrid; urgency=medium
+
+  * Fix pkgconfig, remove dep on jsoncpp
+
+ -- Tor Krill <tor@openproducts.se>  Thu, 18 Nov 2021 10:29:34 +0100
+
 libopi (1.6.61~test2) vigrid; urgency=medium
 
   * Use nlohmans json library
