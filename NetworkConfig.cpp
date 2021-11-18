@@ -122,12 +122,12 @@ DebianNetworkConfig::DebianNetworkConfig(string path): NetworkConfig(), path(std
 
 void DebianNetworkConfig::SetDHCP(const string &iface)
 {
-	if( ! this->cfg.isMember( iface ) )
+	if( ! this->cfg.contains( iface ) )
 	{
 		logg << Logger::Error << "Interface "<< iface<< " not found" << lend;
 		throw std::runtime_error("Interface not found");
 	}
-	Json::Value v;
+	json v;
 	v["addressing"]="dhcp";
 	v["auto"]=true;
 
@@ -137,20 +137,20 @@ void DebianNetworkConfig::SetDHCP(const string &iface)
 
 void DebianNetworkConfig::SetStatic(const string &iface, const string &ip, const string &nm, const string &gw, const list<string> &dnss)
 {
-	if( ! this->cfg.isMember( iface ) )
+	if( ! this->cfg.contains( iface ) )
 	{
 		logg << Logger::Error << "Interface "<< iface<< " not found" << lend;
 		throw std::runtime_error("Interface not found");
 	}
-	Json::Value v;
+	json v;
 	v["addressing"]="static";
 	v["auto"]=true;
-	v["options"]["address"].append(ip);
-	v["options"]["netmask"].append(nm);
+	v["options"]["address"].push_back(ip);
+	v["options"]["netmask"].push_back(nm);
 	v["options"]["dns"] = JsonHelper::ToJsonArray(dnss);
 	if( gw != "" )
 	{
-		v["options"]["gateway"].append(gw);
+		v["options"]["gateway"].push_back(gw);
 	}
 
 	this->cfg[iface] = v;
@@ -160,37 +160,34 @@ void DebianNetworkConfig::SetStatic(const string &iface, const string &ip, const
 
 void DebianNetworkConfig::Dump()
 {
-	cout << this->cfg.toStyledString()<<endl;
+	cout << this->cfg.dump(4)<<endl;
 }
 
 void DebianNetworkConfig::WriteConfig()
 {
 	stringstream ss;
 
-	Json::Value::Members mems = this->cfg.getMemberNames();
-
-	for( const auto& iface: mems)
+	for( const auto& iface: this->cfg.items() )
 	{
-		Json::Value ifc = this->cfg[iface];
-		if( ifc["auto"].asBool() )
+		json ifc = iface.value(); //this->cfg[iface.key()];
+		if( ifc.contains("auto") && ifc["auto"].get<bool>() )
 		{
-			ss << "auto " << iface<<endl;
+			ss << "auto " << iface.key()<<endl;
 		}
-		ss << "iface " << iface << " inet "<< ifc["addressing"].asString()<<endl;
+		ss << "iface " << iface.key() << " inet "<< ifc["addressing"].get<string>()<<endl;
 
-		Json::Value::Members opts = ifc["options"].getMemberNames();
-		for( const auto& opt: opts )
+		for( const auto& opt: ifc["options"].items() )
 		{
 			// Cludge, dont write dns-option to config
-			if( opt == "dns")
+			if( opt.key() == "dns")
 			{
 				continue;
 			}
 
-			ss << "\t"<<opt;
-			for( const auto& optval: ifc["options"][opt])
+			ss << "\t"<<opt.key();
+			for( const auto& optval: ifc["options"][opt.key()])
 			{
-				ss << " " << optval.asString();
+				ss << " " << optval.get<string>();
 			}
 			ss << endl;
 		}
@@ -275,7 +272,7 @@ void DebianNetworkConfig::parse()
 				words.pop_front();
 				for( const auto& option: words)
 				{
-					this->cfg[cif]["options"][key].append(option);
+					this->cfg[cif]["options"][key].push_back(option);
 				}
 			}
 		}
@@ -364,9 +361,6 @@ void ResolverConfig::Dump()
 		cout << "Nameserver: "<<x<<endl;
 	}
 }
-
-
-
 
 void ResolverConfig::parse()
 {
@@ -513,19 +507,19 @@ RaspbianNetworkConfig::RaspbianNetworkConfig(string path): NetworkConfig(), path
 
 void RaspbianNetworkConfig::SetDHCP(const string &iface)
 {
-	if( ! this->cfg.isMember(iface) || !this->cfg[iface].isObject() )
+	if( ! this->cfg.contains(iface) || !this->cfg[iface].is_object() )
 	{
 		logg << Logger::Error << "Interface "<< iface<< " not found" << lend;
 		throw std::runtime_error(string("Unknown interface ")+iface);
 	}
 
-	if( this->cfg[iface]["addressing"].asString() == "static" )
+	if( this->cfg[iface]["addressing"] == "static" )
 	{
 		this->cfg[iface]["addressing"]="dhcp";
 
-		if( this->cfg[iface].isMember("options") )
+		if( this->cfg[iface].contains("options") )
 		{
-			this->cfg[iface].removeMember("options");
+			this->cfg[iface].erase("options");
 		}
 	}
 }
@@ -535,28 +529,28 @@ void RaspbianNetworkConfig::SetStatic(const string &iface, const string &ip,
 									  const list<string>& dnss)
 {
 
-	if( ! this->cfg.isMember(iface) || !this->cfg[iface].isObject() )
+	if( ! this->cfg.contains(iface) || !this->cfg[iface].is_object() )
 	{
 		logg << Logger::Error << "Interface "<< iface<< " not found" << lend;
 		throw std::runtime_error(string("Unknown interface ")+iface);
 	}
-	string adr = this->cfg[iface]["addressing"].asString();
+	string adr = this->cfg[iface]["addressing"].get<string>();
 	if( adr == "dhcp" || adr =="static" )
 	{
 		this->cfg[iface]["addressing"]="static";
 
-		if( this->cfg[iface].isMember("options") )
+		if( this->cfg[iface].contains("options") )
 		{
-			this->cfg[iface].removeMember("options");
+			this->cfg[iface].erase("options");
 		}
 
-		this->cfg[iface]["options"]["address"].append(ip);
-		this->cfg[iface]["options"]["netmask"].append(nm);
-		this->cfg[iface]["options"]["gateway"].append(gw);
+		this->cfg[iface]["options"]["address"].push_back(ip);
+		this->cfg[iface]["options"]["netmask"].push_back(nm);
+		this->cfg[iface]["options"]["gateway"].push_back(gw);
 
 		for(const auto& dns: dnss)
 		{
-			this->cfg[iface]["options"]["dns"].append(dns);
+			this->cfg[iface]["options"]["dns"].push_back(dns);
 		}
 
 	}
@@ -565,9 +559,9 @@ void RaspbianNetworkConfig::SetStatic(const string &iface, const string &ip,
 
 void RaspbianNetworkConfig::WriteStaticEntry(stringstream &ss, const string &member)
 {
-	Json::Value item = this->cfg[member];
+	json item = this->cfg[member];
 
-	if( !item.isMember("options") || !item["options"].isObject() )
+	if( !item.contains("options") || !item["options"].is_object() )
 	{
 		logg << Logger::Error << "Malformed network entry in dhcpcd config" << lend;
 		throw std::runtime_error("Malformed network entry in dhcpcd config");
@@ -576,44 +570,43 @@ void RaspbianNetworkConfig::WriteStaticEntry(stringstream &ss, const string &mem
 	ss << "\n# Static configuration for " << member <<"\n";
 	ss << "interface "<<member<<"\n";
 
-	Json::Value::Members mems = item["options"].getMemberNames();
-	for( const auto& mem: mems)
+	for( const auto& mem: item["options"].items())
 	{
 
-		if( mem == "netmask" )
+		if( mem.key() == "netmask" )
 		{
 			// Processed with address
 			continue;
 		}
-		else if( mem == "address" )
+		else if( mem.key() == "address" )
 		{
-			if( ! item["options"].isMember("netmask") )
+			if( ! item["options"].contains("netmask") )
 			{
 				logg << Logger::Error << "Missing netmask in network configuration" << lend;
 				throw std::runtime_error("Missing netmask in network configuration");
 			}
-			IPv4Network addr(item["options"]["address"][0].asString());
-			IPv4Network nm(item["options"]["netmask"][0].asString());
+			IPv4Network addr(item["options"]["address"][0].get<string>());
+			IPv4Network nm(item["options"]["netmask"][0].get<string>());
 			ss << "static ip_address=" << addr.asString() << "/" << std::to_string(nm.asNetwork())<<"\n";
 		}
-		else if( mem == "gateway")
+		else if( mem.key() == "gateway")
 		{
 			bool first = true;
 			ss << "static routers=";
 			for( const auto& router: item["options"]["gateway"])
 			{
-				ss << (first?"":" ") << router.asString();
+				ss << (first?"":" ") << router.get<string>();
 				first=false;
 			}
 			ss << "\n";
 		}
-		else if( mem == "dns")
+		else if( mem.key() == "dns")
 		{
 			bool first = true;
 			ss << "static domain_name_servers=";
 			for( const auto& dns: item["options"]["dns"])
 			{
-				ss << (first?"":" ") << dns.asString();
+				ss << (first?"":" ") << dns.get<string>();
 				first = false;
 			}
 			ss << "\n";
@@ -621,7 +614,7 @@ void RaspbianNetworkConfig::WriteStaticEntry(stringstream &ss, const string &mem
 		else
 		{
 			// Unknown parameter just copy back
-			ss << "static " << mem << "="<< item["options"][mem][0].asString()  <<"\n";
+			ss << "static " << mem.key() << "="<< item["options"][item.get<string>()][0].get<string>()  <<"\n";
 		}
 	}
 
@@ -636,30 +629,31 @@ void RaspbianNetworkConfig::WriteConfig()
 	   << "# Any structure and all comments will be lost upon update\n\n";
 
 	// Start with all "unknown" options
-	if( this->cfg.isMember("other") && this->cfg["other"].isArray() )
+	if( this->cfg.contains("other") && this->cfg["other"].is_array() )
 	{
 		for( const auto& line: cfg["other"])
 		{
-			ss << line.asString() << "\n";
+			ss << line << "\n";
 		}
 	}
 
-	Json::Value::Members mems = this->cfg.getMemberNames();
-	for( const auto& mem: mems)
+	//json::Members mems = this->cfg.getMemberNames();
+	for( const auto& item: this->cfg.items())
 	{
-		if( mem == "other" )
+		if( item.key() == "other" )
 		{
 			// Skip already processed section
 			continue;
 		}
 
-		if( this->cfg[mem]["addressing"].asString() != "static" )
+		//if( this->cfg[mem.get<string>()]["addressing"].get<string>() != "static" )
+		if( item.value()["addressing"].get<string>() != "static" )
 		{
 			// Skip all none static mappings
 			continue;
 		}
 
-		this->WriteStaticEntry(ss, mem);
+		this->WriteStaticEntry(ss, item.key());
 	}
 
 	File::Write(this->path, ss.str(), File::UserRW | File::GroupRead | File::OtherRead);
@@ -682,7 +676,7 @@ bool RaspbianNetworkConfig::RestartInterface(const string &interface)
 
 void RaspbianNetworkConfig::Dump()
 {
-	cout << this->cfg.toStyledString()<<endl;
+	cout << this->cfg.dump(4)<<endl;
 }
 
 
@@ -697,10 +691,10 @@ void RaspbianNetworkConfig::ProcessOption(const string &iface, const string &key
 		list<string> addr = String::Split(value,"/",2);
 		if( addr.size() == 2 )
 		{
-			this->cfg[iface]["options"]["address"].append(addr.front());
+			this->cfg[iface]["options"]["address"].push_back(addr.front());
 
 			IPv4Network net(std::stoi(addr.back()));
-			this->cfg[iface]["options"]["netmask"].append( net.asString() );
+			this->cfg[iface]["options"]["netmask"].push_back( net.asString() );
 		}
 		else
 		{
@@ -709,20 +703,20 @@ void RaspbianNetworkConfig::ProcessOption(const string &iface, const string &key
 	}
 	else if( key == "routers" )
 	{
-		this->cfg[iface]["options"]["gateway"].append(value);
+		this->cfg[iface]["options"]["gateway"].push_back(value);
 	}
 	else if( key == "domain_name_servers")
 	{
-		this->cfg[iface]["options"]["dns"]= Json::arrayValue;
+		this->cfg[iface]["options"]["dns"]= json::array();
 		list<string> dnss = String::Split(value, " ");
 		for( const auto& dns: dnss)
 		{
-			this->cfg[iface]["options"]["dns"].append(dns);
+			this->cfg[iface]["options"]["dns"].push_back(dns);
 		}
 	}
 	else
 	{
-		this->cfg[iface]["options"][key].append( value );
+		this->cfg[iface]["options"][key].push_back( value );
 	}
 
 }
@@ -734,7 +728,7 @@ void RaspbianNetworkConfig::Parse()
 		logg << Logger::Error << "Config file "<< this->path << " not found" << lend;
 		throw std::runtime_error(string("Config file not found: ")+this->path);
 	}
-	this->cfg["other"]=Json::Value(Json::arrayValue);
+	this->cfg["other"]=json::array();
 	try {
 		list<string> lines = File::GetContent(this->path);
 
@@ -761,7 +755,7 @@ void RaspbianNetworkConfig::Parse()
 			}
 			else
 			{
-				this->cfg["other"].append(line);
+				this->cfg["other"].push_back(line);
 			}
 		}
 
@@ -787,7 +781,7 @@ NetworkConfig::NetworkConfig()
 
 	for(const auto& iface: ifs)
 	{
-		this->cfg[iface] = Json::Value();
+		this->cfg[iface] = json();
 		if( iface == "lo" )
 		{
 			this->cfg[iface]["addressing"]="loopback";
@@ -802,9 +796,9 @@ NetworkConfig::NetworkConfig()
 
 }
 
-Json::Value NetworkConfig::GetInterface(const string &iface)
+json NetworkConfig::GetInterface(const string &iface)
 {
-	if( ! this->cfg.isMember( iface ) )
+	if( ! this->cfg.contains( iface ) )
 	{
 		logg << Logger::Error << "Interface " << iface << " not found" << lend;
 		throw std::runtime_error("Interface not found");
@@ -813,7 +807,7 @@ Json::Value NetworkConfig::GetInterface(const string &iface)
 
 }
 
-Json::Value NetworkConfig::GetInterfaces()
+json NetworkConfig::GetInterfaces()
 {
 	return this->cfg;
 }

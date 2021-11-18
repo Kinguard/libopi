@@ -23,39 +23,43 @@ tuple<int, string> AuthServer::GetChallenge()
 	map<string,string> arg = {{ "unit_id", this->unit_id }};
 
 	string s_res = this->DoGet("auth.php", arg);
-
-	Json::Value res;
-	if( this->reader.parse(s_res, res) )
+	json res;
+	try
 	{
-		if( res.isMember("challange") && res["challange"].isString() )
+		json res = json::parse(s_res);
+		if( res.contains("challange") && res["challange"].is_string() )
 		{
-			ret = res["challange"].asString();
+			ret = res["challange"];
 		}
+
+	} catch (json::parse_error& err)
+	{
+		//Todo, log errpr
+		(void) err;
 	}
+
 	return tuple<int,string>(this->result_code,ret);
 }
 
-tuple<int, Json::Value> AuthServer::SendSignedChallenge(const string &challenge)
+tuple<int, json> AuthServer::SendSignedChallenge(const string &challenge)
 {
-	Json::Value data;
+	json data;
 	data["unit_id"] = this->unit_id;
 	data["signature"] = challenge;
 
 	map<string,string> postargs = {
-		{"data", this->writer.write(data) }
+		{"data", data.dump() }
 	};
 
-	Json::Value retobj = Json::objectValue;
 	string body = this->DoPost("auth.php", postargs);
+	json retobj = json::parse(body);
 
-    this->reader.parse(body, retobj);
-
-	return tuple<int,Json::Value>(this->result_code, retobj );
+	return tuple<int,json>(this->result_code, retobj );
 }
 
-tuple<int, Json::Value> AuthServer::Login(bool usetempkeys)
+tuple<int, json> AuthServer::Login(bool usetempkeys)
 {
-	Json::Value ret;
+	json ret;
 	CryptoHelper::RSAWrapperPtr c;
 
 	try
@@ -73,13 +77,13 @@ tuple<int, Json::Value> AuthServer::Login(bool usetempkeys)
 	catch (std::runtime_error& err)
 	{
 		ret["desc"]=string("Failed to retrieve keys: ")+err.what();
-		return tuple<int, Json::Value>(Status::ServiceUnavailable, ret);
+		return tuple<int, json>(Status::ServiceUnavailable, ret);
 	}
 
 	if( ! c )
 	{
 		ret["desc"]="Failed to get retrieve keys";
-		return tuple<int, Json::Value>(Status::ServiceUnavailable, ret);
+		return tuple<int, json>(Status::ServiceUnavailable, ret);
 	}
 
 	string challenge;
@@ -90,12 +94,12 @@ tuple<int, Json::Value> AuthServer::Login(bool usetempkeys)
 	{
 		ret["desc"] = "Unknown reply from server";
 		ret["value"] = resultcode;
-		return tuple<int, Json::Value>(Status::InternalServerError, ret);
+		return tuple<int, json>(Status::InternalServerError, ret);
 	}
 
 	string signedchallenge = CryptoHelper::Base64Encode( c->SignMessage( challenge ) );
 
-	Json::Value rep;
+	json rep;
 	tie(resultcode, rep) = this->SendSignedChallenge( signedchallenge );
 
 	if( resultcode != Status::Ok )
@@ -103,43 +107,49 @@ tuple<int, Json::Value> AuthServer::Login(bool usetempkeys)
 		ret["desc"] = "Unexpected reply from server";
 		ret["value"] = resultcode;
 		ret["reply"] = rep;
-		return tuple<int, Json::Value>(resultcode, ret);
+		return tuple<int, json>(resultcode, ret);
 	}
 
-	if( rep.isMember("token") && rep["token"].isString() )
+	if( rep.contains("token") && rep["token"].is_string() )
 	{
-		ret["token"] = rep["token"].asString();
-		return tuple<int, Json::Value>(Status::Ok, ret);
+		ret["token"] = rep["token"];
+		return tuple<int, json>(Status::Ok, ret);
 	}
 
 	ret["desc"] = "Malformed reply from server";
-	return tuple<int, Json::Value>(Status::InternalServerError, ret);
+	return tuple<int, json>(Status::InternalServerError, ret);
 }
 
-tuple<int, Json::Value> AuthServer::SendSecret(const string &secret, const string &pubkey)
+tuple<int, json> AuthServer::SendSecret(const string &secret, const string &pubkey)
 {
-	Json::Value data;
+	json data;
 	data["unit_id"] = this->unit_id;
 	data["response"] = secret;
 	data["PublicKey"] = pubkey;
 
 	map<string,string> postargs = {
-		{"data", this->writer.write(data) }
+		{"data", data.dump() }
 	};
 
 	string body = this->DoPost("register_public.php", postargs);
 
-	Json::Value retobj = Json::objectValue;
-	if( ! this->reader.parse(body, retobj) )
+	json retobj;
+	try
 	{
-		retobj = Json::objectValue;
+		retobj = json::parse(body);
+	}
+	catch (json::parse_error& err)
+	{
+		(void) err;
+		//TODO: log error
+		retobj = json::value_t::object;
 		retobj["error"]=body;
 	}
 
-	return tuple<int,Json::Value>(this->result_code, retobj );
+	return tuple<int,json>(this->result_code, retobj );
 }
 
-tuple<int, Json::Value> AuthServer::GetCertificate(const string &csr, const string &token)
+tuple<int, json> AuthServer::GetCertificate(const string &csr, const string &token)
 {
 	map<string,string> postargs = {
 		{"unit_id", this->unit_id },
@@ -152,15 +162,22 @@ tuple<int, Json::Value> AuthServer::GetCertificate(const string &csr, const stri
 
 	this->CurlSetHeaders(headers);
 
-	Json::Value retobj = Json::objectValue;
+	json retobj;
 	string body = this->DoPost("get_cert.php", postargs);
+	try
+	{
+		retobj = json::parse(body);
+	}
+	catch (json::parse_error& err)
+	{
+		(void)err;
+		//TODO: log error
+	}
 
-	this->reader.parse(body, retobj);
-
-	return tuple<int,Json::Value>(this->result_code, retobj );
+	return tuple<int,json>(this->result_code, retobj );
 }
 
-tuple<int, Json::Value> AuthServer::UpdateMXPointer(bool useopi, const string &token)
+tuple<int, json> AuthServer::UpdateMXPointer(bool useopi, const string &token)
 {
 	map<string,string> postargs = {
 		{"unit_id", this->unit_id },
@@ -173,15 +190,23 @@ tuple<int, Json::Value> AuthServer::UpdateMXPointer(bool useopi, const string &t
 
 	this->CurlSetHeaders(headers);
 
-	Json::Value retobj = Json::objectValue;
+	json retobj;
 	string body = this->DoPost("update_mx.php", postargs);
 
-	this->reader.parse(body, retobj);
+	try
+	{
+		retobj = json::parse(body);
+	}
+	catch (json::parse_error& err)
+	{
+		(void) err;
+		//TODO: log error
+	}
 
-	return tuple<int,Json::Value>(this->result_code, retobj );
+	return tuple<int,json>(this->result_code, retobj );
 }
 
-tuple<int, Json::Value> AuthServer::CheckMXPointer(const string &name)
+tuple<int, json> AuthServer::CheckMXPointer(const string &name)
 {
 	map<string,string> postargs = {
 		{"fqdn", name },
@@ -189,12 +214,21 @@ tuple<int, Json::Value> AuthServer::CheckMXPointer(const string &name)
 		{"type", "MX" }
 	};
 
-	Json::Value retobj = Json::objectValue;
+	json retobj;
 	string body = this->DoPost("update_mx.php", postargs);
 
-	this->reader.parse(body, retobj);
+	try
+	{
+		retobj = json::parse(body);
+	}
+	catch (json::parse_error& err)
+	{
+		(void) err;
+		//TODO: log error
 
-	return tuple<int,Json::Value>(this->result_code, retobj );
+	}
+
+	return tuple<int,json>(this->result_code, retobj );
 }
 
 void AuthServer::Setup()

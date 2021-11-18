@@ -3,7 +3,7 @@
 
 #include <libutils/Socket.h>
 #include <libutils/ClassTools.h>
-#include <json/json.h>
+#include <nlohmann/json.hpp>
 
 #include <string>
 #include <list>
@@ -11,6 +11,8 @@
 
 using namespace std;
 using namespace Utils::Net;
+
+using json = nlohmann::json;
 
 namespace OPI
 {
@@ -96,15 +98,15 @@ public:
 	virtual ~Secop();
 
 protected:
-	Json::Value DoCall(Json::Value& cmd);
+	json DoCall(json& cmd);
 
-	bool CheckReply( const Json::Value& val );
+	bool CheckReply( const json& val );
 
 	int tid;
 private:
 	UnixStreamClientSocket secop;
-	Json::FastWriter writer;
-	Json::Reader reader;
+	//Json::FastWriter writer;
+	//Json::Reader reader;
 };
 
 typedef shared_ptr<Secop> SecopPtr;

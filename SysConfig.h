@@ -22,9 +22,10 @@
 
 #include <list>
 #include <string>
-#include <json/json.h>
+#include <nlohmann/json.hpp>
 
 using namespace std;
+using json = nlohmann::json;
 
 namespace OPI {
 
@@ -63,17 +64,17 @@ private:
 
 	// Convenience function
 	// Open, Load and close file, for get operations
-	Json::Value LoadDB();
+	json LoadDB();
 
-	Json::Value GetKey(const Json::Value& db, const string& scope, const string& key);
+	json GetKey(const json& db, const string& scope, const string& key);
 
 	bool DBExists();
-	bool HasScope(const Json::Value& val, const string& scope);
-	bool HasKey(const Json::Value& val, const string& scope, const string& key);
+	bool HasScope(const json& val, const string& scope);
+	bool HasKey(const json& val, const string& scope, const string& key);
 	void OpenDB();
 	void CloseDB();
-	Json::Value ReadDB();
-	void WriteDB(const Json::Value& db);
+	json ReadDB();
+	void WriteDB(const json& db);
 
 	string path;
 	int fd;

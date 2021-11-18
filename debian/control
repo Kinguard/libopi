@@ -7,11 +7,11 @@ Build-Depends: debhelper (>= 8.0.0), cmake, pkg-config,
 	libcrypto++-dev,
 	libcppunit-dev,
 	libutils-dev (>= 1.5.22),
-	libjsoncpp-dev,
 	libssl-dev,
 	libcryptsetup-dev,
 	libparted-dev,
-	libudev-dev
+	libudev-dev,
+	nlohmann-json3-dev
 Standards-Version: 3.9.4
 Section: libs
 
@@ -22,9 +22,9 @@ Depends: libopi1 (= ${binary:Version}),
 	libparted-dev,
 	libcurl4-openssl-dev,
 	libcrypto++-dev,
-	libjsoncpp-dev,
 	libcryptsetup-dev,
-	libssl-dev
+	libssl-dev,
+	nlohmann-json3-dev
 Description: OPI support functions development files
   This is the development version of this library
 

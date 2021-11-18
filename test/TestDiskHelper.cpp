@@ -161,19 +161,19 @@ void TestDiskHelper::TestPartitionName()
 
 void TestDiskHelper::TestFilesystemInfo()
 {
-	Json::Value v = OPI::DiskHelper::StatFs("/");
+	json v = OPI::DiskHelper::StatFs("/");
 //	cout << v.toStyledString() << endl;
 
 	CPPUNIT_ASSERT_NO_THROW( v = OPI::DiskHelper::StatFs("/") );
-	CPPUNIT_ASSERT( v.isMember("block_size") );
-	CPPUNIT_ASSERT( v.isMember("fragment_size") );
-	CPPUNIT_ASSERT( v.isMember("blocks_total") );
-	CPPUNIT_ASSERT( v.isMember("blocks_free") );
+	CPPUNIT_ASSERT( v.contains("block_size") );
+	CPPUNIT_ASSERT( v.contains("fragment_size") );
+	CPPUNIT_ASSERT( v.contains("blocks_total") );
+	CPPUNIT_ASSERT( v.contains("blocks_free") );
 
-	CPPUNIT_ASSERT( v["block_size"].asUInt() > 0 );
-	CPPUNIT_ASSERT( v["fragment_size"].asUInt() > 0 );
-	CPPUNIT_ASSERT( v["blocks_total"].asUInt64() > 0 );
-	CPPUNIT_ASSERT( v["blocks_free"].asUInt64() > 0 );
+	CPPUNIT_ASSERT( v["block_size"].get<uint>() > 0 );
+	CPPUNIT_ASSERT( v["fragment_size"].get<uint>() > 0 );
+	CPPUNIT_ASSERT( v["blocks_total"].get<uint64_t>() > 0 );
+	CPPUNIT_ASSERT( v["blocks_free"].get<uint64_t>() > 0 );
 
 	CPPUNIT_ASSERT_THROW(OPI::DiskHelper::StatFs("DUMMYVALUE"), Utils::ErrnoException);
 }

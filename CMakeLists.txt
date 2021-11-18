@@ -10,10 +10,10 @@ pkg_check_modules ( LIBPARTED REQUIRED libparted>=2.3 )
 pkg_check_modules ( LIBCURL REQUIRED libcurl )
 pkg_check_modules ( LIBCRYPTO++ REQUIRED libcrypto++>=5.6.1 )
 pkg_check_modules ( CPPUNIT REQUIRED cppunit>=1.12.1)
-pkg_check_modules ( LIBJSONCPP REQUIRED jsoncpp>=1.0 )
 pkg_check_modules ( LIBSSL REQUIRED libssl )
 pkg_check_modules ( BLKID REQUIRED blkid>=2.20.0 )
 
+find_package(nlohmann_json 3.2.0 REQUIRED)
 
 set (VERSION_MAJOR 1)
 set (VERSION_MINOR 6)
@@ -35,7 +35,6 @@ configure_file(
 
 include_directories(
 	"${PROJECT_BINARY_DIR}"
-	"${LIBJSONCPP_INCLUDE_DIRS}"
 	"${BLKID_INCLUDE_DIRS}"
 	)
 
@@ -90,13 +89,12 @@ set( src
 	ExtCert.cpp
 	)
 
-add_definitions( -Wall )
+add_definitions( -Wall -Werror )
 
 add_library( ${PROJECT_NAME}_static STATIC ${src} )
 add_library( ${PROJECT_NAME} SHARED ${src} )
 
 target_link_libraries(  ${PROJECT_NAME}
-	-ljsoncpp
 	${LIBSSL_LDFLAGS}
 	${LIBJSONCPP_LDFLAGS}
 	${LIBUTILS_LDFLAGS}

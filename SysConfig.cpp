@@ -64,13 +64,13 @@ bool SysConfig::IsWriteable()
 
 string SysConfig::GetKeyAsString(const string &scope, const string &key)
 {
-	Json::Value db = this->LoadDB();
+	json db = this->LoadDB();
 
-	Json::Value val = this->GetKey( db, scope, key );
+	json val = this->GetKey( db, scope, key );
 
-	if( val.isString() )
+	if( val.is_string() )
 	{
-		 return val.asString();
+		 return val;
 	}
 
 	logg << Logger::Error << "Key " << key << " not of wanted type" << lend;
@@ -79,18 +79,18 @@ string SysConfig::GetKeyAsString(const string &scope, const string &key)
 
 list<string> SysConfig::GetKeyAsStringList(const string &scope, const string &key)
 {
-	Json::Value db = this->LoadDB();
+	json db = this->LoadDB();
 
-	Json::Value val = this->GetKey( db, scope, key );
+	json val = this->GetKey( db, scope, key );
 
-	if( val.isArray() )
+	if( val.is_array() )
 	{
 		list<string> ret;
-		for( Json::ArrayIndex i = 0; i < val.size(); i++ )
+		for( const auto& item: val)
 		{
-			if( val[i].isString() )
+			if( item.is_string() )
 			{
-				ret.push_back(val[i].asString() );
+				ret.push_back(item);
 			}
 			else
 			{
@@ -107,13 +107,13 @@ list<string> SysConfig::GetKeyAsStringList(const string &scope, const string &ke
 
 int SysConfig::GetKeyAsInt(const string &scope, const string &key)
 {
-	Json::Value db = this->LoadDB();
+	json db = this->LoadDB();
 
-	Json::Value val = this->GetKey( db, scope, key );
+	json val = this->GetKey( db, scope, key );
 
-	if( val.isIntegral() )
+	if( val.is_number_integer() )
 	{
-		 return val.asInt();
+		 return val;
 	}
 
 	logg << Logger::Error << "Key " << key << " not of wanted type" << lend;
@@ -123,18 +123,18 @@ int SysConfig::GetKeyAsInt(const string &scope, const string &key)
 
 list<int> SysConfig::GetKeyAsIntList(const string &scope, const string &key)
 {
-	Json::Value db = this->LoadDB();
+	json db = this->LoadDB();
 
-	Json::Value val = this->GetKey( db, scope, key );
+	json val = this->GetKey( db, scope, key );
 
-	if( val.isArray() )
+	if( val.is_array() )
 	{
 		list<int> ret;
-		for( Json::ArrayIndex i = 0; i < val.size(); i++ )
+		for( const auto& item: val )
 		{
-			if( val[i].isInt() )
+			if( item.is_number_integer())
 			{
-				ret.push_back(val[i].asInt() );
+				ret.push_back(item);
 			}
 			else
 			{
@@ -151,13 +151,13 @@ list<int> SysConfig::GetKeyAsIntList(const string &scope, const string &key)
 
 bool SysConfig::GetKeyAsBool(const string &scope, const string &key)
 {
-	Json::Value db = this->LoadDB();
+	json db = this->LoadDB();
 
-	Json::Value val = this->GetKey( db, scope, key );
+	json val = this->GetKey( db, scope, key );
 
-	if( val.isBool() )
+	if( val.is_boolean() )
 	{
-		 return val.asBool();
+		 return val;
 	}
 
 	logg << Logger::Error << "Key " << key << " not of wanted type" << lend;
@@ -167,18 +167,18 @@ bool SysConfig::GetKeyAsBool(const string &scope, const string &key)
 
 list<bool> SysConfig::GetKeyAsBoolList(const string &scope, const string &key)
 {
-	Json::Value db = this->LoadDB();
+	json db = this->LoadDB();
 
-	Json::Value val = this->GetKey( db, scope, key );
+	json val = this->GetKey( db, scope, key );
 
-	if( val.isArray() )
+	if( val.is_array() )
 	{
 		list<bool> ret;
-		for( Json::ArrayIndex i = 0; i < val.size(); i++ )
+		for(const auto& item: val)
 		{
-			if( val[i].isBool() )
+			if( item.is_boolean() )
 			{
-				ret.push_back(val[i].asBool() );
+				ret.push_back(item);
 			}
 			else
 			{
@@ -203,7 +203,7 @@ void SysConfig::PutKey(const string &scope, const string &key, const string &val
 {
 	this->OpenDB();
 
-	Json::Value db = this->ReadDB();
+	json db = this->ReadDB();
 
 	db[scope][key]=value;
 
@@ -216,13 +216,13 @@ void SysConfig::PutKey(const string &scope, const string &key, const list<string
 {
 	this->OpenDB();
 
-	Json::Value db = this->ReadDB();
+	json db = this->ReadDB();
 
-	Json::Value l(Json::arrayValue);
+	json l;
 
 	for(const auto& val: value)
 	{
-		l.append(val);
+		l.push_back(val);
 	}
 
 	db[scope][key] = l;
@@ -236,7 +236,7 @@ void SysConfig::PutKey(const string &scope, const string &key, int value)
 {
 	this->OpenDB();
 
-	Json::Value db = this->ReadDB();
+	json db = this->ReadDB();
 
 	db[scope][key]=value;
 
@@ -249,13 +249,13 @@ void SysConfig::PutKey(const string &scope, const string &key, const list<int> &
 {
 	this->OpenDB();
 
-	Json::Value db = this->ReadDB();
+	json db = this->ReadDB();
 
-	Json::Value l(Json::arrayValue);
+	json l;
 
 	for(const auto& val: value)
 	{
-		l.append(val);
+		l.push_back(val);
 	}
 
 	db[scope][key] = l;
@@ -269,7 +269,7 @@ void SysConfig::PutKey(const string &scope, const string &key, bool value)
 {
 	this->OpenDB();
 
-	Json::Value db = this->ReadDB();
+	json db = this->ReadDB();
 
 	db[scope][key]=value;
 
@@ -282,13 +282,13 @@ void SysConfig::PutKey(const string &scope, const string &key, const list<bool> 
 {
 	this->OpenDB();
 
-	Json::Value db = this->ReadDB();
+	json db = this->ReadDB();
 
-	Json::Value l(Json::arrayValue);
+	json l;
 
 	for(const auto& val: value)
 	{
-		l.append(val);
+		l.push_back(val);
 	}
 
 	db[scope][key] = l;
@@ -302,14 +302,14 @@ void SysConfig::RemoveKey(const string &scope, const string &key)
 {
 	this->OpenDB();
 
-	Json::Value db = this->ReadDB();
+	json db = this->ReadDB();
 
 	if( this->HasKey( db, scope, key ) )
 	{
-		db[scope].removeMember(key);
+		db[scope].erase(key);
 		if(db[scope].empty() )
 		{
-			db.removeMember(scope);
+			db.erase(scope);
 		}
 
 	}
@@ -319,7 +319,7 @@ void SysConfig::RemoveKey(const string &scope, const string &key)
 
 bool SysConfig::HasKey(const string &scope, const string &key)
 {
-	Json::Value db = this->LoadDB();
+	json db = this->LoadDB();
 
 	bool res = this->HasKey( db, scope, key);
 
@@ -330,7 +330,7 @@ bool SysConfig::HasKey(const string &scope, const string &key)
 
 bool SysConfig::HasScope(const string &scope)
 {
-	Json::Value db = this->LoadDB();
+	json db = this->LoadDB();
 
 	bool res = this->HasScope( db, scope );
 
@@ -344,19 +344,19 @@ SysConfig::~SysConfig()
 	this->CloseDB();
 }
 
-Json::Value SysConfig::LoadDB()
+json SysConfig::LoadDB()
 {
 
 	this->OpenDB();
 
-	Json::Value val = this->ReadDB();
+	json val = this->ReadDB();
 
 	this->CloseDB();
 
 	return val;
 }
 
-Json::Value SysConfig::GetKey(const Json::Value &db, const string &scope, const string &key)
+json SysConfig::GetKey(const json &db, const string &scope, const string &key)
 {
 	if( this->HasKey(db, scope, key)  )
 	{
@@ -374,14 +374,14 @@ bool SysConfig::DBExists()
 	return File::FileExists( SYSCONFIGDBPATH );
 }
 
-bool SysConfig::HasScope(const Json::Value &val, const string &scope)
+bool SysConfig::HasScope(const json &val, const string &scope)
 {
-	return val.isMember( scope ) && val[scope].isObject();
+	return val.contains( scope ) && val[scope].is_object();
 }
 
-bool SysConfig::HasKey(const Json::Value &val, const string &scope, const string &key)
+bool SysConfig::HasKey(const json &val, const string &scope, const string &key)
 {
-	return this->HasScope(val, scope) && val[scope].isMember(key);
+	return this->HasScope(val, scope) && val[scope].contains(key);
 }
 
 void SysConfig::OpenDB()
@@ -418,9 +418,9 @@ void SysConfig::CloseDB()
 	}
 }
 
-Json::Value SysConfig::ReadDB()
+json SysConfig::ReadDB()
 {
-	Json::Value val;
+	json val;
 	struct stat st = {};
 
 	if(fstat(this->fd,&st))
@@ -456,17 +456,19 @@ Json::Value SysConfig::ReadDB()
 
 	}while( bytes_read>0);
 
-	Json::Reader reader;
-
-	if( ! reader.parse(&data.front(), &data.back(), val, false) )
+	try
 	{
-		logg << Logger::Error << "Failed to parse sysconfig datbaase"<<lend;
+		val = json::parse(string(&data.front(), data.size()) );
+	}
+	catch (json::parse_error& err)
+	{
+		logg << Logger::Error << "Failed to parse sysconfig datbaase: " << err.what() <<lend;
 	}
 
 	return val;
 }
 
-void SysConfig::WriteDB(const Json::Value &db)
+void SysConfig::WriteDB(const json &db)
 {
 	if( ! this->writeable )
 	{
@@ -484,8 +486,7 @@ void SysConfig::WriteDB(const Json::Value &db)
 		throw ErrnoException("ConfigDB: failed to truncate db-file before write");
 	}
 
-	Json::StyledWriter writer;
-	string out = writer.write( db );
+	string out = db.dump(4);
 
 	__gnu_cxx::stdio_filebuf<char> fb(this->fd,std::ios_base::out);
 	iostream of(&fb);

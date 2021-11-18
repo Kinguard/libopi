@@ -1,7 +1,7 @@
 #ifndef JSONHELPER_H
 #define JSONHELPER_H
 
-#include <json/json.h>
+#include <nlohmann/json.hpp>
 
 #include <map>
 #include <list>
@@ -10,7 +10,7 @@
 #include <functional>
 
 using namespace std;
-
+using json = nlohmann::json;
 namespace OPI {
 
 namespace JsonHelper {
@@ -36,7 +36,7 @@ public:
 
 	TypeChecker(const vector<Check>& checks, ErrCallback err = nullptr, void *data = nullptr);
 
-	bool Verify(int what, const Json::Value& val);
+	bool Verify(int what, const json& val);
 
 	virtual ~TypeChecker();
 private:
@@ -46,13 +46,13 @@ private:
 };
 
 
-list<string> FromJsonArray(const Json::Value& jsonlist);
+list<string> FromJsonArray(const json& jsonlist);
 
-Json::Value ToJsonArray(const list<string>& list);
+json ToJsonArray(const list<string>& list);
 
-map<string,string> FromJsonObject(const Json::Value& jsonobj);
+map<string,string> FromJsonObject(const json& jsonobj);
 
-Json::Value ToJsonObject(const map<string,string>& objmap);
+json ToJsonObject(const map<string,string>& objmap);
 
 } // End namespace JsonHelper
 
