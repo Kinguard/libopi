@@ -146,7 +146,7 @@ public:
 private:
 	string path;
 	list<string> dnslist;
-
+	json fileglobals;
 	void parse();
 };
 

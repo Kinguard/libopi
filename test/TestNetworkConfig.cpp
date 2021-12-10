@@ -43,19 +43,48 @@ void TestNetworkConfig::setUp()
 			  "iface lo inet loopback\n"<< endl;
 		of.close();
 	}
+
+	{
+		ofstream of(IFFILE ".3");
+		of << R"STR(
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface
+allow-hotplug enp0s3
+iface enp0s3 inet dhcp
+)STR";
+		of.close();
+
+	}
+
+
 }
 
 void TestNetworkConfig::tearDown()
 {
 	if( unlink(IFFILE ".1") != 0)
 	{
-		cerr << "Failed to erase file"<<endl;
+		cerr << "Failed to erase file 1"<<endl;
 	}
 
 	if( unlink(IFFILE ".2") != 0)
 	{
-		cerr << "Failed to erase file"<<endl;
+		cerr << "Failed to erase file 2"<<endl;
 	}
+
+	if( unlink(IFFILE ".3") != 0)
+	{
+		cerr << "Failed to erase file 3"<<endl;
+	}
+
+
 }
 
 static void dumpfile(const string& file)
@@ -70,6 +99,7 @@ void TestNetworkConfig::Test()
 
 	CPPUNIT_ASSERT_NO_THROW( DebianNetworkConfig(IFFILE ".1") );
 	CPPUNIT_ASSERT_NO_THROW( DebianNetworkConfig(IFFILE ".2") );
+	CPPUNIT_ASSERT_NO_THROW( DebianNetworkConfig(IFFILE ".3") );
 
 	{
 		DebianNetworkConfig nc(IFFILE ".1");
@@ -102,6 +132,15 @@ void TestNetworkConfig::Test()
 		nc.WriteConfig();
 		dumpfile(IFFILE".2");
 	}
+
+	{
+		DebianNetworkConfig nc(IFFILE ".3");
+		//nc.Dump();
+		nc.WriteConfig();
+		dumpfile(IFFILE".3");
+	}
+
+
 }
 
 void TestNetworkConfig::TestReload()

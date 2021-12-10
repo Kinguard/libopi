@@ -167,6 +167,19 @@ void DebianNetworkConfig::WriteConfig()
 {
 	stringstream ss;
 
+	// Start with any initial globals
+	if( this->fileglobals.contains("initial") )
+	{
+		for(const auto& line: this->fileglobals["initial"])
+		{
+			if( line.is_string() )
+			{
+				ss << line.get<string>() << "\n";
+			}
+		}
+		ss <<"\n";
+	}
+
 	for( const auto& iface: this->cfg.items() )
 	{
 		json ifc = iface.value(); //this->cfg[iface.key()];
@@ -174,6 +187,12 @@ void DebianNetworkConfig::WriteConfig()
 		{
 			ss << "auto " << iface.key()<<endl;
 		}
+
+		if( ifc.contains("allow-hotplug") && ifc["allow-hotplug"].get<bool>() )
+		{
+			ss << "allow-hotplug " << iface.key()<<endl;
+		}
+
 		ss << "iface " << iface.key() << " inet "<< ifc["addressing"].get<string>()<<endl;
 
 		for( const auto& opt: ifc["options"].items() )
@@ -236,6 +255,7 @@ void DebianNetworkConfig::parse()
 
 	list<string> lines = File::GetContent( this->path );
 	list<string> autoifs;
+	list<string> hotplug;
 
 	string cif; // Current interface;
 	for( string line: lines)
@@ -249,18 +269,28 @@ void DebianNetworkConfig::parse()
 		list<string> words = String::Split(line, " ");
 		if( words.size() > 1 )
 		{
-			if( words.front() == "auto")
+			if( words.front() == "source" )
+			{
+				this->fileglobals["initial"].push_back(line);
+			}
+			else if( words.front() == "auto")
 			{
 				words.pop_front();
 				autoifs.insert(autoifs.end(), words.begin(), words.end() );
+			}
+			else if( words.front() == "allow-hotplug" )
+			{
+				words.pop_front();
+				hotplug.insert(hotplug.end(), words.begin(), words.end() );
 			}
 			else if( words.front() == "iface" )
 			{
 				words.pop_front();
 				cif = words.front();
 				this->cfg[cif]["addressing"] = words.back();
-				// Asume no auto for the time being
+				// Asume no auto nor hotplug for the time being
 				this->cfg[cif]["auto"]=false;
+				this->cfg[cif]["allow-hotplug"]=false;
 
 				// Cludge to get dns-servers to UI, add to all ifaces
 				this->cfg[cif]["options"]["dns"] = JsonHelper::ToJsonArray(this->dnslist);
@@ -282,6 +312,12 @@ void DebianNetworkConfig::parse()
 	for( const auto& ifs: autoifs)
 	{
 		this->cfg[ifs]["auto"]=true;
+	}
+
+	// Add hotplug on ifs using it
+	for( const auto& hotifs: hotplug)
+	{
+		this->cfg[hotifs]["allow-hotplug"]=true;
 	}
 
 }

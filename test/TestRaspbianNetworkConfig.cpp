@@ -126,11 +126,11 @@ void TestRaspbianNetworkConfig::TestReload()
 	if( true )
 	{
 		RaspbianNetworkConfig nc(IFFILE_COPY);
-		nc.Dump();
+		//nc.Dump();
 		json ifs = nc.GetInterfaces();
 		CPPUNIT_ASSERT_EQUAL(string("static"), ifs["enp0s31f6"]["addressing"].get<string>() );
 		nc.SetDHCP("enp0s31f6");
-		nc.Dump();
+		//nc.Dump();
 		nc.WriteConfig();
 	}
 
