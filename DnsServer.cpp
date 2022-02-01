@@ -71,6 +71,7 @@ bool DnsServer::RegisterPublicKey(const string &unit_id, const string &key, cons
 	catch (json::parse_error& err)
 	{
 		logg << Logger::Error << "Failed to parse response: " << err.what() << lend;
+		logg << Logger::Debug << "Reply was: " << body << lend;
 		parseok = false;
 	}
 
