@@ -3,13 +3,14 @@
 #include <libutils/Process.h>
 #include <libutils/String.h>
 
-#include <json/json.h>
+#include <nlohmann/json.hpp>
 
 #include <algorithm>
 #include <sstream>
 #include <utility>
 
 using namespace Utils;
+using json = nlohmann::json;
 
 namespace OPI
 {
@@ -38,23 +39,27 @@ list<PhysicalVolumePtr> LVM::ListPhysicalVolumes()
 		throw std::runtime_error("LVM: Failed to retrieve pvs");
 	}
 
-	Json::Reader r;
-	Json::Value v;
-	if( !r.parse( ret, v) )
+	json v;
+	try
 	{
-		throw std::runtime_error("LVM: Failed to parse reply when retrieving pvs");
+		v = json::parse(ret);
+	}
+	catch (json::parse_error& err)
+	{
+
+		throw std::runtime_error("LVM: Failed to parse reply when retrieving pvs"s+err.what());
 	}
 
-	if( ! v["report"][0]["pv"].isArray() )
+	if( ! v["report"][0]["pv"].is_array() )
 	{
 		throw std::runtime_error("LVM: Unable to retrieve pvs from reply");
 	}
 
-	Json::Value pvs = v["report"][0]["pv"];
+	json pvs = v["report"][0]["pv"];
 	for (size_t i=0; i < pvs.size(); i++)
 	{
-		Json::Value p = pvs[static_cast<int>(i)];
-		PhysicalVolumePtr pv(new PhysicalVolume(p["pv_name"].asString(), p["vg_name"].asString()));
+		json p = pvs[static_cast<int>(i)];
+		PhysicalVolumePtr pv(new PhysicalVolume(p["pv_name"].get<string>(), p["vg_name"].get<string>()));
 		res.push_back(pv);
 	}
 
@@ -112,23 +117,26 @@ list<VolumeGroupPtr> LVM::ListVolumeGroups()
 	}
 
 
-	Json::Reader r;
-	Json::Value v;
-	if( !r.parse( ret, v) )
+	json v;
+	try
 	{
-		throw std::runtime_error("LVM: Failed to parse reply when retrieving vgs");
+		v = json::parse(ret);
+	}
+	catch (json::parse_error& err)
+	{
+		throw std::runtime_error("LVM: Failed to parse reply when retrieving vgs: "s+err.what());
 	}
 
-	if( ! v["report"][0]["vg"].isArray() )
+	if( ! v["report"][0]["vg"].is_array() )
 	{
 		throw std::runtime_error("LVM: Unable to retrieve vgs from reply");
 	}
 
-	Json::Value vgs = v["report"][0]["vg"];
+	json vgs = v["report"][0]["vg"];
 	for (size_t i=0; i < vgs.size(); i++)
 	{
-		Json::Value v = vgs[static_cast<int>(i)];
-		VolumeGroupPtr pv(new VolumeGroup(v["vg_name"].asString(), this));
+		json v = vgs[static_cast<int>(i)];
+		VolumeGroupPtr pv(new VolumeGroup(v["vg_name"].get<string>(), this));
 		res.push_back(pv);
 	}
 
@@ -299,25 +307,28 @@ list<LogicalVolumePtr> VolumeGroup::GetLogicalVolumes()
 		throw std::runtime_error("LVM: Failed to retrieve lvs");
 	}
 
-	Json::Reader r;
-	Json::Value v;
-	if( !r.parse( ret, v) )
+	json v;
+	try
 	{
-		throw std::runtime_error("LVM: Failed to parse reply when retrieving lvs");
+		v = json::parse(ret);
+	}
+	catch (json::parse_error& err)
+	{
+		throw std::runtime_error("LVM: Failed to parse reply when retrieving lvs: "s+err.what());
 	}
 
-	if( ! v["report"][0]["lv"].isArray() )
+	if( ! v["report"][0]["lv"].is_array() )
 	{
 		throw std::runtime_error("LVM: Unable to retrieve lvs from reply");
 	}
 
-	Json::Value lvs = v["report"][0]["lv"];
+	json lvs = v["report"][0]["lv"];
 	for (size_t i=0; i < lvs.size(); i++)
 	{
-		Json::Value v = lvs[static_cast<int>(i)];
-		if( v["vg_name"].asString() == this->Name() )
+		json v = lvs[static_cast<int>(i)];
+		if( v["vg_name"].get<string>() == this->Name() )
 		{
-			LogicalVolumePtr lv(new LogicalVolume(v["lv_name"].asString(), this));
+			LogicalVolumePtr lv(new LogicalVolume(v["lv_name"].get<string>(), this));
 			res.push_back(lv);
 		}
 	}

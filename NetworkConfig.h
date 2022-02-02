@@ -1,11 +1,13 @@
 #ifndef NETWORKCONFIG_H
 #define NETWORKCONFIG_H
 
-#include <json/json.h>
+#include <nlohmann/json.hpp>
 
 #include <memory>
 #include <string>
 #include <list>
+
+using json = nlohmann::json;
 
 //TODO: This should most likely be refactored to use/interoperate
 // with in_addr in6_addr and utilize inet_pton and inet_ntop
@@ -85,13 +87,13 @@ public:
 
 	NetworkConfig();
 
-	virtual Json::Value GetInterface(const string& iface);
-	virtual Json::Value GetInterfaces();
+	virtual json GetInterface(const string& iface);
+	virtual json GetInterfaces();
 
 // We really dont want to allow this since it most likely
 // will overwrite housekeeping info specific to device.
 #if 0
-	virtual void SetInterface(const string &iface, const Json::Value& v) = 0;
+	virtual void SetInterface(const string &iface, const json& v) = 0;
 #endif
 	virtual void SetDHCP( const string& iface) = 0;
 	virtual void SetStatic(const string& iface,
@@ -106,7 +108,7 @@ public:
 
 	virtual ~NetworkConfig() = default;
 protected:
-	Json::Value cfg;
+	json cfg;
 };
 
 class NullConfig: public NetworkConfig
@@ -144,7 +146,7 @@ public:
 private:
 	string path;
 	list<string> dnslist;
-
+	json fileglobals;
 	void parse();
 };
 

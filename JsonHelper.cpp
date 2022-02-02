@@ -15,9 +15,9 @@ TypeChecker::TypeChecker(const vector<OPI::JsonHelper::TypeChecker::Check> &chec
 }
 
 static inline bool
-CheckArgument(const Json::Value& cmd, const string& member, TypeChecker::Type type)
+CheckArgument(const json& cmd, const string& member, TypeChecker::Type type)
 {
-	if( cmd.isNull() )
+	if( cmd.is_null() )
 	{
 		return false;
 	}
@@ -25,18 +25,18 @@ CheckArgument(const Json::Value& cmd, const string& member, TypeChecker::Type ty
 	switch( type )
 	{
 	case TypeChecker::Type::STRING:
-		return cmd.isMember( member ) && cmd[member].isString();
+		return cmd.contains( member ) && cmd[member].is_string();
 	case TypeChecker::Type::INT:
-		return cmd.isMember( member ) && cmd[member].isInt();
+		return cmd.contains( member ) && cmd[member].is_number_integer();
 	case TypeChecker::Type::BOOL:
-		return cmd.isMember( member ) && cmd[member].isBool();
+		return cmd.contains( member ) && cmd[member].is_boolean();
 	}
 	// Should never get here!
 	return false;
 }
 
 
-bool TypeChecker::Verify(int what, const Json::Value &val)
+bool TypeChecker::Verify(int what, const json &val)
 {
 	for( auto check: this->checks )
 	{
@@ -54,43 +54,43 @@ bool TypeChecker::Verify(int what, const Json::Value &val)
 
 TypeChecker::~TypeChecker() = default;
 
-list<string> FromJsonArray(const Json::Value &jsonlist)
+list<string> FromJsonArray(const json &jsonlist)
 {
 	list<string> ret;
 
 	for(const auto& val: jsonlist)
 	{
-		ret.push_back( val.asString() );
+		ret.push_back( val.get<string>() );
 	}
 
 	return ret;
 }
 
-Json::Value ToJsonArray(const list<string> &list)
+json ToJsonArray(const list<string> &list)
 {
-	Json::Value ret(Json::arrayValue);
+	json ret=json::array();
 	for( const auto& val: list)
 	{
-		ret.append(val);
+		ret.push_back(val);
 	}
 	return ret;
 }
 
-map<string, string> FromJsonObject(const Json::Value &jsonobj)
+map<string, string> FromJsonObject(const json &jsonobj)
 {
 	map<string,string> ret;
 
-	for(const auto& val:jsonobj.getMemberNames())
+	for(const auto& val:jsonobj.items())
 	{
-		ret[val] = jsonobj[val].asString();
+		ret[val.key()] = val.value();
 	}
 
 	return ret;
 }
 
-Json::Value ToJsonObject(const map<string, string> &objmap)
+json ToJsonObject(const map<string, string> &objmap)
 {
-	Json::Value ret(Json::objectValue);
+	json ret;
 
 	for( const auto& val: objmap)
 	{

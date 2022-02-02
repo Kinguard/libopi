@@ -21,13 +21,14 @@
 #ifndef SYSINFO_H
 #define SYSINFO_H
 
-#include <json/json.h>
+#include <nlohmann/json.hpp>
 
 #include <map>
 #include <vector>
 #include <string>
 
 using namespace std;
+using json = nlohmann::json;
 
 namespace OPI
 {
@@ -262,7 +263,7 @@ private:
 	void GuessType();
 	void SetupPaths();
 	void ParseExtConfig();
-	void ParseExtEntry(Json::Value& v);
+	void ParseExtEntry(json& v);
 	int numcpus = 0;
 	SysType type = TypeUndefined;
 	SysArch arch = ArchUndefined;

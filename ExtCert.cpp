@@ -10,39 +10,39 @@ ExtCert::ExtCert() = default;
 
 tuple<int, string> ExtCert::GetExternalCertificates(bool force)
 {
-    string opts,msg;
+	string opts,msg;
 	bool res = false;
 	int retval = 0;
 
-    if (Utils::File::FileExists(this->certhandler))
-    {
-	if (force)
+	if (Utils::File::FileExists(this->certhandler))
 	{
-	    opts = " -cf";
-	}
-	else
-	{
-	    opts = " -c";
-	}
+		if (force)
+		{
+			opts = " -cf";
+		}
+		else
+		{
+			opts = " -c";
+		}
 
-	tie(res, std::ignore) = Utils::Process::Exec(this->certhandler+opts);
-	if ( res )
-	{
-	    retval = 1;
-	    msg = "Failed to generate external certificate(s)";
+		tie(res, std::ignore) = Utils::Process::Exec(this->certhandler+opts);
+		if ( res )
+		{
+			retval = 1;
+			msg = "Failed to generate external certificate(s)";
+		}
+		else
+		{
+			retval = 0;
+			msg = "External certificates generated.";
+		}
 	}
 	else
 	{
-	    retval = 0;
-	    msg = "External certificates generated.";
+		retval = 1;
+		msg = "No External Certhandler available";
 	}
-    }
-    else
-    {
-	retval = 1;
-	msg = "No External Certhandler available";
-    }
-    return tuple<int,string>(retval,msg);
+	return tuple<int,string>(retval,msg);
 }
 
 ExtCert::~ExtCert() = default;

@@ -26,8 +26,6 @@
 #include <iostream>
 #include <algorithm>
 
-#include <json/json.h>
-
 #include <libutils/FileUtils.h>
 #include <libutils/String.h>
 
@@ -373,16 +371,24 @@ void SysInfo::GuessType()
     // Read override config to set type.
     // This must be done prior to setting the defaults in order to have "type" set.
     if( File::FileExists(DEVICEDBPATH) ) {
-        string fil = File::GetContentAsString(DEVICEDBPATH);
-        Json::Value db;
+		string fil = File::GetContentAsString(DEVICEDBPATH);
+		json db;
 
-        if( Json::Reader().parse(fil, db) )
-        {
-            if( db.isMember("override") && db["override"].isObject() )
-            {
-                this->ParseExtEntry( db["override"]);
-            }
-        }
+		try
+		{
+			db = json::parse(fil);
+
+			if( db.contains("override") && db["override"].is_object() )
+			{
+				this->ParseExtEntry( db["override"]);
+			}
+		}
+		catch (json::parse_error& err)
+		{
+			//TODO: Log
+			(void) err;
+		}
+
     }
 
 	// Have we found a match?
@@ -436,14 +442,16 @@ void SysInfo::SetupPaths()
 
 void SysInfo::ParseExtConfig()
 {
-	// Read override config
-	string fil = File::GetContentAsString(DEVICEDBPATH);
-	Json::Value db;
-
-	if( Json::Reader().parse(fil, db) )
+	try
 	{
+		// Read override config
+		string fil = File::GetContentAsString(DEVICEDBPATH);
+		json db;
+
+		db = json::parse(fil);
+
 		// First add any default settings from file
-		if( db.isMember("default") && db["default"].isObject() )
+		if( db.contains("default") && db["default"].is_object() )
 		{
 			this->ParseExtEntry(db["default"]);
 		}
@@ -452,7 +460,7 @@ void SysInfo::ParseExtConfig()
 
 		for(const string& dev: devices )
 		{
-			if( db.isMember(dev) && db[dev].isObject() )
+			if( db.contains(dev) && db[dev].is_object() )
 			{
 				if( this->TypeFromName(dev) == this->Type()  )
 				{
@@ -462,37 +470,42 @@ void SysInfo::ParseExtConfig()
 		}
 
 	}
+	catch( json::parse_error& err)
+	{
+		//TODO: log
+		(void) err;
+	}
 }
 
-void SysInfo::ParseExtEntry(Json::Value &v)
+void SysInfo::ParseExtEntry(json &v)
 {
-	if( v.isMember("storagedevicepath") && v["storagedevicepath"].isString() )
+	if( v.contains("storagedevicepath") && v["storagedevicepath"].is_string() )
 	{
-		this->storagedevicepath = v["storagedevicepath"].asString();
+		this->storagedevicepath = v["storagedevicepath"].get<string>();
 	}
-	if( v.isMember("storagedevice") && v["storagedevice"].isString() )
+	if( v.contains("storagedevice") && v["storagedevice"].is_string() )
 	{
-		this->storagedevice = v["storagedevice"].asString();
+		this->storagedevice = v["storagedevice"].get<string>();
 	}
-	if( v.isMember("storagepartition") && v["storagepartition"].isString() )
+	if( v.contains("storagepartition") && v["storagepartition"].is_string() )
 	{
-		this->storagepartition = v["storagepartition"].asString();
+		this->storagepartition = v["storagepartition"].get<string>();
 	}
-	if( v.isMember("passworddevicepath") && v["passworddevicepath"].isString() )
+	if( v.contains("passworddevicepath") && v["passworddevicepath"].is_string() )
 	{
-		this->passworddevicepath = v["passworddevicepath"].asString();
+		this->passworddevicepath = v["passworddevicepath"].get<string>();
 	}
-	if( v.isMember("networkdevice") && v["networkdevice"].isString() )
+	if( v.contains("networkdevice") && v["networkdevice"].is_string() )
 	{
-		this->networkdevice = v["networkdevice"].asString();
+		this->networkdevice = v["networkdevice"].get<string>();
 	}
-    if( v.isMember("serialnbrdevice") && v["serialnbrdevice"].isString() )
+	if( v.contains("serialnbrdevice") && v["serialnbrdevice"].is_string() )
     {
-        this->serialnbrdevice = v["serialnbrdevice"].asString();
+		this->serialnbrdevice = v["serialnbrdevice"].get<string>();
     }
-    if( v.isMember("type") && v["type"].isString() )
+	if( v.contains("type") && v["type"].is_string() )
     {
-        this->type = this->TypeFromName( v["type"].asString() );
+		this->type = this->TypeFromName( v["type"].get<string>() );
     }
 }
 

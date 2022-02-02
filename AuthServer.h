@@ -5,7 +5,7 @@
 #include <tuple>
 
 #include <curl/curl.h>
-#include <json/json.h>
+#include <nlohmann/json.hpp>
 
 #include "CryptoHelper.h"
 #include "HttpClient.h"
@@ -18,6 +18,8 @@
 //TODO: Refactor in implementation for updating/initializing keys with secret
 
 using namespace std;
+
+using json = nlohmann::json;
 
 namespace OPI
 {
@@ -39,17 +41,17 @@ public:
 
 	tuple<int,string> GetChallenge();
 
-	tuple<int, Json::Value> SendSignedChallenge( const string& challenge);
+	tuple<int, json> SendSignedChallenge( const string& challenge);
 
-	tuple<int, Json::Value> Login(bool usetempkeys=false);
+	tuple<int, json> Login(bool usetempkeys=false);
 
-	tuple<int, Json::Value> SendSecret(const string& secret, const string& pubkey);
+	tuple<int, json> SendSecret(const string& secret, const string& pubkey);
 
-	tuple<int, Json::Value> GetCertificate(const string& csr, const string& token);
+	tuple<int, json> GetCertificate(const string& csr, const string& token);
 
-	tuple<int, Json::Value> UpdateMXPointer(bool useopi, const string& token);
+	tuple<int, json> UpdateMXPointer(bool useopi, const string& token);
 
-	tuple<int, Json::Value> CheckMXPointer(const string& name);
+	tuple<int, json> CheckMXPointer(const string& name);
 
 	/**
 	 * @brief Setup, create keys and register in Secop if needed
@@ -63,9 +65,6 @@ public:
 
 	virtual ~AuthServer();
 private:
-
-	Json::Reader reader;
-	Json::FastWriter writer;
 	string unit_id;
 	struct AuthCFG acfg;
 };

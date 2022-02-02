@@ -4,12 +4,13 @@
 #include "HttpClient.h"
 #include "Config.h"
 
-#include <json/json.h>
+#include <nlohmann/json.hpp>
 
 #include <string>
 #include <tuple>
 
 using namespace std;
+using json = nlohmann::json;
 
 namespace OPI
 {
@@ -19,7 +20,7 @@ class DnsServer : public HttpClient
 public:
 	DnsServer( const string& host = "https://auth.openproducts.com/");
 
-	tuple<int, Json::Value> CheckOPIName( const string& opiname );
+	tuple<int, json> CheckOPIName( const string& opiname );
 
 	bool RegisterPublicKey(const string& unit_id, const string& key, const string& token );
 
@@ -31,12 +32,9 @@ private:
 	bool Auth(const string& unit_id);
 	// Duplicated from authserver, consider refactoring?
 	tuple<int, string> GetChallenge(const string &unit_id);
-	tuple<int, Json::Value> SendSignedChallenge(const string &unit_id, const string &challenge);
+	tuple<int, json> SendSignedChallenge(const string &unit_id, const string &challenge);
 
 	string token;
-	Json::Reader reader;
-	Json::FastWriter writer;
-
 };
 
 }

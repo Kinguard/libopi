@@ -478,9 +478,7 @@ bool SmtpConfig::checkMX(const string& name)
 	OPI::AuthServer auth(this->unit_id);
 
 	int resultcode;
-	Json::Value ret;
-
-	tie(resultcode, ret) = auth.CheckMXPointer(name);
+	tie(resultcode, std::ignore) = auth.CheckMXPointer(name);
 
 	return resultcode == Status::Ok;
 }
@@ -493,7 +491,7 @@ void SmtpConfig::setMX(bool mxmode)
 	}
 
 	int resultcode;
-	Json::Value ret;
+	json ret;
 
 	OPI::AuthServer s( this->unit_id );
 
@@ -503,7 +501,7 @@ void SmtpConfig::setMX(bool mxmode)
 	{
 		throw runtime_error("Unable to authenticate with backend server");
 	}
-	string token = ret["token"].asString();
+	string token = ret["token"];
 
 	tie(resultcode, ret) = s.UpdateMXPointer(mxmode, token);
 	if( resultcode != Status::Ok )

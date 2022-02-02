@@ -362,17 +362,17 @@ static tuple<int,int> getRootDevice()
 	return make_tuple(major,minor);
 }
 
-Json::Value StorageDevices()
+json StorageDevices()
 {
-	Json::Value ret;
+	json ret;
 	list<string> devs = Utils::File::Glob("/sys/class/block/*");
 
 	for( auto& syspath: devs )
 	{
 		string dev = Utils::File::GetFileName(syspath);
 
-		Json::Value disk = StorageDevice(dev, true);
-		if( ! disk.isNull() )
+		json disk = StorageDevice(dev, true);
+		if( ! disk.is_null() )
 		{
 			ret[dev] = disk;
 		}
@@ -382,28 +382,29 @@ Json::Value StorageDevices()
 	return ret;
 }
 
-Json::Value StorageDevice(const string &devname, bool ignorepartition)
+json StorageDevice(const string &devname, bool ignorepartition)
 {
 	constexpr uint32_t BLOCKSIZE = 512;
 	string syspath = "/sys/class/block/"s + devname;
-	Json::Value ret;
+	json ret;
 	try
 	{
 		ret["partition"] = Utils::File::FileExists( syspath +"/partition");
 
-		if( ret["partition"].asBool() && ignorepartition )
+		if( ret["partition"] && ignorepartition )
 		{
-			return Json::nullValue;
+			return json::value_t::null;
 		}
 
-		if( !ret["partition"].asBool() )
+		if( !ret["partition"] )
 		{
-			ret["partitions"] = Json::arrayValue;
+			ret["partitions"] = json::value_t::array;
 			list<string> parts = Utils::File::Glob( syspath+"?*");
+
 			for(const auto& part: parts)
 			{
 				//cout << "Partition: " << Utils::File::GetFileName(part) << endl;
-				ret["partitions"].append(DiskHelper::StorageDevice(Utils::File::GetFileName(part)));
+				ret["partitions"].push_back( DiskHelper::StorageDevice(Utils::File::GetFileName(part)));
 			}
 		}
 
@@ -413,14 +414,14 @@ Json::Value StorageDevice(const string &devname, bool ignorepartition)
 		ret["devpath"] = "/dev/"s + devname;
 		ret["isphysical"] = Utils::File::LinkExists(syspath+"/device");
 
-		if( ret["isphysical"].asBool() )
+		if( ret["isphysical"] )
 		{
 			ret["model"] = getDiskName(syspath);
 			ret["devpath-by-path"] = getIDPath(devname);
 		}
 		else
 		{
-			if( ret["partition"].asBool() )
+			if( ret["partition"] )
 			{
 				ret["model"] = "Partition";
 				ret["devpath-by-path"] = getIDPath(devname);
@@ -434,7 +435,7 @@ Json::Value StorageDevice(const string &devname, bool ignorepartition)
 
 		ret["dm"] = Utils::File::DirExists( syspath +"/dm");
 
-		if( ret["dm"].asBool() )
+		if( ret["dm"] )
 		{
 			string type, path;
 			tie(type, path) = getDMType(devname);
@@ -449,17 +450,17 @@ Json::Value StorageDevice(const string &devname, bool ignorepartition)
 		}
 
 		uint64_t blocks = std::stol(Utils::File::GetContentAsString(syspath+"/size"));
-		ret["blocks"] = Json::UInt64(blocks);
-		ret["size"] = Json::UInt64(blocks * BLOCKSIZE);
+		ret["blocks"] = blocks;
+		ret["size"] = blocks * BLOCKSIZE;
 
-		if( ! ret["partition"].asBool() )
+		if( ! ret["partition"] )
 		{
 			ret["removable"] = std::stoi(Utils::File::GetContentAsString(syspath+"/removable")) > 0;
 		}
 		ret["readonly"] = std::stoi(Utils::File::GetContentAsString(syspath+"/ro")) > 0;
 
-		list<string> mountpoints = DiskHelper::MountPoints(ret["devpath"].asString());
-		ret["mountpoint"]=Json::arrayValue;
+		list<string> mountpoints = DiskHelper::MountPoints(ret["devpath"]);
+		ret["mountpoint"] = json::value_t::array;
 
 		int major = 0;
 		int rootmajor = 0;
@@ -481,7 +482,7 @@ Json::Value StorageDevice(const string &devname, bool ignorepartition)
 			mountpoints.unique();
 			for( const auto& mp : mountpoints)
 			{
-				ret["mountpoint"].append(mp);
+				ret["mountpoint"].push_back(mp);
 			}
 			ret["mounted"] = true;
 		}
@@ -494,7 +495,7 @@ Json::Value StorageDevice(const string &devname, bool ignorepartition)
 	catch (std::exception& err)
 	{
 		cout << "Caught exception: " << err.what() << endl;
-		return Json::nullValue;
+		return json::value_t::null;
 
 	}
 
@@ -560,7 +561,7 @@ string PartitionName(const string &devicename, uint partno)
  *		"blocks_total", filssystem size in fragments
  *		"blocks_free", filesystem free in fragments
  */
-Json::Value StatFs(const string &path)
+json StatFs(const string &path)
 {
 	struct statvfs vf = {};
 
@@ -569,11 +570,11 @@ Json::Value StatFs(const string &path)
 		throw Utils::ErrnoException("Failed to stat filesystem: "s+path);
 	}
 
-	Json::Value ret;
-	ret["block_size"] = Json::UInt(vf.f_bsize);
-	ret["fragment_size"] = Json::UInt(vf.f_frsize);
-	ret["blocks_total"] = Json::UInt64(vf.f_blocks);
-	ret["blocks_free"] = Json::UInt64(vf.f_bavail);
+	json ret;
+	ret["block_size"] = vf.f_bsize;
+	ret["fragment_size"] = vf.f_frsize;
+	ret["blocks_total"] = vf.f_blocks;
+	ret["blocks_free"] = vf.f_bavail;
 
 	return ret;
 }

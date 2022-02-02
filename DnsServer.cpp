@@ -23,7 +23,7 @@ DnsServer::DnsServer(const string &host): HttpClient(host)
 {
 }
 
-tuple<int, Json::Value> DnsServer::CheckOPIName(const string &opiname)
+tuple<int, json> DnsServer::CheckOPIName(const string &opiname)
 {
 	map<string,string> postargs = {
         {"fqdn", opiname},
@@ -32,14 +32,22 @@ tuple<int, Json::Value> DnsServer::CheckOPIName(const string &opiname)
 
 	string body = this->DoPost("update_dns.php", postargs);
 
-	Json::Value retobj = Json::objectValue;
-	this->reader.parse(body, retobj);
+	json retobj;
+	try
+	{
+		retobj = json::parse(body);
+	}
+	catch (json::parse_error& err)
+	{
+		logg << Logger::Error << "Failed to parse response: " << err.what() << lend;
+	}
 
-	return tuple<int,Json::Value>(this->result_code, retobj );
+	return tuple<int,json>(this->result_code, retobj );
 }
 
 bool DnsServer::RegisterPublicKey(const string &unit_id, const string &key, const string &token)
 {
+	bool parseok = true;
 	logg << Logger::Debug << "Register dns public key "<< lend;
 
 	map<string,string> postargs = {
@@ -55,10 +63,19 @@ bool DnsServer::RegisterPublicKey(const string &unit_id, const string &key, cons
 
 	string body = this->DoPost("dns_addkey.php", postargs);
 
-	Json::Value retobj = Json::objectValue;
-	this->reader.parse(body, retobj);
+	json retobj;
+	try
+	{
+		retobj = json::parse(body);
+	}
+	catch (json::parse_error& err)
+	{
+		logg << Logger::Error << "Failed to parse response: " << err.what() << lend;
+		logg << Logger::Debug << "Reply was: " << body << lend;
+		parseok = false;
+	}
 
-	return this->result_code == Status::Ok;
+	return this->result_code == Status::Ok && parseok;
 }
 
 bool DnsServer::UpdateDynDNS(const string &unit_id, const string &name)
@@ -109,11 +126,19 @@ bool DnsServer::UpdateDynDNS(const string &unit_id, const string &name)
 
 
 	string body = this->DoPost("update_dns.php", postargs);
+	bool parseok = true;
+	json retobj;
+	try
+	{
+		retobj = json::parse(body);
+	}
+	catch (json::parse_error& err)
+	{
+		logg << Logger::Error << "Failed to parse response: " << err.what() << lend;
+		parseok = false;
+	}
 
-	Json::Value retobj = Json::objectValue;
-	this->reader.parse(body, retobj);
-
-	return this->result_code == Status::Ok;
+	return this->result_code == Status::Ok && parseok;
 }
 
 DnsServer::~DnsServer()
@@ -150,7 +175,7 @@ bool DnsServer::Auth(const string &unit_id)
 
 		string signedchallenge = Base64Encode( dnskeys.SignMessage( challenge ) );
 
-		Json::Value rep;
+		json rep;
 		tie(resultcode, rep) = this->SendSignedChallenge( unit_id, signedchallenge );
 
 		if( resultcode != Status::Ok && resultcode != Status::Forbidden )
@@ -162,13 +187,13 @@ bool DnsServer::Auth(const string &unit_id)
 		if( resultcode == Status::Forbidden )
 		{
 			logg << Logger::Debug << "Failed to auth with dns"<<lend;
-			logg << "Reply:"<< rep.toStyledString()<<lend;
+			logg << "Reply:"<< rep.dump()<<lend;
 			return false;
 		}
 
-		if( rep.isMember("token") && rep["token"].isString() )
+		if( rep.contains("token") && rep["token"].is_string() )
 		{
-			this->token = rep["token"].asString();
+			this->token = rep["token"];
 		}
 		else
 		{
@@ -192,33 +217,48 @@ tuple<int, string> DnsServer::GetChallenge(const string &unit_id)
 
 	string s_res = this->DoGet("auth.php", arg);
 
-	Json::Value res;
-	if( this->reader.parse(s_res, res) )
+	json res;
+	try
 	{
-		if( res.isMember("challange") && res["challange"].isString() )
-		{
-			ret = res["challange"].asString();
-		}
+		res = json::parse(s_res);
 	}
+	catch (json::parse_error& err)
+	{
+		logg << Logger::Error << "Failed to parse response: " << err.what() << lend;
+
+	}
+
+	if( res.contains("challange") && res["challange"].is_string() )
+	{
+		ret = res["challange"];
+	}
+
 	return tuple<int,string>(this->result_code,ret);
 }
 
-tuple<int, Json::Value> DnsServer::SendSignedChallenge(const string &unit_id, const string &challenge)
+tuple<int, json> DnsServer::SendSignedChallenge(const string &unit_id, const string &challenge)
 {
-	Json::Value data;
+	json data;
 	data["unit_id"] = unit_id;
 	data["dns_signature"] = challenge;
 
 	map<string,string> postargs = {
-		{"data", this->writer.write(data) }
+		{"data", data.dump() }
 	};
 
 	string body = this->DoPost("auth.php", postargs);
 
-	Json::Value retobj = Json::objectValue;
-	this->reader.parse(body, retobj);
+	json retobj;
+	try
+	{
+		retobj = json::parse(body);
+	}
+	catch (json::parse_error& err)
+	{
+		logg << Logger::Error << "Failed to parse response: " << err.what() << lend;
+	}
 
-	return tuple<int,Json::Value>(this->result_code, retobj );
+	return tuple<int,json>(this->result_code, retobj );
 }
 
 } // End NS

@@ -4,9 +4,11 @@
 #include <string>
 #include <list>
 
-#include <json/json.h>
+#include <nlohmann/json.hpp>
 
 using namespace std;
+
+using json = nlohmann::json;
 
 namespace OPI {
 namespace DiskHelper {
@@ -48,13 +50,13 @@ void SyncPaths(const string& src, const string& dst);
  * @param ignorepartition if true return null if this is a partition
  * @return Json object with device information
  */
-Json::Value StorageDevice(const string& devname, bool ignorepartition = false);
+json StorageDevice(const string& devname, bool ignorepartition = false);
 
 /**
  * @brief StorageDevices retrieve all known storage devices on system
  * @return Json array with device information
  */
-Json::Value StorageDevices();
+json StorageDevices();
 
 /**
  * @brief StatFs get storage info on mounted filesystem
@@ -66,7 +68,7 @@ Json::Value StorageDevices();
  *		"blocks_total", filssystem size in fragments
  *		"blocks_free", filesystem free in fragments
  */
-Json::Value StatFs(const string& path);
+json StatFs(const string& path);
 
 } // End NS
 

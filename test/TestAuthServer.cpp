@@ -143,7 +143,7 @@ void TestAuthServer::Login()
 	AuthServer s(TESTUNITID, {"https://auth.openproducts.com/", TMPPUB, TMPPRIV});
 	s.setDefaultCA( OP_CAPATH );
 	int res = 0;
-	Json::Value ret;
+	json ret;
 	CPPUNIT_ASSERT_NO_THROW( tie(res,ret) = s.Login(true));
 	vector<int> vals = {Status::Ok, Status::Forbidden};
 	CPPUNIT_ASSERT( find( vals.begin(), vals.end(), res) != vals.end() );

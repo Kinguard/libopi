@@ -39,7 +39,7 @@ void TestJsonHelper::Test()
 {
 
 	TypeChecker tc(checks);
-	Json::Value v;
+	json v;
 
 	v["c"] = true;
 
@@ -67,7 +67,7 @@ void TestJsonHelper::TestCallback()
 		//cout << "Callback: " << msg << endl;
 	}
 				   );
-	Json::Value v;
+	json v;
 	// Should fail
 	CPPUNIT_ASSERT(!tc.Verify(CHK_A, v));
 	CPPUNIT_ASSERT(called);
@@ -77,7 +77,7 @@ void TestJsonHelper::TestConverters()
 {
 
 	{ // From/To JsonObject
-		Json::Value v;
+		json v;
 		v["a"]="b";
 		v["c"]="d";
 
@@ -86,30 +86,30 @@ void TestJsonHelper::TestConverters()
 		CPPUNIT_ASSERT_EQUAL(string("b"), ret["a"]);
 		CPPUNIT_ASSERT_EQUAL(string("d"), ret["c"]);
 
-		Json::Value b = ToJsonObject(ret);
-		CPPUNIT_ASSERT(b.isMember("a"));
-		CPPUNIT_ASSERT(b.isMember("c"));
-		CPPUNIT_ASSERT_EQUAL(string("b"), b["a"].asString());
-		CPPUNIT_ASSERT_EQUAL(string("d"), b["c"].asString());
+		json b = ToJsonObject(ret);
+		CPPUNIT_ASSERT(b.contains("a"));
+		CPPUNIT_ASSERT(b.contains("c"));
+		CPPUNIT_ASSERT_EQUAL(string("b"), b["a"].get<string>());
+		CPPUNIT_ASSERT_EQUAL(string("d"), b["c"].get<string>());
 
 	}
 
 
 	{ // From/To JsonArray
 
-		Json::Value jarr(Json::arrayValue);
-		jarr.append("A");
-		jarr.append("B");
+		json jarr;
+		jarr.push_back("A");
+		jarr.push_back("B");
 
 		list<string> carr = FromJsonArray(jarr);
 		CPPUNIT_ASSERT_EQUAL(2, (int)carr.size() );
 		CPPUNIT_ASSERT_EQUAL(string("A"), carr.front() );
 		CPPUNIT_ASSERT_EQUAL(string("B"), carr.back() );
 
-		Json::Value fc = ToJsonArray(carr);
+		json fc = ToJsonArray(carr);
 		CPPUNIT_ASSERT_EQUAL(2, (int)fc.size() );
-		CPPUNIT_ASSERT_EQUAL(string("A"), fc[0].asString() );
-		CPPUNIT_ASSERT_EQUAL(string("B"), fc[1].asString() );
+		CPPUNIT_ASSERT_EQUAL(string("A"), fc[0].get<string>() );
+		CPPUNIT_ASSERT_EQUAL(string("B"), fc[1].get<string>() );
 
 	}
 
